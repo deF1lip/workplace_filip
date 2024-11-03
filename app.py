@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Funktion für die Eingabeseite
+# Funktion für die Eingabeseite des Flat-Namens
 def flat_name_input():
     st.title("♻️ Wasteless App - Setup")
 
@@ -11,20 +11,48 @@ def flat_name_input():
     if st.button("Approve Flat Name"):
         if flat_name:
             st.session_state.flat_name = flat_name  # Speichert den Namen in der Session
-            st.success(f"Flat name '{flat_name}' has been set!")
-            st.session_state.page = "welcome"  # Wechselt zur nächsten Seite
+            st.session_state.page = "add_participants"  # Wechselt zur nächsten Seite
             st.experimental_rerun()
         else:
             st.warning("Please enter a flat name.")
 
-# Funktion für die Willkommensseite
-def welcome_page():
-    st.title("Welcome!")
-    if 'flat_name' in st.session_state:
-        st.write(f"### Herzlich willkommen in der WG '{st.session_state.flat_name}'!")
-        st.write("Bitte gebe die weiteren Teilnehmer ein.")
-    else:
-        st.warning("No flat name found. Please go back to the setup page.")
+# Funktion für die Eingabeseite der Teilnehmer
+def add_participants():
+    st.title(f"Welcome to '{st.session_state.flat_name}' WG!")
+    st.write("### Add new flatmates")
+
+    # Initialisiere die Liste der Teilnehmer, falls nicht vorhanden
+    if 'flatmates' not in st.session_state:
+        st.session_state.flatmates = []
+
+    # Eingabefeld für die neue Person
+    new_flatmate = st.text_input("Enter a flatmate's name:")
+
+    # Button zur Bestätigung der neuen Person
+    if st.button("Add Flatmate"):
+        if new_flatmate and new_flatmate not in st.session_state.flatmates:
+            st.session_state.flatmates.append(new_flatmate)
+            st.success(f"{new_flatmate} added!")
+            st.experimental_rerun()
+        elif new_flatmate in st.session_state.flatmates:
+            st.warning(f"{new_flatmate} is already added.")
+        else:
+            st.warning("Please enter a flatmate's name.")
+
+    # Anzeige der aktuellen Liste der Teilnehmer
+    if st.session_state.flatmates:
+        st.write("### Current flatmates:")
+        for index, mate in enumerate(st.session_state.flatmates, start=1):
+            st.write(f"{index}. {mate}")
+
+    # Buttons zum Hinzufügen einer weiteren Person oder zum Weitergehen
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Add another person"):
+            st.experimental_rerun()  # Bleibt auf der Seite, um eine weitere Person hinzuzufügen
+    with col2:
+        if st.button("Continue"):
+            st.write("Proceed to the next step... (implement further functionality here)")
 
 # Steuert die Navigation zwischen den Seiten
 if 'page' not in st.session_state:
@@ -32,8 +60,8 @@ if 'page' not in st.session_state:
 
 if st.session_state.page == "input":
     flat_name_input()
-elif st.session_state.page == "welcome":
-    welcome_page()
+elif st.session_state.page == "add_participants":
+    add_participants()
 
 
 
