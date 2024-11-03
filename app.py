@@ -3,12 +3,12 @@ import streamlit as st
 # Titel der App
 st.title("♻️ Wasteless App - Setup")
 
-# Eingabefeld für den WG-Namen
-wg_name = st.text_input("Enter your WG name:")
+# Eingabefeld für den Flat-Namen
+flat_name = st.text_input("Enter your flat name:")
 
-# Button zur Bestätigung des WG-Namens
-if st.button("Approve WG Name"):
-    if wg_name:
-        st.success(f"WG name '{wg_name}' has been set!")
+# Button zur Bestätigung des Flat-Namens
+if st.button("Approve Flat Name"):
+    if flat_name:
+        st.success(f"Flat name '{flat_name}' has been set!")
     else:
-        st.warning("Please enter a WG name.")
+        st.warning("Please enter a flat name.")
