@@ -25,13 +25,18 @@ def add_participants():
     if 'flatmates' not in st.session_state:
         st.session_state.flatmates = []
 
+    # Initialisiere den Wert des Eingabefelds für die neue Person
+    if 'new_flatmate' not in st.session_state:
+        st.session_state.new_flatmate = ""
+
     # Eingabefeld für die neue Person
-    new_flatmate = st.text_input("Enter a flatmate's name:")
+    new_flatmate = st.text_input("Enter a flatmate's name:", value=st.session_state.new_flatmate, key="flatmate_input")
 
     # Button zur Bestätigung der neuen Person
     if st.button("Add Flatmate"):
         if new_flatmate and new_flatmate not in st.session_state.flatmates:
             st.session_state.flatmates.append(new_flatmate)
+            st.session_state.new_flatmate = ""  # Leert das Eingabefeld nach dem Hinzufügen
             st.success(f"{new_flatmate} added!")
             st.experimental_rerun()
         elif new_flatmate in st.session_state.flatmates:
@@ -45,15 +50,6 @@ def add_participants():
         for index, mate in enumerate(st.session_state.flatmates, start=1):
             st.write(f"{index}. {mate}")
 
-    # Buttons zum Hinzufügen einer weiteren Person oder zum Weitergehen
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Add another person"):
-            st.experimental_rerun()  # Bleibt auf der Seite, um eine weitere Person hinzuzufügen
-    with col2:
-        if st.button("Continue"):
-            st.write("Proceed to the next step... (implement further functionality here)")
-
 # Steuert die Navigation zwischen den Seiten
 if 'page' not in st.session_state:
     st.session_state.page = "input"
@@ -62,6 +58,4 @@ if st.session_state.page == "input":
     flat_name_input()
 elif st.session_state.page == "add_participants":
     add_participants()
-
-
 
