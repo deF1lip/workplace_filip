@@ -23,7 +23,7 @@ def flat_name():
             if new_flatmate and new_flatmate not in st.session_state.flatmates:
                 st.session_state.flatmates.append(new_flatmate)
                 st.success(f"{new_flatmate} added!")
-                st.experimental_rerun()
+              
 
         if st.session_state.flatmates:
             st.write("### Current flatmates:")
@@ -33,7 +33,7 @@ def flat_name():
         # Button zum Beenden des Hinzufügens und zur Weiterleitung zur nächsten Seite
         if st.button("Finish"):
             st.session_state.finished_setup = True
-            st.experimental_rerun()
+            
 
 # Nächste Seite anzeigen, wenn die WG-Daten abgeschlossen sind
 def welcome_page():
