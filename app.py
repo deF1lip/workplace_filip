@@ -14,16 +14,18 @@ def flat_name():
     # Erst wenn WG-Name eingegeben ist, wird die Teilnehmer-Eingabe aktiviert
     if st.session_state.flat_name:
         st.write("### Add flatmates")
-        
+
         if 'flatmates' not in st.session_state:
             st.session_state.flatmates = []
 
-        new_flatmate = st.text_input("Add a flatmate:")
-        if st.button("Add Flatmate"):
+        # Dynamisch generiertes Eingabefeld für jeden neuen Mitbewohner
+        new_flatmate = st.text_input("Add a flatmate:", key=f"flatmate_{len(st.session_state.flatmates)}")
+        if st.button("Add Flatmate", key=f"add_button_{len(st.session_state.flatmates)}"):
             if new_flatmate and new_flatmate not in st.session_state.flatmates:
                 st.session_state.flatmates.append(new_flatmate)
                 st.success(f"{new_flatmate} added!")
-              
+                # Neues Eingabefeld automatisch generieren
+                st.experimental_rerun()
 
         if st.session_state.flatmates:
             st.write("### Current flatmates:")
@@ -33,7 +35,7 @@ def flat_name():
         # Button zum Beenden des Hinzufügens und zur Weiterleitung zur nächsten Seite
         if st.button("Finish"):
             st.session_state.finished_setup = True
-            
+            st.experimental_rerun()
 
 # Nächste Seite anzeigen, wenn die WG-Daten abgeschlossen sind
 def welcome_page():
