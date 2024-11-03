@@ -1,27 +1,39 @@
 import streamlit as st
 
-# Titel der App
-st.title("♻️ Wasteless App - Setup")
+# Funktion für die Eingabeseite
+def flat_name_input():
+    st.title("♻️ Wasteless App - Setup")
 
-# Eingabefeld für den Flat-Namen
-flat_name = st.text_input("Enter your flat name:")
+    # Eingabefeld für den Flat-Namen
+    flat_name = st.text_input("Enter your flat name:")
 
-# Button zur Bestätigung des Flat-Namens
-if st.button("Approve Flat Name"):
-    if flat_name:
-        st.success(f"Flat name '{flat_name}' has been set!")
+    # Button zur Bestätigung des Flat-Namens
+    if st.button("Approve Flat Name"):
+        if flat_name:
+            st.session_state.flat_name = flat_name  # Speichert den Namen in der Session
+            st.success(f"Flat name '{flat_name}' has been set!")
+            st.session_state.page = "welcome"  # Wechselt zur nächsten Seite
+            st.experimental_rerun()
+        else:
+            st.warning("Please enter a flat name.")
+
+# Funktion für die Willkommensseite
+def welcome_page():
+    st.title("Welcome!")
+    if 'flat_name' in st.session_state:
+        st.write(f"### Herzlich willkommen in der WG '{st.session_state.flat_name}'!")
+        st.write("Bitte gebe die weiteren Teilnehmer ein.")
     else:
-        st.warning("Please enter a flat name.")
+        st.warning("No flat name found. Please go back to the setup page.")
 
-# Eingabefeld für das Hinzufügen eines Mitbewohners
-new_flatmate = st.text_input("Enter flatmate name:", key=f"flatmate_{len(st.session_state.flatmates)}")
-if st.button("Add Flatmate"):
-    if new_flatmate and new_flatmate not in st.session_state.flatmates:
-        st.session_state.flatmates.append(new_flatmate)
-        st.success(f"{new_flatmate} added!")
+# Steuert die Navigation zwischen den Seiten
+if 'page' not in st.session_state:
+    st.session_state.page = "input"
 
-# Anzeige der aktuellen Mitbewohner
-if st.session_state.flatmates:
-    st.write("### Current flatmates:")
-    for index, mate in enumerate(st.session_state.flatmates, start=1):
-        st.write(f"{index}. {mate}")
+if st.session_state.page == "input":
+    flat_name_input()
+elif st.session_state.page == "welcome":
+    welcome_page()
+
+
+
