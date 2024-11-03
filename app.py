@@ -3,29 +3,48 @@ import streamlit as st
 # Erste Seite: WG-Daten eingeben
 def flat_name():
     st.title("♻️ Wasteless App - Setup")
-    
+
     # WG Name eingeben
-    flat_name = st.text_input("Enter your flat name:")
-    
-    # Initialisiere eine leere Liste für Mitbewohner
-    if 'flatmates' not in st.session_state:
-        st.session_state.flatmates = []
-    
-    # Eingabefeld für das Hinzufügen von Mitbewohnern
-    new_flatmate = st.text_input("Add a flatmate:")
-    if st.button("Add Flatmate"):
-        if new_flatmate and new_flatmate not in st.session_state.flatmates:
-            st.session_state.flatmates.append(new_flatmate)
-            st.success(f"{new_flatmate} added!")
-            # Leeren des Eingabefelds nach dem Hinzufügen
+    if 'flat_name' not in st.session_state:
+        st.session_state.flat_name = ""
+    flat_name_input = st.text_input("Enter your flat name:", value=st.session_state.flat_name)
+    if flat_name_input:
+        st.session_state.flat_name = flat_name_input
+
+    # Erst wenn WG-Name eingegeben ist, wird die Teilnehmer-Eingabe aktiviert
+    if st.session_state.flat_name:
+        st.write("### Add flatmates")
+        
+        if 'flatmates' not in st.session_state:
+            st.session_state.flatmates = []
+
+        new_flatmate = st.text_input("Add a flatmate:")
+        if st.button("Add Flatmate"):
+            if new_flatmate and new_flatmate not in st.session_state.flatmates:
+                st.session_state.flatmates.append(new_flatmate)
+                st.success(f"{new_flatmate} added!")
+                st.experimental_rerun()
+
+        if st.session_state.flatmates:
+            st.write("### Current flatmates:")
+            for index, mate in enumerate(st.session_state.flatmates, start=1):
+                st.write(f"{index}. {mate}")
+
+        # Button zum Beenden des Hinzufügens und zur Weiterleitung zur nächsten Seite
+        if st.button("Finish"):
+            st.session_state.finished_setup = True
             st.experimental_rerun()
 
-    # Liste der aktuellen Mitbewohner anzeigen
-    if st.session_state.flatmates:
-        st.write("### Current flatmates:")
-        for index, mate in enumerate(st.session_state.flatmates, start=1):
-            st.write(f"{index}. {mate}")
+# Nächste Seite anzeigen, wenn die WG-Daten abgeschlossen sind
+def welcome_page():
+    st.title("Welcome!")
+    st.write(f"### Welcome to {st.session_state.flat_name} WG")
 
-# Aufrufen der Funktion
-flat_name()
+# Streamlit App Logik
+if 'finished_setup' not in st.session_state:
+    st.session_state.finished_setup = False
 
+if not st.session_state.finished_setup:
+    flat_name()
+else:
+    welcome_page()
