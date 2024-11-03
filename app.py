@@ -13,14 +13,19 @@ def flat_name():
     
     # Eingabefeld für das Hinzufügen von Mitbewohnern
     new_flatmate = st.text_input("Add a flatmate:")
-    if st.button("Add"):
+    if st.button("Add Flatmate"):
         if new_flatmate and new_flatmate not in st.session_state.flatmates:
             st.session_state.flatmates.append(new_flatmate)
             st.success(f"{new_flatmate} added!")
+            # Leeren des Eingabefelds nach dem Hinzufügen
+            st.experimental_rerun()
 
     # Liste der aktuellen Mitbewohner anzeigen
     if st.session_state.flatmates:
-        st.write("Current flatmates:")
-        for mate in st.session_state.flatmates:
-            st.write(f"- {mate}")
+        st.write("### Current flatmates:")
+        for index, mate in enumerate(st.session_state.flatmates, start=1):
+            st.write(f"{index}. {mate}")
+
+# Aufrufen der Funktion
+flat_name()
 
