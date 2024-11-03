@@ -10,6 +10,19 @@ def name_sharedflat():
         if st.session_state["SF_name"]:
             st.success(f"Shared flat '{st.session_state['SF_name']}' has been saved.")
 
+# Function to add flatmates
+def add_flatmates():
+    if "flatmates" not in st.session_state:
+        st.session_state["flatmates"] = []
+
+    with st.form(key='flatmate_form'):
+        new_flatmate = st.text_input("Enter the name of a flatmate:", key="flatmate_input")
+        submit_button = st.form_submit_button(label="Add Flatmate")
+
+        if submit_button and new_flatmate:
+            st.session_state["flatmates"].append(new_flatmate)
+            st.success(f"Flatmate '{new_flatmate}' has been added.")
+
 # App layout
 if st.session_state.get("SF_name"):
     st.title(f"Waistless - {st.session_state['SF_name']}")
@@ -19,8 +32,13 @@ else:
 # Initial input of the shared flat name
 name_sharedflat()
 
-# Main content of the app
+# Display input for flatmates after the shared flat name is set
 if st.session_state["SF_name"]:
-    st.write(f"Welcome to the Waistless app for the shared flat '{st.session_state['SF_name']}'!")
+    st.subheader("Add your flatmates")
+    add_flatmates()
+    if st.session_state["flatmates"]:
+        st.write("Current flatmates:")
+        for i, flatmate in enumerate(st.session_state["flatmates"], start=1):
+            st.write(f"{i}. {flatmate}")
 else:
     st.warning("Please enter a shared flat name to continue.")
