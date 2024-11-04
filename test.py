@@ -35,7 +35,7 @@ if not st.session_state["setup_finished"] and st.session_state["flate_name"]:
             if room_mate not in st.session_state["roommates"]:  # Überprüfen, ob der Name nicht schon vorhanden ist
                 st.session_state["roommates"].append(room_mate)  # Speichere den Namen
                 st.success(f"Roommate {room_mate} has been added!")
-                st.session_state["room_mate_input"] = ""  # Eingabefeld leeren
+                st.session_state["room_mate_input"] = " "  # Eingabefeld leeren
             else:
                 st.warning(f"Roommate {room_mate} is already in the list!")
 
