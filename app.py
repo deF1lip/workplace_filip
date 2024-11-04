@@ -106,7 +106,7 @@ def settings_page():
                 flate_name = st.text_input("Please enter your flat name")
                 if st.button("Change Flat Name"):
                     if flate_name:  # Überprüfen, ob ein Name eingegeben wurde
-                    st.session_state["flate_name"] = flate_name  # Speichere den Namen
+                        st.session_state["flate_name"] = flate_name  # Speichere den Namen
         with st.expander("Room mates"):
             room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
             if st.button("Add new roommate"):
