@@ -21,8 +21,11 @@ if st.session_state["flate_name"]:
     st.title(f"Welcome to {st.session_state['flate_name']}!")
     room_mate = st.text_input("Please enter your name", key="room_mate")
     if st.button("Confirm"):
-         if st.button("Add a new roommate"):
-              st.text_input ("Please enter the name of youre roommate")
+        if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
+            st.session_state["room_mate"] = room_mate
+    
+        if st.button("Add a new roommate"):
+            st.text_input ("Please enter the name of youre roommate")
               st.session_state["roommates"].append(room_mate)
 
 
