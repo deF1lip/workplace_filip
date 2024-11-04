@@ -2,7 +2,7 @@ import streamlit as st
 
 
 
-def settings_page():
+
     # Initialisiere Variablen in st.session_state
     if "flate_name" not in st.session_state:
         st.session_state["flate_name"] = ""
@@ -88,4 +88,3 @@ def settings_page():
                     st.success(f"Roommate {roommate_to_remove} has been removed!")
 
 
-settings_page()
