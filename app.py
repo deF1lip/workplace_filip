@@ -1,6 +1,44 @@
 import streamlit as st
 
-def settings_page():
+
+# open first the setting page to define flate-name and inhabitants
+if "pages" not in st.session_state:
+    st.session_state ["page"] = "settings"
+
+# Function to change between the pages
+def change_page(new_page):
+    st.session_state["page"] = new_page
+
+
+# sidebar; titel
+st.sidebar.title("Navigation")
+
+# sidebar: change de side by unsing the buttons
+page_selection = st.sidebar.selectbox("Overview:", ["overview", "Livio", "Flurin"])
+if page_selection != st.session_state["page"]:
+    st.session_state["page"] = page_selection
+if st.sidebar.button("Fridge"):
+    change_page("fridge")
+if st.sidebar.button("Recipes"):
+    change_page("recipes")
+if st.sidebar.button("Settings"):
+    change_page("settings")
+
+# Anzeigelogik für jede Seite
+if st.session_state["page"] == "overview":
+    st.title("overview")
+    st.write('Willkommen auf der Startseite deiner App.')
+    st.write('Hier kannst du allgemeine Informationen anzeigen.')
+elif st.session_state["page"] == "fridge":
+    st.title("fridge")
+    st.write('Dies ist der Inhalt von Seite 1.')
+    st.text_input('Gib deinen Namen ein:', key='name_input_page1')
+    st.button('Bestätigen')
+elif st.session_state["page"] == "recipes":
+    st.title("recipes")
+    st.write('Dies ist der Inhalt von Seite 2.')
+    st.slider('Wähle einen Wert:', 0, 100, 50, key='slider_page2')
+elif st.session_state["page"] == "settings":
     # Initialisiere Variablen in st.session_state
     if "flate_name" not in st.session_state:
         st.session_state["flate_name"] = ""
@@ -78,48 +116,6 @@ def settings_page():
                 if roommate_to_remove in st.session_state["roommates"]:
                     st.session_state["roommates"].remove(roommate_to_remove)
                     st.success(f"Roommate {roommate_to_remove} has been removed!")
-
-
-                    
-# open first the setting page to define flate-name and inhabitants
-if "pages" not in st.session_state:
-    st.session_state ["page"] = "settings"
-
-# Function to change between the pages
-def change_page(new_page):
-    st.session_state["page"] = new_page
-
-
-# sidebar; titel
-st.sidebar.title("Navigation")
-
-# sidebar: change de side by unsing the buttons
-page_selection = st.sidebar.selectbox("Overview:", ["overview", "Livio", "Flurin"])
-if page_selection != st.session_state["page"]:
-    st.session_state["page"] = page_selection
-if st.sidebar.button("Fridge"):
-    change_page("fridge")
-if st.sidebar.button("Recipes"):
-    change_page("recipes")
-if st.sidebar.button("Settings"):
-    change_page("settings")
-
-# Anzeigelogik für jede Seite
-if st.session_state["page"] == "overview":
-    st.title("overview")
-    st.write('Willkommen auf der Startseite deiner App.')
-    st.write('Hier kannst du allgemeine Informationen anzeigen.')
-elif st.session_state["page"] == "fridge":
-    st.title("fridge")
-    st.write('Dies ist der Inhalt von Seite 1.')
-    st.text_input('Gib deinen Namen ein:', key='name_input_page1')
-    st.button('Bestätigen')
-elif st.session_state["page"] == "recipes":
-    st.title("recipes")
-    st.write('Dies ist der Inhalt von Seite 2.')
-    st.slider('Wähle einen Wert:', 0, 100, 50, key='slider_page2')
-elif st.session_state["page"] == "settings":
-    settings_page()
 elif st.session_state["page"] == "Livio":
     st.title("Livio")
     st.write('Dies ist der Inhalt von Seite 1.')
