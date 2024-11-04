@@ -52,12 +52,12 @@ if not st.session_state["setup_finished"] and st.session_state["flate_name"]:
 # Nachricht anzeigen, wenn das Setup abgeschlossen ist
 if st.session_state["setup_finished"]:
     st.write("Congratulations, your settings are done.")
-    if st.selectbox("change Flat name"):
+    if st.checkboy("Flat name"):
             flate_name = st.text_input("Please enter your flat name")
-            if st.button("Confirm Flat Name"):
+            if st.button("Change Flat Name"):
                 if flate_name:  # Überprüfen, ob ein Name eingegeben wurde
                     st.session_state["flate_name"] = flate_name  # Speichere den Namen
-    if st.selectbox("Add a new roommate"):
+    if st.checkbox("Roommates"):
         room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
         if st.button("Add new roommate"):
             if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
@@ -67,7 +67,7 @@ if st.session_state["setup_finished"]:
                     st.session_state["room_mate_input"] = ""  # Eingabefeld leeren
                 else:
                     st.warning(f"Roommate {room_mate} is already in the list!")
-    if st.session_state["roommates"]:
-        st.write("Current roommates:")
-        for mate in st.session_state["roommates"]:
-            st.write(f"- {mate}")
+        if st.session_state["roommates"]:
+            st.write("Current roommates:")
+            for mate in st.session_state["roommates"]:
+                st.write(f"- {mate}")
