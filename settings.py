@@ -1,35 +1,38 @@
 import streamlit as st
 
-# Initialisiere flate_name in st.session_state
+# Initialisiere flate_name und roommates in st.session_state
 if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
 
-# definiere für Liste
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = []
 
-
-# first Settings einstellen
+# Setup-Seite anzeigen, wenn der flat name noch nicht festgelegt ist
 if st.session_state["flate_name"] == "":
     st.title("🏠 Wasteless App - Setup")
     flate_name = st.text_input("Please enter your flat name")
-    if st.button("Confirm"):
-        st.session_state.flate_name =flate_name
+    
+    if st.button("Confirm Flat Name"):
+        if flate_name:  # Überprüfen, ob ein Name eingegeben wurde
+            st.session_state["flate_name"] = flate_name  # Speichere den Namen
 
-# add first name 
+# Hauptseite anzeigen, wenn der flat name festgelegt wurde
 if st.session_state["flate_name"]:
     st.title(f"Welcome to {st.session_state['flate_name']}!")
-    room_mate = st.text_input("Please enter your name", key="room_mate")
-    if st.button("Confirm"):
-        if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
-            st.session_state["room_mate"] = room_mate
     
-        if st.button("Add a new roommate"):
-            st.text_input ("Please enter the name of youre roommate")
-            st.session_state["roommates"].append(room_mate)
+    # Eingabe für den Namen eines Mitbewohners
+    room_mate = st.text_input("Please enter the name of a roommate")
 
+    # Button zum Hinzufügen des Mitbewohners
+    if st.button("Add a new roommate"):
+        if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
+            st.session_state["roommates"].append(room_mate)  # Speichere den Namen
+            st.success(f"Roommate {room_mate} has been added!")
 
+    # Zeige die Liste der Mitbewohner an
+    if st.session_state["roommates"]:
+        st.write("Current roommates:")
+        for mate in st.session_state["roommates"]:
+            st.write(f"- {mate}")
 
-
-        
 
