@@ -13,20 +13,19 @@ if "room_mate_input" not in st.session_state:
 # Setup-Seite anzeigen, wenn der flat name noch nicht festgelegt ist
 if st.session_state["flate_name"] == "":
     st.title("🏠 Wasteless App - Setup")
-    flate_name = st.text_input("Please enter your flat name", key="flate_name_input")
+    flate_name = st.text_input("Please enter your flat name")
     
     if st.button("Confirm Flat Name"):
         if flate_name:  # Überprüfen, ob ein Name eingegeben wurde
             st.session_state["flate_name"] = flate_name  # Speichere den Namen
-            st.experimental_set_query_params(reload="true")  # Diese Methode lädt die Seite, um Änderungen sofort zu reflektieren
 
 # Hauptseite anzeigen, wenn der flat name festgelegt wurde
 if st.session_state["flate_name"]:
     st.title(f"Welcome to {st.session_state['flate_name']}!")
     
     # Eingabe für den Namen eines Mitbewohners
-    room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
-
+    room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input", value=st.session_state["room_mate_input"])
+    
     # Button zum Hinzufügen des Mitbewohners
     if st.button("Add a new roommate"):
         if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
@@ -42,4 +41,5 @@ if st.session_state["flate_name"]:
         st.write("Current roommates:")
         for mate in st.session_state["roommates"]:
             st.write(f"- {mate}")
+
 
