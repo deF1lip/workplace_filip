@@ -52,22 +52,24 @@ if not st.session_state["setup_finished"] and st.session_state["flate_name"]:
 # Nachricht anzeigen, wenn das Setup abgeschlossen ist
 if st.session_state["setup_finished"]:
     st.write("Congratulations, your settings are done.")
-    if st.button("change Flat name"):
-            flate_name = st.text_input("Please enter your flat name")
-            if st.button("Confirm Flat Name"):
-                if flate_name:  # Überprüfen, ob ein Name eingegeben wurde
-                    st.session_state["flate_name"] = flate_name  # Speichere den Namen
-    if st.button("Add a new roommate"):
-        room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
-        if st.button("Add new roommate"):
-            if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
-                if room_mate not in st.session_state["roommates"]:  # Überprüfen, ob der Name nicht schon vorhanden ist
-                    st.session_state["roommates"].append(room_mate)  # Speichere den Namen
-                    st.success(f"Roommate {room_mate} has been added!")
-                    st.session_state["room_mate_input"] = ""  # Eingabefeld leeren
-                else:
-                    st.warning(f"Roommate {room_mate} is already in the list!")
+
+    # Option, den Wohnungsnamen zu ändern
+    if st.button("Change Flat name"):
+        st.session_state["setup_finished"] = False  # Rücksetzen, um das Setup erneut zu zeigen
+        st.session_state["flate_name"] = ""  # Wohnungsname leeren
+
+    # Option, einen neuen Mitbewohner hinzuzufügen
+    room_mate = st.text_input("Add a new roommate after setup", key="new_room_mate_input")
+    if st.button("Add roommate after setup"):
+        if room_mate:
+            if room_mate not in st.session_state["roommates"]:
+                st.session_state["roommates"].append(room_mate)
+                st.success(f"Roommate {room_mate} has been added!")
+            else:
+                st.warning(f"Roommate {room_mate} is already in the list!")
+
+    # Zeige die aktualisierte Liste der Mitbewohner an
     if st.session_state["roommates"]:
-        st.write("Current roommates:")
+        st.write("Updated roommates list:")
         for mate in st.session_state["roommates"]:
             st.write(f"- {mate}")
