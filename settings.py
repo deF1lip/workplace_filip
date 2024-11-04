@@ -41,3 +41,4 @@ if st.session_state["flate_name"]:
         st.write("Current roommates:")
         for mate in st.session_state["roommates"]:
             st.write(f"- {mate}")
+
