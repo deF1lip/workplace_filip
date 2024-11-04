@@ -9,14 +9,11 @@ def change_page(new_page):
     st.session_state["page"] = new_page
 
 
-# sidebar with selectboxes
+# sidebar; titel
 st.sidebar.title("Navigation")
-page_selection = st.sidebar.selectbox("Overview:", ["overview", "Livio", "Flurin"])
-st.sidebar.button("fridge", on_click=lambda: change_page('fridge'))
-st.sidebar.button("recipes", on_click=lambda: change_page("recipes"))
-st.sidebar.button("settings", on_click=lambda: change_page("settings"))
 
-# change de side by use of the button
+# sidebar: change de side by unsing the buttons
+page_selection = st.sidebar.selectbox("Overview:", ["overview", "Livio", "Flurin"])
 if page_selection != st.session_state["page"]:
     st.session_state["page"] = page_selection
 if st.sidebar.button("Fridge"):
