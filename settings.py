@@ -44,7 +44,7 @@ if st.session_state["flate_name"]:
                     st.session_state["flate_name"] = flate_name  # Speichere den Namen
         if st.button("Add a new roommate"):
             room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
-            if st.button("Add new roommate")
+            if st.button("Add new roommate"):
                 if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
                     if room_mate not in st.session_state["roommates"]:  # Überprüfen, ob der Name nicht schon vorhanden ist
                         st.session_state["roommates"].append(room_mate)  # Speichere den Namen
