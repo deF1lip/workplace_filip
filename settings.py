@@ -26,7 +26,7 @@ if st.session_state["flate_name"]:
     
         if st.button("Add a new roommate"):
             st.text_input ("Please enter the name of youre roommate")
-              st.session_state["roommates"].append(room_mate)
+            st.session_state["roommates"].append(room_mate)
 
 
 
