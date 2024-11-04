@@ -76,4 +76,6 @@ if st.session_state["setup_finished"]:
         if st.button("Remove roommate"):
             if roommate_to_remove in st.session_state["roommates"]:
                 st.session_state["roommates"].remove(roommate_to_remove)
-                st.success(f"Roommate {roommate_to_remove} has been removed!")        
+                st.success(f"Roommate {roommate_to_remove} has been removed!")
+
+    st.write(st.session_state["roommates"])        
