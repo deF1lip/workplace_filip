@@ -67,3 +67,7 @@ if st.session_state["setup_finished"]:
                     st.session_state["room_mate_input"] = ""  # Eingabefeld leeren
                 else:
                     st.warning(f"Roommate {room_mate} is already in the list!")
+    if st.session_state["roommates"]:
+        st.write("Current roommates:")
+        for mate in st.session_state["roommates"]:
+            st.write(f"- {mate}")
