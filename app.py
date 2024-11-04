@@ -11,7 +11,7 @@ def change_page(new_page):
 
 # sidebar with selectboxes
 st.sidebar.title("Navigation")
-st.sidebar.selectbox("overview","Livio", "Flurin") )
+st.sidebar.selectbox("overview","Livio", "Flurin") 
 st.sidebar.button("fridge", on_click=lambda: change_page('fridge'))
 st.sidebar.button("recipes", on_click=lambda: change_page("recipes"))
 st.sidebar.button("settings", on_click=lambda: change_page("settings"))
