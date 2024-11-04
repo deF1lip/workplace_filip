@@ -20,26 +20,26 @@ if st.session_state["flate_name"] == "":
             st.session_state["flate_name"] = flate_name  # Speichere den Namen
 
 # Hauptseite anzeigen, wenn der flat name festgelegt wurde
-    if st.session_state["flate_name"]:
-        st.title(f"Welcome to {st.session_state['flate_name']}!")
+        if st.session_state["flate_name"]:
+            st.title(f"Welcome to {st.session_state['flate_name']}!")
     
     # Eingabe für den Namen eines Mitbewohners
-        room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
+            room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
 
     # Button zum Hinzufügen des Mitbewohners
-        if st.button("Add a new roommate"):
-            if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
-                if room_mate not in st.session_state["roommates"]:  # Überprüfen, ob der Name nicht schon vorhanden ist
-                    st.session_state["roommates"].append(room_mate)  # Speichere den Namen
-                    st.session_state["room_mate_input"] = ""  # Eingabefeld leeren
-                    st.write(f"Roommate {room_mate} has been added!")
-                else:
-                    st.warning(f"Roommate {room_mate} is already in the list!")
+            if st.button("Add a new roommate"):
+                if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
+                    if room_mate not in st.session_state["roommates"]:  # Überprüfen, ob der Name nicht schon vorhanden ist
+                        st.session_state["roommates"].append(room_mate)  # Speichere den Namen
+                        st.session_state["room_mate_input"] = ""  # Eingabefeld leeren
+                        st.write(f"Roommate {room_mate} has been added!")
+                    else:
+                        st.warning(f"Roommate {room_mate} is already in the list!")
 
     # Zeige die Liste der Mitbewohner an
-        if st.session_state["roommates"]:
-            st.write("Current roommates:")
-            for mate in st.session_state["roommates"]:
-                st.write(f"- {mate}")
-else:
-    st.write("xour done")
+            if st.session_state["roommates"]:
+                st.write("Current roommates:")
+                for mate in st.session_state["roommates"]:
+                    st.write(f"- {mate}")
+        else:
+            st.write("xour done")
