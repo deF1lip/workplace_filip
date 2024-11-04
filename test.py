@@ -60,7 +60,7 @@ if st.session_state["setup_finished"]:
                     st.success(f"You sucessfuly changed your flate name {flate_name} has been added!")
                 else:
                     st.warning("Please enter a new flate name")
-    with st.expander("Room mates"):
+    with st.expander("roommates"):
         room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
         if st.button("Add new roommate"):
             if room_mate:  # Überprüfen, ob ein Name eingegeben wurde
