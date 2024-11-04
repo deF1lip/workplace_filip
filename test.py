@@ -78,4 +78,4 @@ if st.session_state["setup_finished"]:
                 st.session_state["roommates"].remove(roommate_to_remove)
                 st.success(f"Roommate {roommate_to_remove} has been removed!")
 
-    st.write(st.session_state["roommates"])        
+  
