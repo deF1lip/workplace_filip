@@ -73,7 +73,7 @@ if st.session_state["setup_finished"]:
                 st.write(f"- {mate}")
 
         roommate_to_remove = st.selectbox("Select a roommate to remove", st.session_state["roommates"])
-            if st.button("Remove roommate"):
-                if roommate_to_remove in st.session_state["roommates"]:
-                    st.session_state["roommates"].remove(roommate_to_remove)
-                    st.success(f"Roommate {roommate_to_remove} has been removed!")        
+        if st.button("Remove roommate"):
+            if roommate_to_remove in st.session_state["roommates"]:
+                st.session_state["roommates"].remove(roommate_to_remove)
+                st.success(f"Roommate {roommate_to_remove} has been removed!")        
