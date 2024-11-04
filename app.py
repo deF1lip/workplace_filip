@@ -16,6 +16,9 @@ st.sidebar.button("fridge", on_click=lambda: change_page('fridge'))
 st.sidebar.button("recipes", on_click=lambda: change_page("recipes"))
 st.sidebar.button("settings", on_click=lambda: change_page("settings"))
 
+# Update the page state based on the selection in the selectbox
+if page_selection != st.session_state["page"]:
+    st.session_state["page"] = page_selection
 
 
 # Anzeigelogik für jede Seite
