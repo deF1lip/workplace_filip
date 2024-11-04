@@ -1,5 +1,5 @@
 import streamlit as st
-from settings.py import settings_page
+from settings import settings_page
 
 # open first the setting page to define flate-name and inhabitants
 if "pages" not in st.session_state:
@@ -39,10 +39,7 @@ elif st.session_state["page"] == "recipes":
     st.write('Dies ist der Inhalt von Seite 2.')
     st.slider('Wähle einen Wert:', 0, 100, 50, key='slider_page2')
 elif st.session_state["page"] == "settings":
-    st.title("settings")
-    st.write('Dies ist der Inhalt von Seite 1.')
-    st.text_input('Gib deinen Namen ein:', key='name_input_page1')
-    st.button('Bestätigen')
+    settings_page()
 elif st.session_state["page"] == "Livio":
     st.title("Livio")
     st.write('Dies ist der Inhalt von Seite 1.')
