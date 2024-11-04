@@ -1,4 +1,5 @@
 import streamlit as st
+from settings.py import settings_page
 
 # open first the setting page to define flate-name and inhabitants
 if "pages" not in st.session_state:
