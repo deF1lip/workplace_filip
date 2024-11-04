@@ -52,7 +52,7 @@ if not st.session_state["setup_finished"] and st.session_state["flate_name"]:
 # Nachricht anzeigen, wenn das Setup abgeschlossen ist
 if st.session_state["setup_finished"]:
     st.write("Congratulations, your settings are done.")
-    if st.checkboy("Flat name"):
+    if st.checkbox("Flat name"):
             flate_name = st.text_input("Please enter your flat name")
             if st.button("Change Flat Name"):
                 if flate_name:  # Überprüfen, ob ein Name eingegeben wurde
