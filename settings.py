@@ -14,8 +14,8 @@ if st.session_state["flate_name"] == "":
         st.session_state.flate_name =flate_name
         st.text_input (f"welcome to your new flat {flate_name}. Please enter your name", key= "room_mate")
         st.button ("Add a new roommate")
-        st.experimental_rerun()
         
+
 else:
     st.write ("livio best")
 
