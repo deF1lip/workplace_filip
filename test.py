@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+
 
 # Initialisierung der Session-State-Variablen
 if "roommates" not in st.session_state:
@@ -7,7 +9,6 @@ if "inventory" not in st.session_state:
     st.session_state["inventory"] = {}
 if "expenses" not in st.session_state:
     st.session_state["expenses"] = {mate: 0.0 for mate in st.session_state["roommates"]}
-
 def fridge_page():
     st.title("Kühlschrank")
 
@@ -26,23 +27,32 @@ def fridge_page():
     # Button zum Hinzufügen des Lebensmittels
     if st.button("Lebensmittel hinzufügen"):
         if food_item and quantity > 0 and price >= 0 and selected_roommate:
-            if food_item in st.session_state["inventory"]:
-                # Aktualisiere Menge und Preis
-                st.session_state["inventory"][food_item]["Menge"] += quantity
-                st.session_state["inventory"][food_item]["Preis"] += price
+            # Prüfen, ob das Lebensmittel bereits im Inventar ist
+            existing_items = [item for item in st.session_state["inventory"] if item["Lebensmittel"].lower() == food_item.lower()]
+            if existing_items:
+                # Wenn vorhanden, Menge und Preis aktualisieren
+                existing_items[0]["Menge"] += quantity
+                existing_items[0]["Preis"] += price
             else:
-                # Füge neues Lebensmittel hinzu
-                st.session_state["inventory"][food_item] = {"Menge": quantity, "Preis": price}
+                # Andernfalls neues Lebensmittel hinzufügen
+                item_entry = {
+                    "Lebensmittel": food_item,
+                    "Menge": quantity,
+                    "Preis": price
+                }
+                st.session_state["inventory"].append(item_entry)
             st.session_state["expenses"][selected_roommate] += price
             st.success(f"'{food_item}' wurde dem Inventar hinzugefügt.")
         else:
             st.warning("Bitte fülle alle Felder aus.")
 
-    # Anzeige des aktuellen Inventars
+    # Anzeige des aktuellen Inventars als Tabelle
     if st.session_state["inventory"]:
         st.write("Aktuelles Inventar:")
-        for item, details in st.session_state["inventory"].items():
-            st.write(f"- {item}: {details['Menge']} Stück, Gesamtpreis: {details['Preis']}€")
+        # Erstellen eines DataFrames aus dem Inventar
+        df = pd.DataFrame(st.session_state["inventory"])
+        # Anzeigen der Tabelle ohne die Spalte "Hinzugefügt von"
+        st.table(df[["Lebensmittel", "Menge", "Preis"]])
     else:
         st.write("Das Inventar ist leer.")
 
@@ -50,7 +60,4 @@ def fridge_page():
     st.write("Gesamtausgaben pro Mitbewohner:")
     for mate, total in st.session_state["expenses"].items():
         st.write(f"- {mate}: {total:.2f}€")
-
-# Aufruf der Funktion zur Anzeige der Kühlschrank-Seite
-fridge_page()
 
