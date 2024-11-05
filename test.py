@@ -17,35 +17,40 @@ if st.sidebar.button("Settings"):
     change_page("settings")
 
 import streamlit as st
+import pandas as pd
 
-# Initialisierung des Inventars im Session State
+# Initialisierung des Inventars im Session State als DataFrame
 if "inventory" not in st.session_state:
-    st.session_state["inventory"] = []
+    st.session_state["inventory"] = pd.DataFrame(columns=["Lebensmittel", "Menge (g/ml)", "Kosten (CHF)"])
 
 def fridge_page():
     st.title("Kühlschrank")
 
-    # Eingabefelder für Lebensmittel, Menge und Preis
-    food_item = st.text_input("Geben Sie ein Lebensmittel ein, das Sie hinzufügen möchten:")
-    quantity = st.number_input("Menge:", min_value=1, step=1)
-    price = st.number_input("Preis (in Euro):", min_value=0.0, format="%.2f")
+    # Formular zur Eingabe von Lebensmitteln, Menge und Kosten
+    with st.form(key="food_form"):
+        lebensmittel = st.text_input("Lebensmittel")
+        menge = st.number_input("Menge (g/ml)", min_value=0.0, format="%.2f")
+        kosten = st.number_input("Kosten (CHF)", min_value=0.0, format="%.2f")
+        submit_button = st.form_submit_button(label="Hinzufügen")
 
-    # Button zum Hinzufügen des Lebensmittels
-    if st.button("Lebensmittel hinzufügen"):
-        if food_item and quantity > 0 and price >= 0:
-            item_entry = {"Lebensmittel": food_item, "Menge": quantity, "Preis": price}
-            st.session_state["inventory"].append(item_entry)
-            st.success(f"'{food_item}' wurde zum Inventar hinzugefügt.")
+    # Wenn das Formular abgeschickt wird, füge den Eintrag zum Inventar hinzu
+    if submit_button:
+        if lebensmittel and menge > 0 and kosten >= 0:
+            new_entry = {"Lebensmittel": lebensmittel, "Menge (g/ml)": menge, "Kosten (CHF)": kosten}
+            st.session_state["inventory"] = st.session_state["inventory"].append(new_entry, ignore_index=True)
+            st.success(f"{lebensmittel} wurde dem Inventar hinzugefügt.")
         else:
-            st.warning("Bitte geben Sie alle Informationen ein.")
+            st.error("Bitte geben Sie gültige Werte für alle Felder ein.")
 
-    # Anzeige des aktuellen Inventars
-    if st.session_state["inventory"]:
-        st.write("Aktuelles Inventar:")
-        for item in st.session_state["inventory"]:
-            st.write(f"- {item['Lebensmittel']}: {item['Menge']} Stück, Preis: {item['Preis']}€")
+    # Anzeige des aktuellen Inventars in Tabellenform
+    if not st.session_state["inventory"].empty:
+        st.subheader("Aktuelles Inventar")
+        st.dataframe(st.session_state["inventory"])
     else:
-        st.write("Das Inventar ist leer.")
+        st.info("Das Inventar ist derzeit leer.")
+
+
+
 
 
 
