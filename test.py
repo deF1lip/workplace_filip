@@ -15,8 +15,7 @@ def initialize_session_state():
 def setup_flat_name():
     st.title("🏠 Wasteless App - Setup")
     flate_name = st.text_input("Please enter your flat name")
-    if st.button("Confirm Flat Name"):
-        if flate_name:
+    if st.button("Confirm Flat Name") and flate_name:
             st.session_state["flate_name"] = flate_name
 
 # Hauptseite zur Eingabe der Mitbewohner
