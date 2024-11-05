@@ -63,4 +63,3 @@ elif st.session_state["page"] == "Livio":
     st.write('Dies ist der Inhalt von Seite 1.')
     st.text_input('Gib deinen Namen ein:', key='name_input_page1')
     st.button('Bestätigen')
-
