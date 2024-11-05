@@ -25,7 +25,7 @@ def fridge_page():
     if action == "Add":
         # Input fields for food item, quantity, unit, and price
         food_item = st.text_input("Enter a food item to add:")
-        quantity = st.number_input("Quantity:", min_value=0)
+        quantity = st.number_input("Quantity:", min_value=0.0)
         unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
         price = st.number_input("Price (in CHF):", min_value=0.0)
 
@@ -46,7 +46,7 @@ def fridge_page():
         # Select the item to remove
         if st.session_state["inventory"]:
             food_item = st.selectbox("Select a food item to remove:", list(st.session_state["inventory"].keys()))
-            quantity = st.number_input("Quantity to remove:", min_value=1, step=1)
+            quantity = st.number_input("Quantity to remove:", min_value=1.0, step=1.0)
 
             # Button to remove the item
             if st.button("Remove item"):
@@ -56,7 +56,7 @@ def fridge_page():
                         current_price = st.session_state["inventory"][food_item]["Price"]
                         if quantity <= current_quantity:
                             # Calculate the price per unit
-                            price_per_unit = current_price / current_quantity
+                            price_per_unit = current_price / current_quantity if current_quantity > 0 else 0
                             # Calculate the amount to deduct
                             amount_to_deduct = price_per_unit * quantity
                             # Update inventory
@@ -66,7 +66,7 @@ def fridge_page():
                             st.session_state["expenses"][selected_roommate] -= amount_to_deduct
                             st.success(f"'{quantity}' of '{food_item}' has been removed.")
                             # Remove item if quantity reaches zero
-                            if st.session_state["inventory"][food_item]["Quantity"] == 0:
+                            if st.session_state["inventory"][food_item]["Quantity"] <= 0:
                                 del st.session_state["inventory"][food_item]
                         else:
                             st.warning("The quantity to remove exceeds the available quantity.")
@@ -93,3 +93,4 @@ def fridge_page():
 
 # Call the function to display the fridge page
 fridge_page()
+
