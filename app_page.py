@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-
-# Initialize session state variables
+# Initialization of session state variables
 if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
 if "roommates" not in st.session_state:
@@ -14,8 +13,7 @@ if "page" not in st.session_state:
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {}
 if "expenses" not in st.session_state:
-    st.session_state["expenses"] = {mate: 0.0 for mate in st.session_state["roommates"]}
-
+    st.session_state["expenses"] = {}
 
 # Function to change pages
 def change_page(new_page):
@@ -34,12 +32,10 @@ if st.sidebar.button("Settings"):
 
 # Function for the overview page
 def overview_page():
-    # Sets the title to "Overview: Name of the flat"
     title = f"Overview: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Overview"
     st.title(title)
     st.write("Welcome to the main page of your app.")
     st.write("Here you can display general information.")
-
 
 # Function for the recipes page
 def recipes_page():
@@ -55,8 +51,6 @@ def setup_flat_name():
         if flate_name:
             st.session_state["flate_name"] = flate_name
             st.success(f"You successfully set the flat name to '{flate_name}'.")
-        else:
-            st.warning("Please enter a flat name.")
 
 # Main page for entering roommates
 def setup_roommates():
@@ -68,10 +62,11 @@ def setup_roommates():
     if st.button("Finish Setup"):
         st.session_state["setup_finished"] = True
 
-# Function to add a roommate
+# Function to add a roommate and update expenses
 def add_roommate(room_mate):
     if room_mate and room_mate not in st.session_state["roommates"]:
         st.session_state["roommates"].append(room_mate)
+        st.session_state["expenses"][room_mate] = 0.0
         st.success(f"Roommate '{room_mate}' has been added.")
     elif room_mate in st.session_state["roommates"]:
         st.warning(f"Roommate '{room_mate}' is already on the list.")
@@ -97,8 +92,6 @@ def change_flat_name():
             if flate_name:
                 st.session_state["flate_name"] = flate_name
                 st.success(f"You successfully changed the flat name to '{flate_name}'.")
-            else:
-                st.warning("Please enter a new flat name.")
 
 # Function to manage roommates
 def manage_roommates():
@@ -116,8 +109,10 @@ def remove_roommate():
         if st.button("Remove Roommate"):
             if roommate_to_remove in st.session_state["roommates"]:
                 st.session_state["roommates"].remove(roommate_to_remove)
+                del st.session_state["expenses"][roommate_to_remove]
                 st.success(f"Roommate '{roommate_to_remove}' has been removed.")
 
+# Fridge page function
 def fridge_page():
     st.title("Fridge")
 
@@ -140,7 +135,7 @@ def fridge_page():
 
         # Button to add the food item
         if st.button("Add item"):
-            if food_item and quantity > 0 and price >= 0 and selected_roommate:
+            if food_item and quantity > 0 and price >= 0:
                 if food_item in st.session_state["inventory"]:
                     st.session_state["inventory"][food_item]["Quantity"] += quantity
                     st.session_state["inventory"][food_item]["Price"] += price
@@ -159,30 +154,25 @@ def fridge_page():
 
             # Button to remove the item
             if st.button("Remove item"):
-                if food_item and quantity > 0 and selected_roommate:
-                    if food_item in st.session_state["inventory"]:
-                        current_quantity = st.session_state["inventory"][food_item]["Quantity"]
-                        current_price = st.session_state["inventory"][food_item]["Price"]
-                        if quantity <= current_quantity:
-                            # Calculate the price per unit
-                            price_per_unit = current_price / current_quantity if current_quantity > 0 else 0
-                            # Calculate the amount to deduct
-                            amount_to_deduct = price_per_unit * quantity
-                            # Update inventory
-                            st.session_state["inventory"][food_item]["Quantity"] -= quantity
-                            st.session_state["inventory"][food_item]["Price"] -= amount_to_deduct
-                            # Update roommate's expenses
-                            st.session_state["expenses"][selected_roommate] -= amount_to_deduct
-                            st.success(f"'{quantity}' of '{food_item}' has been removed.")
-                            # Remove item if quantity reaches zero
-                            if st.session_state["inventory"][food_item]["Quantity"] <= 0:
-                                del st.session_state["inventory"][food_item]
-                        else:
-                            st.warning("The quantity to remove exceeds the available quantity.")
+                if food_item and quantity > 0:
+                    current_quantity = st.session_state["inventory"][food_item]["Quantity"]
+                    current_price = st.session_state["inventory"][food_item]["Price"]
+                    if quantity <= current_quantity:
+                        # Calculate the price per unit
+                        price_per_unit = current_price / current_quantity if current_quantity > 0 else 0
+                        # Calculate the amount to deduct
+                        amount_to_deduct = price_per_unit * quantity
+                        # Update inventory
+                        st.session_state["inventory"][food_item]["Quantity"] -= quantity
+                        st.session_state["inventory"][food_item]["Price"] -= amount_to_deduct
+                        # Update roommate's expenses
+                        st.session_state["expenses"][selected_roommate] -= amount_to_deduct
+                        st.success(f"'{quantity}' of '{food_item}' has been removed.")
+                        # Remove item if quantity reaches zero
+                        if st.session_state["inventory"][food_item]["Quantity"] <= 0:
+                            del st.session_state["inventory"][food_item]
                     else:
-                        st.warning("This item is not in the inventory.")
-                else:
-                    st.warning("Please fill in all fields.")
+                        st.warning("The quantity to remove exceeds the available quantity.")
         else:
             st.warning("The inventory is empty.")
 
@@ -200,9 +190,6 @@ def fridge_page():
     expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
     st.table(expenses_df)
 
-
-
-
 # Page display logic for the selected page
 if st.session_state["page"] == "overview":
     overview_page()
@@ -218,6 +205,7 @@ elif st.session_state["page"] == "settings":
             setup_roommates()
     else:
         settings_page()
+
 
 
 
