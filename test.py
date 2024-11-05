@@ -14,13 +14,13 @@ def fridge_page():
 
     # Auswahl des Mitbewohners
     if st.session_state["roommates"]:
-        selected_roommate = st.selectbox("Wähle den Mitbewohner, der das Lebensmittel hinzufügt:", st.session_state["roommates"])
+        selected_roommate = st.selectbox("Wähle den Mitbewohner, der das Lebensmittel hinzufügt oder entfernt:", st.session_state["roommates"])
     else:
         st.warning("Es sind keine Mitbewohner vorhanden.")
         return
 
     # Eingabefelder für Lebensmittel, Menge und Preis
-    food_item = st.text_input("Gib ein Lebensmittel ein, das du hinzufügen möchtest:")
+    food_item = st.text_input("Gib ein Lebensmittel ein, das du hinzufügen oder entfernen möchtest:")
     quantity = st.number_input("Menge:", min_value=1, step=1)
     price = st.number_input("Preis (in Euro):", min_value=0.0, format="%.2f")
 
@@ -37,12 +37,33 @@ def fridge_page():
         else:
             st.warning("Bitte fülle alle Felder aus.")
 
-    # Anzeige des aktuellen Inventars
+    # Auswahl des zu entfernenden Lebensmittels
     if st.session_state["inventory"]:
         st.write("Aktuelles Inventar:")
         inventory_df = pd.DataFrame.from_dict(st.session_state["inventory"], orient='index')
         inventory_df = inventory_df.reset_index().rename(columns={'index': 'Lebensmittel'})
         st.table(inventory_df)
+
+        remove_item = st.selectbox("Wähle ein Lebensmittel zum Entfernen:", list(st.session_state["inventory"].keys()))
+        remove_quantity = st.number_input("Menge zum Entfernen:", min_value=1, step=1)
+
+        if st.button("Lebensmittel entfernen"):
+            if remove_item in st.session_state["inventory"]:
+                current_quantity = st.session_state["inventory"][remove_item]["Menge"]
+                current_price = st.session_state["inventory"][remove_item]["Preis"]
+                if remove_quantity <= current_quantity:
+                    price_per_unit = current_price / current_quantity
+                    remove_price = price_per_unit * remove_quantity
+                    st.session_state["inventory"][remove_item]["Menge"] -= remove_quantity
+                    st.session_state["inventory"][remove_item]["Preis"] -= remove_price
+                    st.session_state["expenses"][selected_roommate] -= remove_price
+                    if st.session_state["inventory"][remove_item]["Menge"] == 0:
+                        del st.session_state["inventory"][remove_item]
+                    st.success(f"'{remove_item}' wurde aus dem Inventar entfernt.")
+                else:
+                    st.warning("Die zu entfernende Menge übersteigt die vorhandene Menge.")
+            else:
+                st.warning("Das ausgewählte Lebensmittel ist nicht im Inventar vorhanden.")
     else:
         st.write("Das Inventar ist leer.")
 
@@ -53,4 +74,3 @@ def fridge_page():
 
 # Aufruf der Funktion zur Anzeige der Kühlschrank-Seite
 fridge_page()
-
