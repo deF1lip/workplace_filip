@@ -47,10 +47,6 @@ def fridge_page():
     else:
         st.write("Das Inventar ist leer.")
 
-# Aufruf der Kühlschrank-Seite
-fridge_page()
-
-
 
 
 # Funktion
