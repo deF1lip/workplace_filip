@@ -1,4 +1,6 @@
 import streamlit as st
+from Overview_page import overview_page
+from Fridge_page import fridge_page
 
 # Initialize session state variables
 if "flate_name" not in st.session_state:
@@ -25,20 +27,24 @@ if st.sidebar.button("Recipes"):
 if st.sidebar.button("Settings"):
     change_page("settings")
 
-# Function for the overview page
-def overview_page():
-    # Sets the title to "Overview: Name of the flat"
-    title = f"Overview: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Overview"
-    st.title(title)
-    st.write("Welcome to the main page of your app.")
-    st.write("Here you can display general information.")
+# Page display logic for the selected page
+if st.session_state["page"] == "overview":
+    overview_page()
+elif st.session_state["page"] == "fridge":
+    fridge_page()
+elif st.session_state["page"] == "recipes":
+    recipes_page()
+elif st.session_state["page"] == "settings":
+    if not st.session_state["setup_finished"]:
+        if st.session_state["flate_name"] == "":
+            setup_flat_name()
+        else:
+            setup_roommates()
+    else:
+        settings_page()
 
-# Function for the fridge page
-def fridge_page():
-    st.title("Fridge")
-    st.write("This is the content of the Fridge page.")
-    st.text_input("Enter your name:", key="name_input_fridge")
-    st.button("Confirm")
+
+
 
 # Function for the recipes page
 def recipes_page():
@@ -117,20 +123,7 @@ def remove_roommate():
                 st.session_state["roommates"].remove(roommate_to_remove)
                 st.success(f"Roommate '{roommate_to_remove}' has been removed.")
 
-# Page display logic for the selected page
-if st.session_state["page"] == "overview":
-    overview_page()
-elif st.session_state["page"] == "fridge":
-    fridge_page()
-elif st.session_state["page"] == "recipes":
-    recipes_page()
-elif st.session_state["page"] == "settings":
-    if not st.session_state["setup_finished"]:
-        if st.session_state["flate_name"] == "":
-            setup_flat_name()
-        else:
-            setup_roommates()
-    else:
-        settings_page()
+
+
 
 
