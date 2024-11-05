@@ -1,16 +1,5 @@
 import streamlit as st
 
-# Initialisiert Session-State-Variablen
-def initialize_session_state():
-    if "flate_name" not in st.session_state:
-        st.session_state["flate_name"] = ""
-    if "roommates" not in st.session_state:
-        st.session_state["roommates"] = []
-    if "room_mate_input" not in st.session_state:
-        st.session_state["room_mate_input"] = ""
-    if "setup_finished" not in st.session_state:
-        st.session_state["setup_finished"] = False
-
 # Setup-Seite für die Eingabe des WG-Namens
 def setup_flat_name():
     st.title("🏠 Wasteless App - Setup")
@@ -82,8 +71,17 @@ def remove_roommate():
                 st.session_state["roommates"].remove(roommate_to_remove)
                 st.success(f"Roommate {roommate_to_remove} has been removed!")
 
-# Hauptprogrammablauf
-initialize_session_state()
+
+# Ablauf
+if "flate_name" not in st.session_state:
+    st.session_state["flate_name"] = ""
+if "roommates" not in st.session_state:
+    st.session_state["roommates"] = []
+if "room_mate_input" not in st.session_state:
+    st.session_state["room_mate_input"] = ""
+if "setup_finished" not in st.session_state:
+    st.session_state["setup_finished"] = False
+    
 if not st.session_state["setup_finished"]:
     if st.session_state["flate_name"] == "":
         setup_flat_name()
