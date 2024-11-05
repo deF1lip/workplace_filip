@@ -14,6 +14,8 @@ if "page" not in st.session_state:
 def change_page(new_page):
     st.session_state["page"] = new_page
 
+
+
 # Sidebar navigation with buttons
 st.sidebar.title("Navigation")
 if st.sidebar.button("Overview"):
@@ -24,24 +26,6 @@ if st.sidebar.button("Recipes"):
     change_page("recipes")
 if st.sidebar.button("Settings"):
     change_page("settings")
-
-# Page display logic for the selected page
-if st.session_state["page"] == "overview":
-    overview_page()
-elif st.session_state["page"] == "fridge":
-    fridge_page()
-elif st.session_state["page"] == "recipes":
-    recipes_page()
-elif st.session_state["page"] == "settings":
-    if not st.session_state["setup_finished"]:
-        if st.session_state["flate_name"] == "":
-            setup_flat_name()
-        else:
-            setup_roommates()
-    else:
-        settings_page()
-
-
 
 # Function for the overview page
 def overview_page():
@@ -137,5 +121,20 @@ def remove_roommate():
 
 
 
+# Page display logic for the selected page
+if st.session_state["page"] == "overview":
+    overview_page()
+elif st.session_state["page"] == "fridge":
+    fridge_page()
+elif st.session_state["page"] == "recipes":
+    recipes_page()
+elif st.session_state["page"] == "settings":
+    if not st.session_state["setup_finished"]:
+        if st.session_state["flate_name"] == "":
+            setup_flat_name()
+        else:
+            setup_roommates()
+    else:
+        settings_page()
 
 
