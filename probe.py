@@ -27,7 +27,9 @@ if st.sidebar.button("Einstellungen"):
 
 # Funktionen für die einzelnen Seiten
 def overview_page():
-    st.title("Übersicht")
+    # Setzt den Titel auf "Übersicht: Name der WG"
+    title = f"Übersicht: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Übersicht"
+    st.title(title)
     st.write("Willkommen auf der Startseite deiner App.")
     st.write("Hier kannst du allgemeine Informationen anzeigen.")
 
@@ -128,4 +130,5 @@ elif st.session_state["page"] == "settings":
             setup_roommates()
     else:
         settings_page()
+
 
