@@ -202,6 +202,7 @@ def fridge_page():
 
 
 
+
 # Page display logic for the selected page
 if st.session_state["page"] == "overview":
     overview_page()
