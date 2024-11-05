@@ -1,5 +1,10 @@
 import streamlit as st
 
+
+# Initialisierung des Inventars im Session State
+if "inventory" not in st.session_state:
+    st.session_state["inventory"] = []
+
 def change_page(new_page):
     st.session_state["page"] = new_page
 
@@ -20,6 +25,31 @@ def fridge_page():
     st.write("This is the content of the Fridge page.")
     st.text_input("Enter your name:", key="name_input_fridge")
     st.button("Confirm")
+    import streamlit as st
+
+
+
+def fridge_page():
+    st.title("Kühlschrank")
+
+    # Eingabefeld für Lebensmittel
+    food_item = st.text_input("Geben Sie ein Lebensmittel ein, das Sie hinzufügen möchten:")
+
+    # Button zum Hinzufügen des Lebensmittels
+    if st.button("Lebensmittel hinzufügen"):
+        if food_item:
+            st.session_state["inventory"].append(food_item)
+            st.success(f"'{food_item}' wurde zum Inventar hinzugefügt.")
+        else:
+            st.warning("Bitte geben Sie ein Lebensmittel ein.")
+
+    # Anzeige des aktuellen Inventars
+    if st.session_state["inventory"]:
+        st.write("Aktuelles Inventar:")
+        for item in st.session_state["inventory"]:
+            st.write(f"- {item}")
+    else:
+        st.write("Das Inventar ist leer.")
 
 
 
