@@ -4,7 +4,7 @@ import streamlit as st
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]  # Beispielhafte Mitbewohnerliste
 if "inventory" not in st.session_state:
-    st.session_state["inventory"] = []
+    st.session_state["inventory"] = {}
 if "expenses" not in st.session_state:
     st.session_state["expenses"] = {mate: 0.0 for mate in st.session_state["roommates"]}
 
@@ -26,13 +26,13 @@ def fridge_page():
     # Button zum Hinzufügen des Lebensmittels
     if st.button("Lebensmittel hinzufügen"):
         if food_item and quantity > 0 and price >= 0 and selected_roommate:
-            item_entry = {
-                "Lebensmittel": food_item,
-                "Menge": quantity,
-                "Preis": price,
-                "Hinzugefügt von": selected_roommate
-            }
-            st.session_state["inventory"].append(item_entry)
+            if food_item in st.session_state["inventory"]:
+                # Aktualisiere Menge und Preis
+                st.session_state["inventory"][food_item]["Menge"] += quantity
+                st.session_state["inventory"][food_item]["Preis"] += price
+            else:
+                # Füge neues Lebensmittel hinzu
+                st.session_state["inventory"][food_item] = {"Menge": quantity, "Preis": price}
             st.session_state["expenses"][selected_roommate] += price
             st.success(f"'{food_item}' wurde dem Inventar hinzugefügt.")
         else:
@@ -41,8 +41,8 @@ def fridge_page():
     # Anzeige des aktuellen Inventars
     if st.session_state["inventory"]:
         st.write("Aktuelles Inventar:")
-        for item in st.session_state["inventory"]:
-            st.write(f"- {item['Lebensmittel']}: {item['Menge']} Stück, Preis: {item['Preis']}€, hinzugefügt von {item['Hinzugefügt von']}")
+        for item, details in st.session_state["inventory"].items():
+            st.write(f"- {item}: {details['Menge']} Stück, Gesamtpreis: {details['Preis']}€")
     else:
         st.write("Das Inventar ist leer.")
 
@@ -53,3 +53,4 @@ def fridge_page():
 
 # Aufruf der Funktion zur Anzeige der Kühlschrank-Seite
 fridge_page()
+
