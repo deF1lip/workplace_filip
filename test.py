@@ -21,15 +21,6 @@ if st.sidebar.button("Settings"):
 
 
 def fridge_page():
-    st.title("Fridge")
-    st.write("This is the content of the Fridge page.")
-    st.text_input("Enter your name:", key="name_input_fridge")
-    st.button("Confirm")
-    import streamlit as st
-
-
-
-def fridge_page():
     st.title("Kühlschrank")
 
     # Eingabefeld für Lebensmittel

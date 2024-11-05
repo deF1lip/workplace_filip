@@ -48,7 +48,7 @@ def recipes_page():
 
 # Setup page for entering the flat name
 def setup_flat_name():
-    st.dialog("🏠 Wasteless App - Setup")
+    st.title("🏠 Wasteless App - Setup")
     flate_name = st.text_input("Please enter your flat name")
     if st.button("Confirm Flat Name"):
         if flate_name:
