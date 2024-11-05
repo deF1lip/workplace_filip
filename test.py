@@ -13,6 +13,10 @@ if "room_mate_input" not in st.session_state:
 if "setup_finished" not in st.session_state:
     st.session_state["setup_finished"] = False
 
+def submit():
+    st.session_state.room_mate = st.session_state.room_mate_input
+    st.session_state.room_mate_input = ""
+
 # Setup-Seite anzeigen, wenn der flat name noch nicht festgelegt ist
 if not st.session_state["setup_finished"] and st.session_state["flate_name"] == "":
     st.title("🏠 Wasteless App - Setup")
@@ -27,7 +31,7 @@ if not st.session_state["setup_finished"] and st.session_state["flate_name"]:
     st.title(f"Welcome to {st.session_state['flate_name']}!")
     
     # Eingabe für den Namen eines Mitbewohners
-    room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
+    room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input", on_change= submit)
     
     # Button zum Hinzufügen des Mitbewohners
     if st.button("Add a new roommate"):
@@ -35,7 +39,9 @@ if not st.session_state["setup_finished"] and st.session_state["flate_name"]:
             if room_mate not in st.session_state["roommates"]:  # Überprüfen, ob der Name nicht schon vorhanden ist
                 st.session_state["roommates"].append(room_mate)  # Speichere den Namen
                 st.success(f"Roommate {room_mate} has been added!")
-                del st.session_state["room_mate_input"]
+                ##st.session_state["room_mate_input"] wäre clear input
+                
+                
             else:
                 st.warning(f"Roommate {room_mate} is already in the list!")
 
