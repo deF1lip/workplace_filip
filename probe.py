@@ -48,14 +48,14 @@ def recipes_page():
 
 # Setup page for entering the flat name
 def setup_flat_name():
-    st.title("🏠 Wasteless App - Setup")
-    flate_name = st.text_input("Please enter your flat name")
-    if st.button("Confirm Flat Name"):
-        if flate_name:
-            st.session_state["flate_name"] = flate_name
-            st.success(f"You successfully set the flat name to '{flate_name}'.")
-        else:
-            st.warning("Please enter a flat name.")
+    st.dialog("🏠 Wasteless App - Setup")
+        flate_name = st.text_input("Please enter your flat name")
+        if st.button("Confirm Flat Name"):
+            if flate_name:
+                st.session_state["flate_name"] = flate_name
+                st.success(f"You successfully set the flat name to '{flate_name}'.")
+            else:
+                st.warning("Please enter a flat name.")
 
 # Main page for entering roommates
 def setup_roommates():
