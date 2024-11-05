@@ -23,9 +23,10 @@ def fridge_page():
     action = st.selectbox("Möchtest du ein Lebensmittel hinzufügen oder entfernen?", ["Hinzufügen", "Entfernen"])
 
     if action == "Hinzufügen":
-        # Eingabefelder für Lebensmittel, Menge und Preis
+        # Eingabefelder für Lebensmittel, Menge, Einheit und Preis
         food_item = st.text_input("Gib ein Lebensmittel ein, das du hinzufügen möchtest:")
         quantity = st.number_input("Menge:", min_value=1, step=1)
+        unit = st.selectbox("Einheit:", ["Anzahl", "Liter", "Gramm"])
         price = st.number_input("Preis (in Euro):", min_value=0.0, format="%.2f")
 
         # Button zum Hinzufügen des Lebensmittels
@@ -35,7 +36,7 @@ def fridge_page():
                     st.session_state["inventory"][food_item]["Menge"] += quantity
                     st.session_state["inventory"][food_item]["Preis"] += price
                 else:
-                    st.session_state["inventory"][food_item] = {"Menge": quantity, "Preis": price}
+                    st.session_state["inventory"][food_item] = {"Menge": quantity, "Einheit": unit, "Preis": price}
                 st.session_state["expenses"][selected_roommate] += price
                 st.success(f"'{food_item}' wurde dem Inventar hinzugefügt.")
             else:
