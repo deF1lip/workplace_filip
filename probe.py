@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Initialisierung der Session-State-Variablen
+# Initialize session state variables
 if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
 if "roommates" not in st.session_state:
@@ -10,112 +10,114 @@ if "setup_finished" not in st.session_state:
 if "page" not in st.session_state:
     st.session_state["page"] = "settings"
 
-# Funktion zum Wechseln der Seiten
+# Function to change pages
 def change_page(new_page):
     st.session_state["page"] = new_page
 
-# Sidebar-Navigation mit Buttons
+# Sidebar navigation with buttons
 st.sidebar.title("Navigation")
-if st.sidebar.button("Übersicht"):
+if st.sidebar.button("Overview"):
     change_page("overview")
-if st.sidebar.button("Kühlschrank"):
+if st.sidebar.button("Fridge"):
     change_page("fridge")
-if st.sidebar.button("Rezepte"):
+if st.sidebar.button("Recipes"):
     change_page("recipes")
-if st.sidebar.button("Einstellungen"):
+if st.sidebar.button("Settings"):
     change_page("settings")
 
-# Funktionen für die einzelnen Seiten
+# Function for the overview page
 def overview_page():
-    # Setzt den Titel auf "Übersicht: Name der WG"
-    title = f"Übersicht: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Übersicht"
+    # Sets the title to "Overview: Name of the flat"
+    title = f"Overview: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Overview"
     st.title(title)
-    st.write("Willkommen auf der Startseite deiner App.")
-    st.write("Hier kannst du allgemeine Informationen anzeigen.")
+    st.write("Welcome to the main page of your app.")
+    st.write("Here you can display general information.")
 
+# Function for the fridge page
 def fridge_page():
-    st.title("Kühlschrank")
-    st.write("Dies ist der Inhalt der Kühlschrank-Seite.")
-    st.text_input("Gib deinen Namen ein:", key="name_input_fridge")
-    st.button("Bestätigen")
+    st.title("Fridge")
+    st.write("This is the content of the Fridge page.")
+    st.text_input("Enter your name:", key="name_input_fridge")
+    st.button("Confirm")
 
+# Function for the recipes page
 def recipes_page():
-    st.title("Rezepte")
-    st.write("Dies ist der Inhalt der Rezepte-Seite.")
-    st.slider("Wähle einen Wert:", 0, 100, 50, key="slider_recipes")
+    st.title("Recipes")
+    st.write("This is the content of the Recipes page.")
+    st.slider("Choose a value:", 0, 100, 50, key="slider_recipes")
 
-# Setup-Seite für die Eingabe des WG-Namens
+# Setup page for entering the flat name
 def setup_flat_name():
     st.title("🏠 Wasteless App - Setup")
-    flate_name = st.text_input("Bitte gib den Namen deiner WG ein")
-    if st.button("WG-Name bestätigen"):
+    flate_name = st.text_input("Please enter your flat name")
+    if st.button("Confirm Flat Name"):
         if flate_name:
             st.session_state["flate_name"] = flate_name
-            st.success(f"Du hast den WG-Namen erfolgreich auf '{flate_name}' gesetzt.")
+            st.success(f"You successfully set the flat name to '{flate_name}'.")
         else:
-            st.warning("Bitte gib einen WG-Namen ein.")
+            st.warning("Please enter a flat name.")
 
-# Hauptseite zur Eingabe der Mitbewohner
+# Main page for entering roommates
 def setup_roommates():
-    st.title(f"Willkommen in der WG '{st.session_state['flate_name']}'!")
-    room_mate = st.text_input("Bitte gib den Namen eines Mitbewohners ein", key="room_mate_input")
-    if st.button("Neuen Mitbewohner hinzufügen"):
+    st.title(f"Welcome to the flat '{st.session_state['flate_name']}'!")
+    room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
+    if st.button("Add a new roommate"):
         add_roommate(room_mate)
     display_roommates()
-    if st.button("Setup abschließen"):
+    if st.button("Finish Setup"):
         st.session_state["setup_finished"] = True
 
-# Funktion zum Hinzufügen eines Mitbewohners
+# Function to add a roommate
 def add_roommate(room_mate):
     if room_mate and room_mate not in st.session_state["roommates"]:
         st.session_state["roommates"].append(room_mate)
-        st.success(f"Mitbewohner '{room_mate}' wurde hinzugefügt.")
+        st.success(f"Roommate '{room_mate}' has been added.")
     elif room_mate in st.session_state["roommates"]:
-        st.warning(f"Mitbewohner '{room_mate}' ist bereits in der Liste.")
+        st.warning(f"Roommate '{room_mate}' is already on the list.")
 
-# Funktion zur Anzeige der Mitbewohner
+# Function to display the list of roommates
 def display_roommates():
     if st.session_state["roommates"]:
-        st.write("Aktuelle Mitbewohner:")
+        st.write("Current roommates:")
         for mate in st.session_state["roommates"]:
             st.write(f"- {mate}")
 
-# Seite für Einstellungen, wenn das Setup abgeschlossen ist
+# Settings page when setup is complete
 def settings_page():
-    st.write("Herzlichen Glückwunsch, deine Einstellungen sind abgeschlossen.")
+    st.write("Congratulations, your settings are complete.")
     change_flat_name()
     manage_roommates()
 
-# Funktion zum Ändern des WG-Namens
+# Function to change the flat name
 def change_flat_name():
-    with st.expander("WG-Name ändern"):
-        flate_name = st.text_input("Bitte gib einen neuen WG-Namen ein", key="change_flat_name")
-        if st.button("WG-Name ändern"):
+    with st.expander("Change Flat Name"):
+        flate_name = st.text_input("Please enter a new flat name", key="change_flat_name")
+        if st.button("Change Flat Name"):
             if flate_name:
                 st.session_state["flate_name"] = flate_name
-                st.success(f"Du hast den WG-Namen erfolgreich auf '{flate_name}' geändert.")
+                st.success(f"You successfully changed the flat name to '{flate_name}'.")
             else:
-                st.warning("Bitte gib einen neuen WG-Namen ein.")
+                st.warning("Please enter a new flat name.")
 
-# Funktion zur Verwaltung der Mitbewohner
+# Function to manage roommates
 def manage_roommates():
-    with st.expander("Mitbewohner verwalten"):
-        room_mate = st.text_input("Bitte gib den Namen eines Mitbewohners ein", key="new_room_mate_input")
-        if st.button("Neuen Mitbewohner hinzufügen"):
+    with st.expander("Manage Roommates"):
+        room_mate = st.text_input("Please enter the name of a roommate", key="new_room_mate_input")
+        if st.button("Add New Roommate"):
             add_roommate(room_mate)
         display_roommates()
         remove_roommate()
 
-# Funktion zum Entfernen eines Mitbewohners
+# Function to remove a roommate
 def remove_roommate():
     if st.session_state["roommates"]:
-        roommate_to_remove = st.selectbox("Wähle einen Mitbewohner zum Entfernen aus", st.session_state["roommates"])
-        if st.button("Mitbewohner entfernen"):
+        roommate_to_remove = st.selectbox("Select a roommate to remove", st.session_state["roommates"])
+        if st.button("Remove Roommate"):
             if roommate_to_remove in st.session_state["roommates"]:
                 st.session_state["roommates"].remove(roommate_to_remove)
-                st.success(f"Mitbewohner '{roommate_to_remove}' wurde entfernt.")
+                st.success(f"Roommate '{roommate_to_remove}' has been removed.")
 
-# Anzeigelogik für die ausgewählte Seite
+# Page display logic for the selected page
 if st.session_state["page"] == "overview":
     overview_page()
 elif st.session_state["page"] == "fridge":
