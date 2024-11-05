@@ -14,8 +14,6 @@ if "page" not in st.session_state:
 def change_page(new_page):
     st.session_state["page"] = new_page
 
-
-
 # Sidebar navigation with buttons
 st.sidebar.title("Navigation")
 if st.sidebar.button("Overview"):
