@@ -14,15 +14,15 @@ if "page" not in st.session_state:
 def change_page(new_page):
     st.session_state["page"] = new_page
 
-# Sidebar-Navigation
-page_selection = st.sidebar.selectbox("Overview:", ["overview", "Livio", "Flurin"])
-if page_selection != st.session_state["page"]:
-    st.session_state["page"] = page_selection
-if st.sidebar.button("Fridge"):
+# Sidebar-Navigation mit Buttons
+st.sidebar.title("Navigation")
+if st.sidebar.button("Übersicht"):
+    change_page("overview")
+if st.sidebar.button("Kühlschrank"):
     change_page("fridge")
-if st.sidebar.button("Recipes"):
+if st.sidebar.button("Rezepte"):
     change_page("recipes")
-if st.sidebar.button("Settings"):
+if st.sidebar.button("Einstellungen"):
     change_page("settings")
 
 # Funktionen für die einzelnen Seiten
@@ -114,13 +114,13 @@ def remove_roommate():
                 st.success(f"Mitbewohner '{roommate_to_remove}' wurde entfernt.")
 
 # Anzeigelogik für die ausgewählte Seite
-if st.session_state["page"] == "Übersicht":
+if st.session_state["page"] == "overview":
     overview_page()
-elif st.session_state["page"] == "Kühlschrank":
+elif st.session_state["page"] == "fridge":
     fridge_page()
-elif st.session_state["page"] == "Rezepte":
+elif st.session_state["page"] == "recipes":
     recipes_page()
-elif st.session_state["page"] == "Einstellungen":
+elif st.session_state["page"] == "settings":
     if not st.session_state["setup_finished"]:
         if st.session_state["flate_name"] == "":
             setup_flat_name()
