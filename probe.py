@@ -15,10 +15,15 @@ def change_page(new_page):
     st.session_state["page"] = new_page
 
 # Sidebar-Navigation
-st.sidebar.title("Navigation")
-page_selection = st.sidebar.selectbox("Seite auswählen:", ["Übersicht", "Kühlschrank", "Rezepte", "Einstellungen"])
+page_selection = st.sidebar.selectbox("Overview:", ["overview", "Livio", "Flurin"])
 if page_selection != st.session_state["page"]:
-    change_page(page_selection)
+    st.session_state["page"] = page_selection
+if st.sidebar.button("Fridge"):
+    change_page("fridge")
+if st.sidebar.button("Recipes"):
+    change_page("recipes")
+if st.sidebar.button("Settings"):
+    change_page("settings")
 
 # Funktionen für die einzelnen Seiten
 def overview_page():
