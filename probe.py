@@ -1,6 +1,4 @@
 import streamlit as st
-from Overview_page import overview_page
-from Fridge_page import fridge_page
 
 # Initialize session state variables
 if "flate_name" not in st.session_state:
@@ -45,6 +43,20 @@ elif st.session_state["page"] == "settings":
 
 
 
+# Function for the overview page
+def overview_page():
+    # Sets the title to "Overview: Name of the flat"
+    title = f"Overview: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Overview"
+    st.title(title)
+    st.write("Welcome to the main page of your app.")
+    st.write("Here you can display general information.")
+
+# Function for the fridge page
+def fridge_page():
+    st.title("Fridge")
+    st.write("This is the content of the Fridge page.")
+    st.text_input("Enter your name:", key="name_input_fridge")
+    st.button("Confirm")
 
 # Function for the recipes page
 def recipes_page():
