@@ -33,3 +33,4 @@ if uploaded_file is not None:
         for line in lines:
             # Regex to extract item name, quantity, and price
             match = re.search(r'(\D+)\s+(\d+)\s+(?:CHF|chf|€|eur)?\s?(\d+[\.,]?\d*)', line, re.IGNORECAS)
+
