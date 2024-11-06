@@ -24,4 +24,4 @@ if uploaded_file is not None:
     result = pytesseract.image_to_string(image)
     st.write("Extracted Text:")
     st.write(result)
-
+#jsdf
