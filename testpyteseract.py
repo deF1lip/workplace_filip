@@ -4,7 +4,7 @@ import pytesseract
 import re
 
 # Set the path to the Tesseract executable
-pytesseract.pytesseract.tesseract_cmd = '/opt/homebrew/bin/tesseract'
+#pytesseract.pytesseract.tesseract_cmd = '/opt/homebrew/bin/tesseract'
 
 # Initialization of session state variables
 if "roommates" not in st.session_state:
