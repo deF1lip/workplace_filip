@@ -1,5 +1,5 @@
 import streamlit as st
 
-st.set_page_config (page_title = "File Uploader")
-
-datafile = st.file_uploader(label = "Upload your receipt")
+# intiatlisierung 
+if "inventory" not in st.session_state:
+    st.session_state["inventory"] = {"Tomato", "Banana,"} # Example roommates list
