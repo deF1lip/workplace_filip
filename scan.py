@@ -4,7 +4,7 @@ import easyocr
 import re
 
 # Initialize EasyOCR reader
-reader = easyocr.Reader(['en'])  # Hier kannst du zusätzliche Sprachen angeben, z.B. ['en', 'de'] für Englisch und Deutsch
+reader = easyocr.Reader(['en'])  # Du kannst zusätzliche Sprachen angeben, z.B. ['en', 'de'] für Englisch und Deutsch
 
 # Initialization of session state variables
 if "roommates" not in st.session_state:
@@ -22,19 +22,17 @@ if uploaded_file is not None:
     st.write("Extracting text from the receipt...")
     results = reader.readtext(image)
 
-    # Combine the recognized text into a single string
-    text = " ".join([result[1] for result in results])
+    # Display the extracted text line by line
+    st.write("Extracted Text (Line by Line):")
+    for result in results:
+        st.write(result[1])  # Display each line of text
 
-    # Display the extracted text
-    st.write("Extracted Text:")
-    st.write(text)
-
-    # Function to extract items, quantities, and prices
-    def extract_items(text):
+    # Function to extract items, quantities, and prices from each line
+    def extract_items_from_lines(results):
         items = []
-        lines = text.splitlines()
-        for line in lines:
-            # Regex to extract item name, quantity, and price
+        for result in results:
+            line = result[1]
+            # Regex to extract item name, quantity, and price for each line
             match = re.search(r'(\D+)\s+(\d+)\s+(?:CHF|chf|€|eur)?\s?(\d+[\.,]?\d*)', line, re.IGNORECASE)
             if match:
                 item_name = match.group(1).strip()
@@ -43,8 +41,8 @@ if uploaded_file is not None:
                 items.append({"Item": item_name, "Quantity": quantity, "Price": price})
         return items
 
-    # Extract information
-    items = extract_items(text)
+    # Extract information from each line
+    items = extract_items_from_lines(results)
 
     # Display extracted items
     if items:
@@ -52,4 +50,6 @@ if uploaded_file is not None:
         for item in items:
             st.write(f"{item['Item']} - Quantity: {item['Quantity']}, Price: {item['Price']} CHF")
     else:
+        st.write("No items could be extracted from the text.")
+
         st.write("No items found.")
