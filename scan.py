@@ -4,6 +4,8 @@ import pytesseract
 import cv2
 import numpy as np
 
+pytesseract.pytesseract.tesseract_cmd = '/opt/homebrew/bin/tesseract'
+
 # Initialization of session state variables
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]  # Example roommates list
