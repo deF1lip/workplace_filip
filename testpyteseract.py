@@ -1,6 +1,6 @@
 import streamlit as st
 from PIL import Image
-#import pytesseract
+import pytesseract
 import re
 
 # Set the path to the Tesseract executable
