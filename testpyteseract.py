@@ -3,48 +3,49 @@ from PIL import Image
 import pytesseract
 import re
 
-# Upload-Widget für das Rechnungsbild
-uploaded_file = st.file_uploader("Lade ein Bild deiner Rechnung hoch", type=["jpg", "jpeg", "png"])
+# Initialization of session state variables
+if "roommates" not in st.session_state:
+    st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]
+
+# Upload widget for the receipt
+uploaded_file = st.file_uploader("Upload an image of your receipt", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Lade und zeige das Bild an
+    # Load and display the image
     image = Image.open(uploaded_file)
-    st.image(image, caption='Hochgeladene Rechnung', use_column_width=True)
+    st.image(image, caption='Uploaded Receipt', use_column_width=True)
 
-    # OCR-Anwendung auf das Bild
-    st.write("Texterkennung wird ausgeführt...")
+    # Apply OCR (text recognition) to the image
+    st.write("Extracting text from the receipt...")
     text = pytesseract.image_to_string(image)
 
-    # Zeige den extrahierten Text an
-    st.write("Extrahierter Text:")
+    # Display the extracted text
+    st.write("Extracted Text:")
     st.write(text)
 
-    # Funktion zur Extraktion von Artikeln, Mengen und Preisen
+    # Function to extract items, quantities, and prices
     def extract_items(text):
         items = []
-        # Zeilenweise durch den Text gehen
         lines = text.splitlines()
         for line in lines:
-            # Regex zum Extrahieren von Artikelnamen, Menge und Preis
-            match = re.search(r'(\D+)\s+(\d+)\s+(\d+[\.,]?\d*)', line)
+            # Regex to extract item name, quantity, and price
+            match = re.search(r'(\D+)\s+(\d+)\s+(?:CHF|chf|€|eur)?\s?(\d+[\.,]?\d*)', line, re.IGNORECASE)
             if match:
-                # Artikelnamen, Menge und Preis aus dem Match extrahieren
                 item_name = match.group(1).strip()
                 quantity = int(match.group(2))
                 price = float(match.group(3).replace(',', '.'))
-                items.append({"Artikel": item_name, "Menge": quantity, "Preis": price})
+                items.append({"Item": item_name, "Quantity": quantity, "Price": price})
         return items
 
-    # Extrahiere die Artikel
+    # Extract information
     items = extract_items(text)
 
-    # Zeige die extrahierten Artikel an
+    # Display extracted items
     if items:
-        st.write("Extrahierte Artikel:")
+        st.write("Extracted Items:")
         for item in items:
-            st.write(f"Artikel: {item['Artikel']}, Menge: {item['Menge']}, Preis: {item['Preis']} CHF")
+            st.write(f"{item['Item']} - Quantity: {item['Quantity']}, Price: {item['Price']} CHF")
     else:
-        st.write("Es konnten keine Artikel aus dem Text extrahiert werden.")
-
+        st.write("No items could be extracted from the text.")
 
 
