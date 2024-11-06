@@ -3,9 +3,6 @@ from PIL import Image
 import pytesseract
 import re
 
-# Set the path to the Tesseract executable
-#pytesseract.pytesseract.tesseract_cmd = '/opt/homebrew/bin/tesseract'
-
 # Initialization of session state variables
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]
@@ -32,5 +29,23 @@ if uploaded_file is not None:
         lines = text.splitlines()
         for line in lines:
             # Regex to extract item name, quantity, and price
-            match = re.search(r'(\D+)\s+(\d+)\s+(?:CHF|chf|€|eur)?\s?(\d+[\.,]?\d*)', line, re.IGNORECAS)
+            match = re.search(r'(\D+)\s+(\d+)\s+(?:CHF|chf|€|eur)?\s?(\d+[\.,]?\d*)', line, re.IGNORECASE)
+            if match:
+                item_name = match.group(1).strip()
+                quantity = int(match.group(2))
+                price = float(match.group(3).replace(',', '.'))
+                items.append({"Item": item_name, "Quantity": quantity, "Price": price})
+        return items
+
+    # Extract information
+    items = extract_items(text)
+
+    # Display extracted items
+    if items:
+        st.write("Extracted Items:")
+        for item in items:
+            st.write(f"{item['Item']} - Quantity: {item['Quantity']}, Price: {item['Price']} CHF")
+    else:
+        st.write("No items could be extracted from the text.")
+
 
