@@ -296,7 +296,7 @@ def display_purchases():
             else:
                 st.write("No purchases recorded.")
 
- def barcode_page():
+def barcode_page():
     st.title("Upload your barcode")
     uploaded_file = st.file_uploader("Upload an image with a barcode", type=["jpg", "jpeg", "png"])
 
