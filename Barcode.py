@@ -73,42 +73,43 @@ def display_purchases():
                 st.write("No purchases recorded.")
 
 # Hauptlogik für die Barcode- und Produkthandhabung
-st.title("Upload your barcode")
-uploaded_file = st.file_uploader("Upload an image with a barcode", type=["jpg", "jpeg", "png"])
+def barcode_page():
+    st.title("Upload your barcode")
+    uploaded_file = st.file_uploader("Upload an image with a barcode", type=["jpg", "jpeg", "png"])
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.write("Scanning for barcode...")
-    barcode = decode_barcode(image)
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        st.write("Scanning for barcode...")
+        barcode = decode_barcode(image)
 
-    if barcode:
-        st.write(f"Barcode found: {barcode}")
-        st.write("Looking up product information...")
-        product_info = get_product_info(barcode)
+        if barcode:
+            st.write(f"Barcode found: {barcode}")
+            st.write("Looking up product information...")
+            product_info = get_product_info(barcode)
 
-        if product_info:
-            food_item = st.text_input("Product:", value=product_info['name'])
-            brand = st.text_input("Brand:", value=product_info['brand'])
-        else:
-            st.write("Product not found in database.")
-            food_item = st.text_input("Product:")
-            brand = st.text_input("Brand:")
-
-        selected_roommate = st.selectbox("Who bought the product?", st.session_state["roommates"])
-        quantity = st.number_input("Quantity:", min_value=0.0, step=0.1, format="%.2f")
-        unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
-        price = st.number_input("Price (in CHF):", min_value=0.0, step=0.1, format="%.2f")
-
-        if st.button("Add product to inventory"):
-            if food_item and quantity > 0 and price >= 0:
-                add_product_to_inventory(food_item, quantity, unit, price, selected_roommate)
+            if product_info:
+                food_item = st.text_input("Product:", value=product_info['name'])
+                brand = st.text_input("Brand:", value=product_info['brand'])
             else:
-                st.warning("Please fill in all fields.")
-    else:
-        st.write("No barcode found in the image.")
+                st.write("Product not found in database.")
+                food_item = st.text_input("Product:")
+                brand = st.text_input("Brand:")
 
-display_total_expenses()
-display_purchases()
+            selected_roommate = st.selectbox("Who bought the product?", st.session_state["roommates"])
+            quantity = st.number_input("Quantity:", min_value=0.0, step=0.1, format="%.2f")
+            unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
+            price = st.number_input("Price (in CHF):", min_value=0.0, step=0.1, format="%.2f")
+
+            if st.button("Add product to inventory"):
+                if food_item and quantity > 0 and price >= 0:
+                    add_product_to_inventory(food_item, quantity, unit, price, selected_roommate)
+                else:
+                    st.warning("Please fill in all fields.")
+        else:
+            st.write("No barcode found in the image.")
+
+    display_total_expenses()
+    display_purchases()
 
 
 
