@@ -34,7 +34,7 @@ def get_product_info(barcode):
             }
     return None
 
-st.title("Upload  barcode ")
+st.title("Upload your barcode ")
 uploaded_file = st.file_uploader("Upload an image with a barcode", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
