@@ -23,7 +23,7 @@ if "purchases" not in st.session_state:
 if "consumed" not in st.session_state:
     st.session_state["consumed"] = {}
 
-# Function to ensure data structure for each roommate
+# Ensure data structure for each roommate
 def initialize_roommate_data(roommate):
     if roommate not in st.session_state["expenses"]:
         st.session_state["expenses"][roommate] = 0.0
@@ -32,109 +32,31 @@ def initialize_roommate_data(roommate):
     if roommate not in st.session_state["consumed"]:
         st.session_state["consumed"][roommate] = []
 
-# Function to change pages
-def change_page(new_page):
-    st.session_state["page"] = new_page
-
 # Sidebar navigation with buttons
-st.sidebar.title("Navigation")
-if st.sidebar.button("Overview"):
-    change_page("overview")
-if st.sidebar.button("Fridge"):
-    change_page("fridge")
-if st.sidebar.button("Recipes"):
-    change_page("recipes")
-if st.sidebar.button("Settings"):
-    change_page("settings")
+def setup_sidebar():
+    st.sidebar.title("Navigation")
+    if st.sidebar.button("Overview"):
+        st.session_state["page"] = "overview"
+    if st.sidebar.button("Fridge"):
+        st.session_state["page"] = "fridge"
+    if st.sidebar.button("Recipes"):
+        st.session_state["page"] = "recipes"
+    if st.sidebar.button("Settings"):
+        st.session_state["page"] = "settings"
 
-# Function for the overview page
-def overview_page():
-    title = f"Overview: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Overview"
-    st.title(title)
-    st.write("Welcome to the main page of your app.")
-    st.write("Here you can display general information.")
-
-# Function for the recipes page
-def recipes_page():
-    st.title("Recipes")
-    st.write("This is the content of the Recipes page.")
-    st.slider("Choose a value:", 0, 100, 50, key="slider_recipes")
-
-# Setup page for entering the flat name
-def setup_flat_name():
-    st.title("🏠 Wasteless App - Setup")
-    flate_name = st.text_input("Please enter your flat name")
-    if st.button("Confirm Flat Name"):
-        if flate_name:
-            st.session_state["flate_name"] = flate_name
-            st.success(f"You successfully set the flat name to '{flate_name}'.")
-
-# Main page for entering roommates
-def setup_roommates():
-    st.title(f"Welcome to the flat '{st.session_state['flate_name']}'!")
-    room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
-    if st.button("Add a new roommate"):
-        add_roommate(room_mate)
-    display_roommates()
-    if st.button("Finish Setup"):
-        st.session_state["setup_finished"] = True
-
-# Function to add a roommate and update expenses
+# Function to add a new roommate with data initialization
 def add_roommate(room_mate):
     if room_mate and room_mate not in st.session_state["roommates"]:
         st.session_state["roommates"].append(room_mate)
-        initialize_roommate_data(room_mate)  # Initialize data for the new roommate
+        initialize_roommate_data(room_mate)
         st.success(f"Roommate '{room_mate}' has been added.")
     elif room_mate in st.session_state["roommates"]:
         st.warning(f"Roommate '{room_mate}' is already on the list.")
 
-# Function to display the list of roommates
-def display_roommates():
-    if st.session_state["roommates"]:
-        st.write("Current roommates:")
-        for mate in st.session_state["roommates"]:
-            st.write(f"- {mate}")
-
-# Settings page when setup is complete
-def settings_page():
-    st.write("Congratulations, your settings are complete.")
-    change_flat_name()
-    manage_roommates()
-
-# Function to change the flat name
-def change_flat_name():
-    with st.expander("Change Flat Name"):
-        flate_name = st.text_input("Please enter a new flat name", key="change_flat_name")
-        if st.button("Change Flat Name"):
-            if flate_name:
-                st.session_state["flate_name"] = flate_name
-                st.success(f"You successfully changed the flat name to '{flate_name}'.")
-
-# Function to manage roommates
-def manage_roommates():
-    with st.expander("Manage Roommates"):
-        room_mate = st.text_input("Please enter the name of a roommate", key="new_room_mate_input")
-        if st.button("Add New Roommate"):
-            add_roommate(room_mate)
-        display_roommates()
-        remove_roommate()
-
-# Function to remove a roommate
-def remove_roommate():
-    if st.session_state["roommates"]:
-        roommate_to_remove = st.selectbox("Select a roommate to remove", st.session_state["roommates"])
-        if st.button("Remove Roommate"):
-            if roommate_to_remove in st.session_state["roommates"]:
-                st.session_state["roommates"].remove(roommate_to_remove)
-                del st.session_state["expenses"][roommate_to_remove]
-                del st.session_state["purchases"][roommate_to_remove]
-                del st.session_state["consumed"][roommate_to_remove]
-                st.success(f"Roommate '{roommate_to_remove}' has been removed.")
-
-# Function to add product to inventory
+# Function to add product to inventory and update roommate expenses
 def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
     purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    initialize_roommate_data(selected_roommate)  # Ensure data structure for roommate
+    initialize_roommate_data(selected_roommate)
     if food_item in st.session_state["inventory"]:
         st.session_state["inventory"][food_item]["Quantity"] += quantity
         st.session_state["inventory"][food_item]["Price"] += price
@@ -151,10 +73,10 @@ def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate
     })
     st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
 
-# Function to delete product from inventory
+# Function to remove a product from inventory and update roommate expenses
 def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
     delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    initialize_roommate_data(selected_roommate)  # Ensure data structure for roommate
+    initialize_roommate_data(selected_roommate)
     if food_item in st.session_state["inventory"]:
         current_quantity = st.session_state["inventory"][food_item]["Quantity"]
         current_price = st.session_state["inventory"][food_item]["Price"]
@@ -182,47 +104,30 @@ def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
 # Fridge page function
 def fridge_page():
     st.title("Fridge")
+    selected_roommate = st.selectbox("Select the roommate:", st.session_state["roommates"])
 
-    # Roommate selection
-    if st.session_state["roommates"]:
-        selected_roommate = st.selectbox("Select the roommate:", st.session_state["roommates"])
-    else:
-        st.warning("No roommates available.")
-        return
-
-    # Action selection: Add or Remove
     action = st.selectbox("Would you like to add or remove an item?", ["Add", "Remove"])
-
     if action == "Add":
         food_item = st.text_input("Enter a food item to add:")
         quantity = st.number_input("Quantity:", min_value=0.0)
         unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
         price = st.number_input("Price (in CHF):", min_value=0.0)
-
         if st.button("Add item"):
-            if food_item and quantity > 0 and price >= 0 and selected_roommate:
-                add_product_to_inventory(food_item, quantity, unit, price, selected_roommate)
-            else:
-                st.warning("Please fill in all fields.")
+            add_product_to_inventory(food_item, quantity, unit, price, selected_roommate)
     
-    elif action == "Remove":
-        if st.session_state["inventory"]:
-            food_item = st.selectbox("Select a food item to remove:", list(st.session_state["inventory"].keys()))
-            quantity = st.number_input("Quantity to remove:", min_value=1.0, step=1.0)
-            unit = st.session_state["inventory"][food_item]["Unit"]
-
-            if st.button("Remove item"):
-                delete_product_from_inventory(food_item, quantity, unit, selected_roommate)
-        else:
-            st.warning("The inventory is empty.")
+    elif action == "Remove" and st.session_state["inventory"]:
+        food_item = st.selectbox("Select a food item to remove:", list(st.session_state["inventory"].keys()))
+        quantity = st.number_input("Quantity to remove:", min_value=1.0, step=1.0)
+        unit = st.session_state["inventory"][food_item]["Unit"]
+        if st.button("Remove item"):
+            delete_product_from_inventory(food_item, quantity, unit, selected_roommate)
+    else:
+        st.warning("The inventory is empty.")
 
     if st.session_state["inventory"]:
         st.write("Current Inventory:")
-        inventory_df = pd.DataFrame.from_dict(st.session_state["inventory"], orient='index')
-        inventory_df = inventory_df.reset_index().rename(columns={'index': 'Food Item'})
+        inventory_df = pd.DataFrame.from_dict(st.session_state["inventory"], orient='index').reset_index().rename(columns={'index': 'Food Item'})
         st.table(inventory_df)
-    else:
-        st.write("The inventory is empty.")
 
     st.write("Total expenses per roommate:")
     expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
@@ -233,12 +138,12 @@ def fridge_page():
         st.write(f"**{mate}'s Purchases:**")
         purchases_df = pd.DataFrame(st.session_state["purchases"][mate])
         st.table(purchases_df)
-
         st.write(f"**{mate}'s Consumptions:**")
         consumed_df = pd.DataFrame(st.session_state["consumed"][mate])
         st.table(consumed_df)
 
-# Page display logic for the selected page
+# Page display logic
+setup_sidebar()
 if st.session_state["page"] == "overview":
     overview_page()
 elif st.session_state["page"] == "fridge":
@@ -253,3 +158,4 @@ elif st.session_state["page"] == "settings":
             setup_roommates()
     else:
         settings_page()
+
