@@ -81,7 +81,7 @@ def get_recipes_from_inventory():
     # Show results
     if response.status_code == 200:
         recipes = response.json()
-        recipe_titles = []
+        recipe_titles = []  # List to hold the titles of recipes
         if recipes:
             random.shuffle(recipes)
             st.subheader("Recipe Suggestions")
@@ -92,20 +92,23 @@ def get_recipes_from_inventory():
                 if missed_ingredients <= 2:
                     recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
                     st.write(f"- **{recipe['title']}** ([View Recipe]({recipe_link}))")
+                    recipe_titles.append(recipe['title'])  # Add recipe title to the list
                     displayed_recipes += 1
+                    
                     # If there are any missed ingredients, list them
                     if missed_ingredients > 0:
                         missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
                         st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
+                
                 if displayed_recipes >= 3:
                     break
-            return recipe_titles
+            return recipe_titles  # Return the list of recipe titles
         else:
             st.write("No recipes found with the current ingredients.")
-            return[]
+            return []
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
-        return[]
+        return []
 
 
 select_user()
