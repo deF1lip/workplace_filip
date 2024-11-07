@@ -1,33 +1,38 @@
 import streamlit as st
-import fitz  # PyMuPDF
+from PIL import Image
+import easyocr
 import re
+
+# Initialize EasyOCR reader
+reader = easyocr.Reader(['en'])  # Du kannst zusätzliche Sprachen angeben, z.B. ['en', 'de'] für Englisch und Deutsch
 
 # Initialization of session state variables
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]
 
 # Upload widget for the receipt
-uploaded_file = st.file_uploader("Upload a PDF of your receipt", type=["pdf"])
+uploaded_file = st.file_uploader("Upload an image of your receipt", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Laden und Auslesen des PDFs
-    with fitz.open(stream=uploaded_file.read(), filetype="pdf") as pdf:
-        all_text = ""
-        for page_num in range(pdf.page_count):
-            page = pdf[page_num]
-            page_text = page.get_text()
-            all_text += page_text + "\n"  # Alle Seiten kombinieren
-            
-    # Zeige den extrahierten Text an
-    st.write("Extracted Text:")
-    st.write(all_text)
+    # Load and display the image
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Receipt', use_column_width=True)
 
-    # Funktion zur Extraktion von Lebensmitteln, Mengen und Preisen
-    def extract_items_from_text(text):
+    # Apply OCR (text recognition) to the image
+    st.write("Extracting text from the receipt...")
+    results = reader.readtext(image)
+
+    # Display the extracted text line by line
+    st.write("Extracted Text (Line by Line):")
+    for result in results:
+        st.write(result[1])  # Display each line of text
+
+    # Function to extract items, quantities, and prices from each line
+    def extract_items_from_lines(results):
         items = []
-        lines = text.splitlines()
-        for line in lines:
-            # Regex zum Extrahieren von Lebensmittelname, Menge und Preis
+        for result in results:
+            line = result[1]
+            # Regex to extract item name, quantity, and price for each line
             match = re.search(r'(\D+)\s+(\d+)\s+(?:CHF|chf|€|eur)?\s?(\d+[\.,]?\d*)', line, re.IGNORECASE)
             if match:
                 item_name = match.group(1).strip()
@@ -36,10 +41,10 @@ if uploaded_file is not None:
                 items.append({"Item": item_name, "Quantity": quantity, "Price": price})
         return items
 
-    # Extrahiere die Informationen
-    items = extract_items_from_text(all_text)
+    # Extract information from each line
+    items = extract_items_from_lines(results)
 
-    # Zeige die extrahierten Artikel an
+    # Display extracted items
     if items:
         st.write("Extracted Items:")
         for item in items:
@@ -47,3 +52,4 @@ if uploaded_file is not None:
     else:
         st.write("No items could be extracted from the text.")
 
+        st.write("No items found.")

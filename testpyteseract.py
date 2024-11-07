@@ -1,51 +1,59 @@
 import streamlit as st
 from PIL import Image
-import pytesseract
-import re
+from pyzbar.pyzbar import decode  # Barcode-Decoder für Bilder
+import requests  # Für API-Anfragen an Open Food Facts
 
-# Initialization of session state variables
-if "roommates" not in st.session_state:
-    st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]
+# Funktion zum Decodieren des Barcodes
+def decode_barcode(image):
+    decoded_objects = decode(image)
+    for obj in decoded_objects:
+        return obj.data.decode("utf-8")  # Gibt den Barcode als Text zurück
+    return None
 
-# Upload widget for the receipt
-uploaded_file = st.file_uploader("Upload an image of your receipt", type=["jpg", "jpeg", "png"])
+# Funktion zur Abfrage der Open Food Facts API
+def get_product_info(barcode):
+    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if data["status"] == 1:
+            product = data["product"]
+            return {
+                "name": product.get("product_name", "Unknown Product"),
+                "brand": product.get("brands", "Unknown Brand")
+            }
+    return None
+
+# Upload-Widget für das Barcode-Bild
+uploaded_file = st.file_uploader("Upload an image with a barcode", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Load and display the image
     image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Receipt', use_column_width=True)
+    st.image(image, caption='Uploaded Image', use_column_width=True)
 
-    # Apply OCR (text recognition) to the image
-    st.write("Extracting text from the receipt...")
-    text = pytesseract.image_to_string(image)
+    # Barcode-Scan und Produktsuche
+    st.write("Scanning for barcode...")
+    barcode = decode_barcode(image)
 
-    # Display the extracted text
-    st.write("Extracted Text:")
-    st.write(text)
+    if barcode:
+        st.write(f"Barcode found: {barcode}")
+        st.write("Looking up product information...")
+        product_info = get_product_info(barcode)
 
-    # Function to extract items, quantities, and prices
-    def extract_items(text):
-        items = []
-        lines = text.splitlines()
-        for line in lines:
-            # Regex to extract item name, quantity, and price
-            match = re.search(r'(\D+)\s+(\d+)\s+(?:CHF|chf|€|eur)?\s?(\d+[\.,]?\d*)', line, re.IGNORECASE)
-            if match:
-                item_name = match.group(1).strip()
-                quantity = int(match.group(2))
-                price = float(match.group(3).replace(',', '.'))
-                items.append({"Item": item_name, "Quantity": quantity, "Price": price})
-        return items
+        if product_info:
+            st.write(f"Product: {product_info['name']}")
+            st.write(f"Brand: {product_info['brand']}")
+        else:
+            st.write("Product not found in database.")
 
-    # Extract information
-    items = extract_items(text)
+        # Manuelle Eingabe von Menge und Preis
+        quantity = st.number_input("Quantity:", min_value=0.0, step=0.1)
+        price = st.number_input("Price (in CHF):", min_value=0.0, step=0.1)
 
-    # Display extracted items
-    if items:
-        st.write("Extracted Items:")
-        for item in items:
-            st.write(f"{item['Item']} - Quantity: {item['Quantity']}, Price: {item['Price']} CHF")
+        # Button zum Hinzufügen des Produkts
+        if st.button("Add product to inventory"):
+            st.success(f"Added '{product_info['name']}' with quantity {quantity} and price {price} CHF.")
     else:
-        st.write("No items could be extracted from the text.")
+        st.write("No barcode found in the image.")
 
 
