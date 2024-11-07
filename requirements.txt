@@ -6,5 +6,4 @@ pyzbar
 requests
 datetime
 jason
-streamlit
-pandas
+atexit

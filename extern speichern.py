@@ -2,18 +2,19 @@ import streamlit as st
 import json
 from datetime import datetime
 import pandas as pd
+import atexit
 
-# Dateipfad für die JSON-Speicherung
+# File path for JSON storage
 DATA_FILE = "session_data.json"
 
-# Funktion zum Laden der Daten aus einer JSON-Datei
+# Function to load data from a JSON file
 def load_data():
     try:
         with open(DATA_FILE, "r") as f:
             data = json.load(f)
             return data
-    except (FileNotFoundError, json.JSONDecodeError):
-        # Rückgabe einer Standardstruktur, falls die Datei nicht existiert oder beschädigt ist
+    except FileNotFoundError:
+        # Default structure if file does not exist
         return {
             "roommates": ["Livio", "Flurin", "Anderin"],
             "inventory": {},
@@ -22,7 +23,7 @@ def load_data():
             "consumed": {mate: [] for mate in ["Livio", "Flurin", "Anderin"]}
         }
 
-# Funktion zum Speichern der Daten in einer JSON-Datei
+# Function to save data to a JSON file
 def save_data():
     data = {
         "roommates": st.session_state["roommates"],
@@ -34,7 +35,10 @@ def save_data():
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-# Initialisiere oder lade die Session-States beim Start
+# Register save_data to run on exit
+atexit.register(save_data)
+
+# Initialize or load session state at start
 data = load_data()
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = data["roommates"]
@@ -47,7 +51,7 @@ if "purchases" not in st.session_state:
 if "consumed" not in st.session_state:
     st.session_state["consumed"] = data["consumed"]
 
-# Funktion zum Hinzufügen eines Produkts
+# Function to add product to inventory
 def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
     purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if food_item in st.session_state["inventory"]:
@@ -64,10 +68,9 @@ def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate
         "Unit": unit,
         "Date": purchase_time
     })
-    save_data()  # Speichern nach der Aktualisierung
     st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
 
-# Funktion zum Entfernen eines Produkts
+# Function to delete product from inventory
 def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
     delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if food_item and quantity > 0 and selected_roommate:
@@ -89,7 +92,6 @@ def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
                 })
                 if st.session_state["inventory"][food_item]["Quantity"] <= 0:
                     del st.session_state["inventory"][food_item]
-                save_data()  # Speichern nach der Aktualisierung
                 st.success(f"'{quantity}' of '{food_item}' has been removed.")
             else:
                 st.warning("The quantity to remove exceeds the available quantity.")
@@ -98,18 +100,16 @@ def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
     else:
         st.warning("Please fill in all fields.")
 
-# Hauptseite für den Kühlschrank
+# Main page for the fridge
 def fridge_page():
     st.title("Fridge")
 
-    # Roommate selection
     if st.session_state["roommates"]:
         selected_roommate = st.selectbox("Select the roommate:", st.session_state["roommates"])
     else:
         st.warning("No roommates available.")
         return
 
-    # Auswahl: Hinzufügen oder Entfernen
     action = st.selectbox("Would you like to add or remove an item?", ["Add", "Remove"])
 
     if action == "Add":
@@ -147,15 +147,5 @@ def fridge_page():
     expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
     st.table(expenses_df)
 
-    st.write("Purchases and Consumptions per roommate:")
-    for mate in st.session_state["roommates"]:
-        st.write(f"**{mate}'s Purchases:**")
-        purchases_df = pd.DataFrame(st.session_state["purchases"][mate])
-        st.table(purchases_df)
-
-        st.write(f"**{mate}'s Consumptions:**")
-        consumed_df = pd.DataFrame(st.session_state["consumed"][mate])
-        st.table(consumed_df)
-
-fridge_page()
+    st.write("Purchases and Consum
 
