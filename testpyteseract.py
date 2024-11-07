@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
-from pyzbar.pyzbar import decode  # Barcode-Decoder für Bilder
-import requests  # Für API-Anfragen an Open Food Facts
+from pyzbar.pyzbar import decode
+import requests
 
 # Funktion zum Decodieren des Barcodes
 def decode_barcode(image):
@@ -18,9 +18,16 @@ def get_product_info(barcode):
         data = response.json()
         if data["status"] == 1:
             product = data["product"]
+            # Produktdetails prüfen
+            product_name = product.get("product_name", "Unknown Product")
+            brand = product.get("brands", "Unknown Brand")
+            generic_name = product.get("generic_name", "")
+
+            # Genaueren Namen ermitteln
+            final_name = f"{product_name} ({generic_name})" if generic_name else product_name
             return {
-                "name": product.get("product_name", "Unknown Product"),
-                "brand": product.get("brands", "Unknown Brand")
+                "name": final_name,
+                "brand": brand
             }
     return None
 
@@ -55,5 +62,6 @@ if uploaded_file is not None:
             st.success(f"Added '{product_info['name']}' with quantity {quantity} and price {price} CHF.")
     else:
         st.write("No barcode found in the image.")
+
 
 
