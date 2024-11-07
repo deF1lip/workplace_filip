@@ -53,15 +53,13 @@ def select_user():
         st.warning("No user was added.")
 
 
-def star_rating(recipe_title):
-    # Displays stars to rate
+def number_rating(recipe_title):
+    # Displays a numerical rating system (1-5)
     st.write(f"Rate {recipe_title}:")
-    stars = ["☆", "☆", "☆", "☆", "☆"]  # Empty stars to be replaced with filled ones
-    rating = st.radio(" ", stars, index=0, horizontal=True, key=recipe_title)
+    rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=recipe_title)
     if rating:
-        rating_value = stars.index(rating) + 1
-        st.session_state["ratings"][recipe_title] = rating_value
-        st.success(f"Thanks for rating {recipe_title} with {rating_value} stars!")
+        st.session_state["ratings"][recipe_title] = rating
+        st.success(f"Thanks for rating {recipe_title} with {rating} stars!")
 
 
 
