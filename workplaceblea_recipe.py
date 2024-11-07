@@ -1,22 +1,22 @@
 import streamlit as st
 import requests
 
-# API-Key und URL für Spoonacular
+# API-Key and URL for Spoonacular
 API_KEY = '21c590f808c74caabbaa1494c6196e7a'
 SPOONACULAR_URL = 'https://api.spoonacular.com/recipes/findByIngredients'
 
-# intiatlisierung 
+# initialisation
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {
         "Tomato": {"Quantity": 5, "Unit": "gramm", "Price": 3.0},
         "Banana": {"Quantity": 3, "Unit": "gramm", "Price": 5.0} 
-    }# Example roommates list
+    }
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]  # Example roommates list
 if "selected_user" not in st.session_state:
     st.session_state["selected_user"] = None
 
-# Auswahl des aktuellen Mitbewohner
+# Choose roommate
 def select_user():
     st.title("Who are you")
     if st.session_state["roommates"]:
@@ -26,17 +26,18 @@ def select_user():
     else:
         st.warning("No user was added.")
 
-# Rezeptvorschläge basierend auf Inventar aufrufen
+# Call up recipe suggestions based on inventory
 def get_recipes_from_inventory():
-    # Zutaten aus dem Inventar laden
+    # Load Ingredients from Inventory
     ingredients = list(st.session_state["inventory"].keys())
     if not ingredients:
         st.warning("Inventory is empty. Please move your lazy ass to Migros.") 
         return
     # Anfrage an Spoonacular API
     params = {
-        "ingredients": ",".join(ingredients), # Zutaten aus Inventory
-        "number": 3, # Anzahl an Rezepten
+        "ingredients": ",".join(ingredients), # Ingredients of Inventory
+        "number": 3, # Nr of Recipes
+        "ranking": 1,  # Prioritize recipes with maximum matching ingredients
         "apiKey": API_KEY
     }
     response = requests.get(SPOONACULAR_URL, params=params)
@@ -46,8 +47,10 @@ def get_recipes_from_inventory():
         if recipes:
             st.subheader("Recipe Suggestions")
             for recipe in recipes:
-                recipe_link = f"https://spoonacular.com/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
-                st.write(f"- **{recipe['title']}** (Link: [View Recipe]({recipe_link}))")
+                missed_ingredients = recipe.get("missedIngredientCount", 0)
+                if missed_ingredients == 0:  # Show recipes with no extra ingredients required
+                    recipe_link = f"https://spoonacular.com/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
+                    st.write(f"- **{recipe['title']}** ([View Recipe]({recipe_link}))")
         else:
             st.write("No recipes found with the current ingredients.")
     else:
