@@ -106,13 +106,14 @@ def get_recipes_from_inventory():
 
 select_user()
 
+if st.session_state["ratings"]:
+    st.subheader("Your Ratings")
+    for recipe, rating in st.session_state["ratings"].items():
+        st.write(f"- {recipe}: {rating} stars")
+
 if st.button("Get Recipe Suggestions"):
     if st.session_state["selected_user"]:  # Check if a user is selected
         get_recipes_from_inventory()
     else:
         st.warning("Please select a user first.")
 
-if st.session_state["ratings"]:
-    st.subheader("Your Ratings")
-    for recipe, rating in st.session_state["ratings"].items():
-        st.write(f"- {recipe}: {rating} stars")
