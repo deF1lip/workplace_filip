@@ -57,7 +57,7 @@ def get_recipes_from_inventory():
     # Anfrage an Spoonacular API
     params = {
         "ingredients": ",".join(ingredients), # Ingredients of Inventory
-        "number": 3, # Nr of Recipes
+        "number": 5, # Nr of Recipes
         "ranking": 2,  # Prioritize recipes with maximum matching ingredients
         "apiKey": API_KEY
     }
