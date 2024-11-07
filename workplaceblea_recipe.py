@@ -1,5 +1,7 @@
 import streamlit as st
 import requests
+import random
+
 
 # API-Key and URL for Spoonacular
 API_KEY = '21c590f808c74caabbaa1494c6196e7a'
@@ -33,7 +35,7 @@ if "inventory" not in st.session_state:
         "Mushroom": {"Quantity": 200, "Unit": "gram", "Price": 3.0} 
     }
 if "roommates" not in st.session_state:
-    st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]  # Example roommates list
+    st.session_state["roommates"] = ["Bilbo", "Frodo", "Gandalf der Weise"]  # Example roommates list
 if "selected_user" not in st.session_state:
     st.session_state["selected_user"] = None
 
@@ -57,7 +59,7 @@ def get_recipes_from_inventory():
     # Anfrage an Spoonacular API
     params = {
         "ingredients": ",".join(ingredients), # Ingredients of Inventory
-        "number": 5, # Nr of Recipes
+        "number": 10, # Nr of Recipes
         "ranking": 2,  # Prioritize recipes with maximum matching ingredients
         "apiKey": API_KEY
     }
@@ -66,17 +68,22 @@ def get_recipes_from_inventory():
     if response.status_code == 200:
         recipes = response.json()
         if recipes:
+            random.shuffle(recipes)
             st.subheader("Recipe Suggestions")
+            displayed_recipes = 0
             for recipe in recipes:
                 # Show recipes with up to 2 missing ingredients
                 missed_ingredients = recipe.get("missedIngredientCount", 0)
                 if missed_ingredients <= 2:
                     recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
                     st.write(f"- **{recipe['title']}** ([View Recipe]({recipe_link}))")
+                    displayed_recipes += 1
                     # If there are any missed ingredients, list them
                     if missed_ingredients > 0:
                         missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
                         st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
+                if displayed_recipes >= 3:
+                    break
         else:
             st.write("No recipes found with the current ingredients.")
     else:
