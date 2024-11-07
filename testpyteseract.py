@@ -96,16 +96,16 @@ if uploaded_file is not None:
         st.write("No barcode found in the image.")
 
     # Anzeige der Gesamtausgaben pro Mitbewohner
-    st.write("Total expenses per roommate:")
-    expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
-    st.table(expenses_df)
+    with st.expander("view Total expenses per roommate"):
+        expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
+        st.table(expenses_df)
 
     # Anzeige der Einkäufe pro Mitbewohner
-    st.write("Purchases per roommate:")
-    for roommate, purchases in st.session_state["purchases"].items():
-        st.write(f"**{roommate}**")
-        if purchases:
-            purchases_df = pd.DataFrame(purchases)
-            st.table(purchases_df)
-        else:
-            st.write("No purchases recorded.")
+    with st.expander("Purchases per roommate:"):
+        for roommate, purchases in st.session_state["purchases"].items():
+            st.write(f"**{roommate}**")
+            if purchases:
+                purchases_df = pd.DataFrame(purchases)
+                st.table(purchases_df)
+            else:
+                st.write("No purchases recorded.")
