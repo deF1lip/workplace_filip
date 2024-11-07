@@ -1,5 +1,5 @@
 import streamlit as st
-import panda as pd
+import pandas as pd
 from PIL import Image
 from pyzbar.pyzbar import decode  # Barcode-Decoder für Bilder
 import requests  # Für API-Anfragen an Open Food Facts
