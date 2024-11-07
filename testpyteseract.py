@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image
-from pyzbar.pyzbar import decode  # funktion for decoding the barcodes 
+from pyzbar.pyzbar import decode  # Funktion zum Decodieren der Barcodes
 import requests  # Für API-Anfragen an Open Food Facts
 
 # Initialisierung von Session-State-Variablen
@@ -12,23 +12,23 @@ if "roommates" not in st.session_state:
 if "expenses" not in st.session_state:
     st.session_state["expenses"] = {mate: 0.0 for mate in st.session_state["roommates"]}  # Ausgaben pro Mitbewohner
 
-# searching for the barcode and return it as a string
+# Funktion zur Suche und Rückgabe des Barcodes als String
 def decode_barcode(image):
-    decoded_objects = decode(image) # searching barcode
+    decoded_objects = decode(image)  # Barcode-Suche
     for obj in decoded_objects:
-        return obj.data.decode("utf-8")  # return the barcode as a string
+        return obj.data.decode("utf-8")  # Gibt den Barcode als Text zurück
     return None
 
-# funktion to get information about the Barcode
+# Funktion zur Abfrage der Open Food Facts API
 def get_product_info(barcode):
     url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
-    response = requests.get(url) # safe the answer from the url
-    if response.status_code == 200: # connection succesfull
-        data = response.json() # change dataype into json
-        if data.get("status") == 1: # Product sucessfully found
+    response = requests.get(url)  # Antwort von der URL speichern
+    if response.status_code == 200:  # Verbindung erfolgreich
+        data = response.json()  # Datentyp in JSON konvertieren
+        if data.get("status") == 1:  # Produkt erfolgreich gefunden
             product = data["product"]
             return {
-                "name": product.get("product_name", "Unknown Product"), # Infromation we need
+                "name": product.get("product_name", "Unknown Product"),  # Benötigte Information
                 "brand": product.get("brands", "Unknown Brand")
             }
     return None
@@ -82,7 +82,7 @@ if uploaded_file is not None:
     else:
         st.write("No barcode found in the image.")
 
-    # Display total expenses per roommate
+    # Anzeige der Gesamtausgaben pro Mitbewohner
     st.write("Total expenses per roommate:")
     expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
     st.table(expenses_df)
