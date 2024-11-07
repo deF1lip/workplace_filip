@@ -49,6 +49,19 @@ def select_user():
     else:
         st.warning("No user was added.")
 
+
+def star_rating(recipe_title):
+    # Displays stars to rate
+    st.write(f"Rate {recipe_title}:")
+    stars = ["☆", "☆", "☆", "☆", "☆"]  # Empty stars to be replaced with filled ones
+    rating = st.radio(" ", stars, index=0, horizontal=True, key=recipe_title)
+    if rating:
+        rating_value = stars.index(rating) + 1
+        st.session_state["ratings"][recipe_title] = rating_value
+        st.success(f"Thanks for rating {recipe_title} with {rating_value} stars!")
+
+
+
 # Call up recipe suggestions based on inventory
 def get_recipes_from_inventory():
     # Load Ingredients from Inventory
@@ -56,7 +69,7 @@ def get_recipes_from_inventory():
     if not ingredients:
         st.warning("Inventory is empty. Please move your lazy ass to Migros.") 
         return
-    # Anfrage an Spoonacular API
+    # Request to Spoonacular API
     params = {
         "ingredients": ",".join(ingredients), # Ingredients of Inventory
         "number": 100, # Nr of Recipes
@@ -64,7 +77,7 @@ def get_recipes_from_inventory():
         "apiKey": API_KEY
     }
     response = requests.get(SPOONACULAR_URL, params=params)
-    # Ergebnisse anzeigen
+    # Show results
     if response.status_code == 200:
         recipes = response.json()
         if recipes:
@@ -97,3 +110,8 @@ if st.button("Get Recipe Suggestions"):
         get_recipes_from_inventory()
     else:
         st.warning("Please select a user first.")
+
+if st.session_state["ratings"]:
+    st.subheader("Your Ratings")
+    for recipe, rating in st.session_state["ratings"].items():
+        st.write(f"- {recipe}: {rating} stars")
