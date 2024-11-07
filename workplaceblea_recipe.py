@@ -38,6 +38,9 @@ if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Bilbo", "Frodo", "Gandalf der Weise"]  # Example roommates list
 if "selected_user" not in st.session_state:
     st.session_state["selected_user"] = None
+if "ratings" not in st.session_state:
+    st.session_state["ratings"] = {}
+
 
 # Choose roommate
 def select_user():
