@@ -113,7 +113,12 @@ if st.session_state["ratings"]:
 
 if st.button("Get Recipe Suggestions"):
     if st.session_state["selected_user"]:  # Check if a user is selected
-        get_recipes_from_inventory()
+        recipe_titles = get_recipes_from_inventory()
+        if recipe_titles:
+            selected_recipe = st.selectbox("Select a recipe to rate", recipe_titles)
+            # Display the rating system after a recipe is selected
+            if selected_recipe:
+                number_rating(selected_recipe)  # Show rating input for the selected recipe
     else:
         st.warning("Please select a user first.")
 
