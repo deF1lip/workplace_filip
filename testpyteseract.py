@@ -49,13 +49,14 @@ if uploaded_file is not None:
             food_item = st.text_input("Product:")
             brand = st.text_input("Brand:")
 
-        # Manuelle Eingabe von Menge, Einheit und Preis
-        quantity = st.number_input("Quantity:", min_value=0.0, step=0.1)
+        # Manuelle Eingabe von Menge, Einheit und Preis mit Formatierung auf 2 Dezimalstellen
+        quantity = st.number_input("Quantity:", min_value=0.0, step=0.1, format="%.2f")
         unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
-        price = st.number_input("Price (in CHF):", min_value=0.0, step=0.1)
+        price = st.number_input("Price (in CHF):", min_value=0.0, step=0.1, format="%.2f")
 
         # Button zum Hinzufügen des Produkts
         if st.button("Add product to inventory"):
-            st.success(f"Added '{food_item}' with quantity {quantity} and price {price} CHF.")
+            st.success(f"Added '{food_item}' with quantity {quantity:.2f} and price {price:.2f} CHF.")
     else:
         st.write("No barcode found in the image.")
+
