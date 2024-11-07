@@ -2,10 +2,11 @@ import streamlit as st
 
 # intiatlisierung 
 if "inventory" not in st.session_state:
-    st.session_state["inventory"] = {"Tomato", "Banana,"} # Example roommates list
+    st.session_state["inventory"] = {"Tomato": 5, "Banana,": 3} # Example roommates list
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]  # Example roommates list
-
+if "selected_user" not in st.session_state:
+    st.session_state["selected_user"] = None
 
 # Auswahl des aktuellen Mitbewohner
 def select_user():
@@ -16,3 +17,5 @@ def select_user():
         st.sidebar.write(f"Hi, {selected_user}!")
     else:
         st.sidebar.warning("No user was added.")
+
+select_user()
