@@ -82,3 +82,8 @@ if uploaded_file is not None:
                 st.warning("Please fill in all fields.")
     else:
         st.write("No barcode found in the image.")
+
+    # Display total expenses per roommate
+    st.write("Total expenses per roommate:")
+    expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
+    st.table(expenses_df)
