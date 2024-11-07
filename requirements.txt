@@ -5,5 +5,5 @@ pillow
 pyzbar
 requests
 datetime
-jason
+json
 atexit
