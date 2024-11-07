@@ -81,6 +81,7 @@ def get_recipes_from_inventory():
     # Show results
     if response.status_code == 200:
         recipes = response.json()
+        recipe_titles = []
         if recipes:
             random.shuffle(recipes)
             st.subheader("Recipe Suggestions")
