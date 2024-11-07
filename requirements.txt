@@ -5,3 +5,6 @@ pillow
 pyzbar
 requests
 datetime
+jason
+streamlit
+panda
