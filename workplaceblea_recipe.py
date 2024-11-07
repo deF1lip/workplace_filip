@@ -69,7 +69,7 @@ def get_recipes_from_inventory():
     ingredients = list(st.session_state["inventory"].keys())
     if not ingredients:
         st.warning("Inventory is empty. Please move your lazy ass to Migros.") 
-        return
+        return[]
     # Request to Spoonacular API
     params = {
         "ingredients": ",".join(ingredients), # Ingredients of Inventory
@@ -98,19 +98,22 @@ def get_recipes_from_inventory():
                         st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
                 if displayed_recipes >= 3:
                     break
+            return recipe_titles
         else:
             st.write("No recipes found with the current ingredients.")
+            return[]
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
+        return[]
 
 
 select_user()
 
 
-
+# Fetch recipe suggestions only if a user is selected
 if st.button("Get Recipe Suggestions"):
     if st.session_state["selected_user"]:  # Check if a user is selected
-        recipe_titles = get_recipes_from_inventory()
+        recipe_titles = get_recipes_from_inventory()  # Get the recipe titles from the inventory
         if recipe_titles:
             selected_recipe = st.selectbox("Select a recipe to rate", recipe_titles)
             # Display the rating system after a recipe is selected
@@ -119,6 +122,7 @@ if st.button("Get Recipe Suggestions"):
     else:
         st.warning("Please select a user first.")
 
+# Display the ratings
 if st.session_state["ratings"]:
     st.subheader("Your Ratings")
     for recipe, rating in st.session_state["ratings"].items():
