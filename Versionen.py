@@ -121,6 +121,8 @@ def remove_roommate():
                 st.success(f"Roommate '{roommate_to_remove}' has been removed.")
 
 def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
+    if selected_roommate not in st.session_state["consumed"]:
+        st.session_state["consumed"][selected_roommate] = []
     delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if food_item and quantity > 0 and selected_roommate:
         if food_item in st.session_state["inventory"]:
@@ -155,6 +157,10 @@ def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
 
 # Function to add product to inventory
 def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
+    if selected_roommate not in st.session_state["expenses"]:
+        st.session_state["expenses"][selected_roommate] = 0.0
+    if selected_roommate not in st.session_state["purchases"]:
+        st.session_state["purchases"][selected_roommate] = []
     purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if food_item in st.session_state["inventory"]:
         st.session_state["inventory"][food_item]["Quantity"] += quantity
