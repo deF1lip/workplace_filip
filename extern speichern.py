@@ -12,8 +12,8 @@ def load_data():
         with open(DATA_FILE, "r") as f:
             data = json.load(f)
             return data
-    except FileNotFoundError:
-        # Standardstruktur, falls die Datei nicht existiert
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Rückgabe einer Standardstruktur, falls die Datei nicht existiert oder beschädigt ist
         return {
             "roommates": ["Livio", "Flurin", "Anderin"],
             "inventory": {},
@@ -158,3 +158,4 @@ def fridge_page():
         st.table(consumed_df)
 
 fridge_page()
+
