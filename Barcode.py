@@ -111,7 +111,7 @@ def barcode_page():
     display_total_expenses()
     display_purchases()
 
-
+barcode_page()
 
 
 
