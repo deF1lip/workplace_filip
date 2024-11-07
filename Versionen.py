@@ -120,54 +120,21 @@ def remove_roommate():
                 del st.session_state["expenses"][roommate_to_remove]
                 st.success(f"Roommate '{roommate_to_remove}' has been removed.")
 
-def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
-    if selected_roommate not in st.session_state["consumed"]:
-        st.session_state["consumed"][selected_roommate] = []
-    delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if food_item and quantity > 0 and selected_roommate:
-        if food_item in st.session_state["inventory"]:
-            current_quantity = st.session_state["inventory"][food_item]["Quantity"]
-            current_price = st.session_state["inventory"][food_item]["Price"]
-            if quantity <= current_quantity:
-                # Calculate the price per unit
-                price_per_unit = current_price / current_quantity if current_quantity > 0 else 0
-                amount_to_deduct = price_per_unit * quantity
-                # Update inventory
-                st.session_state["inventory"][food_item]["Quantity"] -= quantity
-                st.session_state["inventory"][food_item]["Price"] -= amount_to_deduct
-                st.session_state["expenses"][selected_roommate] -= amount_to_deduct
-                st.success(f"'{quantity}' of '{food_item}' has been removed.")
-                # Log the removal in consumed
-                st.session_state["consumed"][selected_roommate].append({
-                    "Product": food_item,
-                    "Quantity": quantity,
-                    "Price": amount_to_deduct,
-                    "Unit": unit,
-                    "Date": delete_time
-                })
-                # Remove item if quantity reaches zero
-                if st.session_state["inventory"][food_item]["Quantity"] <= 0:
-                    del st.session_state["inventory"][food_item]
-            else:
-                st.warning("The quantity to remove exceeds the available quantity.")
-        else:
-            st.warning("This item is not in the inventory.")
-    else:
-        st.warning("Please fill in all fields.")
-
-# Function to add product to inventory
 def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
+    # Initialisieren von expenses und purchases bei Bedarf
     if selected_roommate not in st.session_state["expenses"]:
         st.session_state["expenses"][selected_roommate] = 0.0
     if selected_roommate not in st.session_state["purchases"]:
         st.session_state["purchases"][selected_roommate] = []
+
+    # Hinzufügen des Produkts
     purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if food_item in st.session_state["inventory"]:
         st.session_state["inventory"][food_item]["Quantity"] += quantity
         st.session_state["inventory"][food_item]["Price"] += price
     else:
         st.session_state["inventory"][food_item] = {"Quantity": quantity, "Unit": unit, "Price": price}
-    
+
     st.session_state["expenses"][selected_roommate] += price
     st.session_state["purchases"][selected_roommate].append({
         "Product": food_item,
@@ -177,6 +144,38 @@ def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate
         "Date": purchase_time
     })
     st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
+
+def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
+    # Initialisieren von consumed bei Bedarf
+    if selected_roommate not in st.session_state["consumed"]:
+        st.session_state["consumed"][selected_roommate] = []
+
+    delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if food_item in st.session_state["inventory"]:
+        current_quantity = st.session_state["inventory"][food_item]["Quantity"]
+        current_price = st.session_state["inventory"][food_item]["Price"]
+        if quantity <= current_quantity:
+            price_per_unit = current_price / current_quantity if current_quantity > 0 else 0
+            amount_to_deduct = price_per_unit * quantity
+
+            st.session_state["inventory"][food_item]["Quantity"] -= quantity
+            st.session_state["inventory"][food_item]["Price"] -= amount_to_deduct
+            st.session_state["expenses"][selected_roommate] -= amount_to_deduct
+
+            st.session_state["consumed"][selected_roommate].append({
+                "Product": food_item,
+                "Quantity": quantity,
+                "Price": amount_to_deduct,
+                "Unit": unit,
+                "Date": delete_time
+            })
+            st.success(f"'{quantity}' of '{food_item}' has been removed.")
+            if st.session_state["inventory"][food_item]["Quantity"] <= 0:
+                del st.session_state["inventory"][food_item]
+        else:
+            st.warning("The quantity to remove exceeds the available quantity.")
+    else:
+        st.warning("This item is not in the inventory.")
 
 # Fridge page function
 def fridge_page():
