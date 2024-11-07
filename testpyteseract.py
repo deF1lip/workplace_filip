@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image
-from pyzbar.pyzbar import decode  # Barcode-Decoder für Bilder
+from pyzbar.pyzbar import decode  # funktion for decoding the barcodes 
 import requests  # Für API-Anfragen an Open Food Facts
 
 # Initialisierung von Session-State-Variablen
@@ -12,23 +12,23 @@ if "roommates" not in st.session_state:
 if "expenses" not in st.session_state:
     st.session_state["expenses"] = {mate: 0.0 for mate in st.session_state["roommates"]}  # Ausgaben pro Mitbewohner
 
-# Funktion zum Decodieren des Barcodes
+# searching for the barcode and return it as a string
 def decode_barcode(image):
-    decoded_objects = decode(image)
+    decoded_objects = decode(image) # searching barcode
     for obj in decoded_objects:
-        return obj.data.decode("utf-8")  # Gibt den Barcode als Text zurück
+        return obj.data.decode("utf-8")  # return the barcode as a string
     return None
 
-# Funktion zur Abfrage der Open Food Facts API
+# funktion to get information about the Barcode
 def get_product_info(barcode):
     url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        if data.get("status") == 1:
+    response = requests.get(url) # safe the answer from the url
+    if response.status_code == 200: # connection succesfull
+        data = response.json() # change dataype into json
+        if data.get("status") == 1: # Product sucessfully found
             product = data["product"]
             return {
-                "name": product.get("product_name", "Unknown Product"),
+                "name": product.get("product_name", "Unknown Product"), # Infromation we need
                 "brand": product.get("brands", "Unknown Brand")
             }
     return None
@@ -38,8 +38,6 @@ uploaded_file = st.file_uploader("Upload an image with a barcode", type=["jpg", 
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image', use_column_width=True)
-
     # Barcode-Scan und Produktsuche
     st.write("Scanning for barcode...")
     barcode = decode_barcode(image)
