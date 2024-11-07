@@ -17,11 +17,20 @@ if "page" not in st.session_state:
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {}
 if "expenses" not in st.session_state:
-    st.session_state["expenses"] = {mate: 0.0 for mate in st.session_state["roommates"]}
+    st.session_state["expenses"] = {}
 if "purchases" not in st.session_state:
-    st.session_state["purchases"] = {mate: [] for mate in st.session_state["roommates"]}
+    st.session_state["purchases"] = {}
 if "consumed" not in st.session_state:
-    st.session_state["consumed"] = {mate: [] for mate in st.session_state["roommates"]}
+    st.session_state["consumed"] = {}
+
+# Function to ensure data structure for each roommate
+def initialize_roommate_data(roommate):
+    if roommate not in st.session_state["expenses"]:
+        st.session_state["expenses"][roommate] = 0.0
+    if roommate not in st.session_state["purchases"]:
+        st.session_state["purchases"][roommate] = []
+    if roommate not in st.session_state["consumed"]:
+        st.session_state["consumed"][roommate] = []
 
 # Function to change pages
 def change_page(new_page):
@@ -74,7 +83,7 @@ def setup_roommates():
 def add_roommate(room_mate):
     if room_mate and room_mate not in st.session_state["roommates"]:
         st.session_state["roommates"].append(room_mate)
-        st.session_state["expenses"][room_mate] = 0.0
+        initialize_roommate_data(room_mate)  # Initialize data for the new roommate
         st.success(f"Roommate '{room_mate}' has been added.")
     elif room_mate in st.session_state["roommates"]:
         st.warning(f"Roommate '{room_mate}' is already on the list.")
@@ -118,44 +127,14 @@ def remove_roommate():
             if roommate_to_remove in st.session_state["roommates"]:
                 st.session_state["roommates"].remove(roommate_to_remove)
                 del st.session_state["expenses"][roommate_to_remove]
+                del st.session_state["purchases"][roommate_to_remove]
+                del st.session_state["consumed"][roommate_to_remove]
                 st.success(f"Roommate '{roommate_to_remove}' has been removed.")
-
-def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
-    delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if food_item and quantity > 0 and selected_roommate:
-        if food_item in st.session_state["inventory"]:
-            current_quantity = st.session_state["inventory"][food_item]["Quantity"]
-            current_price = st.session_state["inventory"][food_item]["Price"]
-            if quantity <= current_quantity:
-                # Calculate the price per unit
-                price_per_unit = current_price / current_quantity if current_quantity > 0 else 0
-                amount_to_deduct = price_per_unit * quantity
-                # Update inventory
-                st.session_state["inventory"][food_item]["Quantity"] -= quantity
-                st.session_state["inventory"][food_item]["Price"] -= amount_to_deduct
-                st.session_state["expenses"][selected_roommate] -= amount_to_deduct
-                st.success(f"'{quantity}' of '{food_item}' has been removed.")
-                # Log the removal in consumed
-                st.session_state["consumed"][selected_roommate].append({
-                    "Product": food_item,
-                    "Quantity": quantity,
-                    "Price": amount_to_deduct,
-                    "Unit": unit,
-                    "Date": delete_time
-                })
-                # Remove item if quantity reaches zero
-                if st.session_state["inventory"][food_item]["Quantity"] <= 0:
-                    del st.session_state["inventory"][food_item]
-            else:
-                st.warning("The quantity to remove exceeds the available quantity.")
-        else:
-            st.warning("This item is not in the inventory.")
-    else:
-        st.warning("Please fill in all fields.")
 
 # Function to add product to inventory
 def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
     purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    initialize_roommate_data(selected_roommate)  # Ensure data structure for roommate
     if food_item in st.session_state["inventory"]:
         st.session_state["inventory"][food_item]["Quantity"] += quantity
         st.session_state["inventory"][food_item]["Price"] += price
@@ -172,6 +151,34 @@ def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate
     })
     st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
 
+# Function to delete product from inventory
+def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
+    delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    initialize_roommate_data(selected_roommate)  # Ensure data structure for roommate
+    if food_item in st.session_state["inventory"]:
+        current_quantity = st.session_state["inventory"][food_item]["Quantity"]
+        current_price = st.session_state["inventory"][food_item]["Price"]
+        if quantity <= current_quantity:
+            price_per_unit = current_price / current_quantity if current_quantity > 0 else 0
+            amount_to_deduct = price_per_unit * quantity
+            st.session_state["inventory"][food_item]["Quantity"] -= quantity
+            st.session_state["inventory"][food_item]["Price"] -= amount_to_deduct
+            st.session_state["expenses"][selected_roommate] -= amount_to_deduct
+            st.session_state["consumed"][selected_roommate].append({
+                "Product": food_item,
+                "Quantity": quantity,
+                "Price": amount_to_deduct,
+                "Unit": unit,
+                "Date": delete_time
+            })
+            if st.session_state["inventory"][food_item]["Quantity"] <= 0:
+                del st.session_state["inventory"][food_item]
+            st.success(f"'{quantity}' of '{food_item}' has been removed.")
+        else:
+            st.warning("The quantity to remove exceeds the available quantity.")
+    else:
+        st.warning("This item is not in the inventory.")
+
 # Fridge page function
 def fridge_page():
     st.title("Fridge")
@@ -187,13 +194,11 @@ def fridge_page():
     action = st.selectbox("Would you like to add or remove an item?", ["Add", "Remove"])
 
     if action == "Add":
-        # Input fields for food item, quantity, unit, and price
         food_item = st.text_input("Enter a food item to add:")
         quantity = st.number_input("Quantity:", min_value=0.0)
         unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
         price = st.number_input("Price (in CHF):", min_value=0.0)
 
-        # Button to add the food item
         if st.button("Add item"):
             if food_item and quantity > 0 and price >= 0 and selected_roommate:
                 add_product_to_inventory(food_item, quantity, unit, price, selected_roommate)
@@ -201,19 +206,16 @@ def fridge_page():
                 st.warning("Please fill in all fields.")
     
     elif action == "Remove":
-        # Select the item to remove
         if st.session_state["inventory"]:
             food_item = st.selectbox("Select a food item to remove:", list(st.session_state["inventory"].keys()))
             quantity = st.number_input("Quantity to remove:", min_value=1.0, step=1.0)
             unit = st.session_state["inventory"][food_item]["Unit"]
 
-            # Button to remove the item
             if st.button("Remove item"):
                 delete_product_from_inventory(food_item, quantity, unit, selected_roommate)
         else:
             st.warning("The inventory is empty.")
 
-    # Display current inventory
     if st.session_state["inventory"]:
         st.write("Current Inventory:")
         inventory_df = pd.DataFrame.from_dict(st.session_state["inventory"], orient='index')
@@ -222,12 +224,10 @@ def fridge_page():
     else:
         st.write("The inventory is empty.")
 
-    # Display total expenses per roommate
     st.write("Total expenses per roommate:")
     expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
     st.table(expenses_df)
 
-    # Display purchases and consumed items per roommate
     st.write("Purchases and Consumptions per roommate:")
     for mate in st.session_state["roommates"]:
         st.write(f"**{mate}'s Purchases:**")
