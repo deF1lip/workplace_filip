@@ -192,6 +192,7 @@ def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate
 
 # Fridge page function
 def fridge_page():
+    ensure_roommate_entries()
     st.title("Fridge")
 
     # Roommate selection
