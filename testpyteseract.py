@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
-from pyzbar.pyzbar import decode
-import requests
+from pyzbar.pyzbar import decode  # Barcode-Decoder für Bilder
+import requests  # Für API-Anfragen an Open Food Facts
 
 # Funktion zum Decodieren des Barcodes
 def decode_barcode(image):
@@ -18,16 +18,9 @@ def get_product_info(barcode):
         data = response.json()
         if data["status"] == 1:
             product = data["product"]
-            # Produktdetails prüfen
-            product_name = product.get("product_name", "Unknown Product")
-            brand = product.get("brands", "Unknown Brand")
-            generic_name = product.get("generic_name", "")
-
-            # Genaueren Namen ermitteln
-            final_name = f"{product_name} ({generic_name})" if generic_name else product_name
             return {
-                "name": final_name,
-                "brand": brand
+                "name": product.get("product_name", "Unknown Product"),
+                "brand": product.get("brands", "Unknown Brand")
             }
     return None
 
@@ -48,20 +41,21 @@ if uploaded_file is not None:
         product_info = get_product_info(barcode)
 
         if product_info:
-            st.write(f"Product: {product_info['name']}")
-            st.write(f"Brand: {product_info['brand']}")
+            # Vorab ausgefüllte Felder basierend auf API-Ergebnissen
+            food_item = st.text_input("Product:", value=product_info['name'])
+            brand = st.text_input("Brand:", value=product_info['brand'])
         else:
             st.write("Product not found in database.")
+            food_item = st.text_input("Product:")
+            brand = st.text_input("Brand:")
 
-        # Manuelle Eingabe von Menge und Preis
+        # Manuelle Eingabe von Menge, Einheit und Preis
         quantity = st.number_input("Quantity:", min_value=0.0, step=0.1)
+        unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
         price = st.number_input("Price (in CHF):", min_value=0.0, step=0.1)
 
         # Button zum Hinzufügen des Produkts
         if st.button("Add product to inventory"):
-            st.success(f"Added '{product_info['name']}' with quantity {quantity} and price {price} CHF.")
+            st.success(f"Added '{food_item}' with quantity {quantity} and price {price} CHF.")
     else:
         st.write("No barcode found in the image.")
-
-
-
