@@ -8,8 +8,8 @@ SPOONACULAR_URL = 'https://api.spoonacular.com/recipes/findByIngredients'
 # initialisation
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {
-        "Tomato": {"Quantity": 5, "Unit": "gramm", "Price": 3.0},
-        "Banana": {"Quantity": 3, "Unit": "gramm", "Price": 5.0},
+        "Tomato": {"Quantity": 5, "Unit": "gram", "Price": 3.0},
+        "Banana": {"Quantity": 3, "Unit": "gram", "Price": 5.0},
         "Onion": {"Quantity": 2, "Unit": "piece", "Price": 1.5},
         "Garlic": {"Quantity": 3, "Unit": "clove", "Price": 0.5},
         "Olive Oil": {"Quantity": 1, "Unit": "liter", "Price": 8.0},
@@ -58,7 +58,7 @@ def get_recipes_from_inventory():
     params = {
         "ingredients": ",".join(ingredients), # Ingredients of Inventory
         "number": 3, # Nr of Recipes
-        "ranking": 1,  # Prioritize recipes with maximum matching ingredients
+        "ranking": 2,  # Prioritize recipes with maximum matching ingredients
         "apiKey": API_KEY
     }
     response = requests.get(SPOONACULAR_URL, params=params)
