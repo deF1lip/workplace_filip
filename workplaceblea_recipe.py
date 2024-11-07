@@ -1,4 +1,5 @@
 import streamlit as st
+import requests
 
 # API-Key und URL für Spoonacular
 API_KEY = '21c590f808c74caabbaa1494c6196e7a'
@@ -45,7 +46,7 @@ def get_recipes_from_inventory():
         if recipes:
             st.subheader("Recipe Suggestions")
             for recipe in recipes:
-                st.write(f"- **{recipe["title"]}**")
+                st.write(f"- **{recipe['title']}**")
                 st.write(f"  [View Recipe](https://spoonacular.com/recipes/{recipe['id']})")
         else:
             st.write("No recipes found with the current ingredients.")
@@ -54,5 +55,9 @@ def get_recipes_from_inventory():
 
 
 select_user()
+
 if st.button("Get Recipe Suggestions"):
-    get_recipes_from_inventory()
+    if st.session_state["selected_user"]:  # Check if a user is selected
+        get_recipes_from_inventory()
+    else:
+        st.warning("Please select a user first.")
