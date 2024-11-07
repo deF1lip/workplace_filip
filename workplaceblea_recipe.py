@@ -68,10 +68,15 @@ def get_recipes_from_inventory():
         if recipes:
             st.subheader("Recipe Suggestions")
             for recipe in recipes:
+                # Show recipes with up to 2 missing ingredients
                 missed_ingredients = recipe.get("missedIngredientCount", 0)
-                if missed_ingredients == 0:  # Show recipes with no extra ingredients required
-                    recipe_link = f"https://spoonacular.com/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
+                if missed_ingredients <= 2:
+                    recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
                     st.write(f"- **{recipe['title']}** ([View Recipe]({recipe_link}))")
+                    # If there are any missed ingredients, list them
+                    if missed_ingredients > 0:
+                        missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
+                        st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
         else:
             st.write("No recipes found with the current ingredients.")
     else:
