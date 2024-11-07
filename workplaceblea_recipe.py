@@ -10,7 +10,7 @@ if "selected_user" not in st.session_state:
 
 # Auswahl des aktuellen Mitbewohner
 def select_user():
-    st.sidebar.title("Who are you")
+    st.selectbox.title("Who are you")
     if st.session_state["roommates"]:
         selected_user = st.selectbox("Choose your name:", st.session_state["roommates"])
         st.session_state["selected_user"] = selected_user
