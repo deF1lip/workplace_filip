@@ -15,12 +15,14 @@ if "expenses" not in st.session_state:
 if "purchases" not in st.session_state:
     st.session_state["purchases"] = {mate: [] for mate in st.session_state["roommates"]}
 
+# Barcode dekodieren
 def decode_barcode(image):
     decoded_objects = decode(image)
     for obj in decoded_objects:
         return obj.data.decode("utf-8")
     return None
 
+# Produktinformationen abrufen
 def get_product_info(barcode):
     url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
     response = requests.get(url)
@@ -34,7 +36,44 @@ def get_product_info(barcode):
             }
     return None
 
-st.title("Upload your barcode ")
+# Produkt zum Inventar hinzufügen
+def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
+    purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if food_item in st.session_state["inventory"]:
+        st.session_state["inventory"][food_item]["Quantity"] += quantity
+        st.session_state["inventory"][food_item]["Price"] += price
+    else:
+        st.session_state["inventory"][food_item] = {"Quantity": quantity, "Unit": unit, "Price": price}
+    
+    st.session_state["expenses"][selected_roommate] += price
+    st.session_state["purchases"][selected_roommate].append({
+        "Product": food_item,
+        "Quantity": quantity,
+        "Price": price,
+        "Unit": unit,
+        "Date": purchase_time
+    })
+    st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
+
+# Gesamtausgaben anzeigen
+def display_total_expenses():
+    with st.expander("View Total Expenses per Roommate"):
+        expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
+        st.table(expenses_df)
+
+# Einkäufe anzeigen
+def display_purchases():
+    with st.expander("Purchases per Roommate"):
+        for roommate, purchases in st.session_state["purchases"].items():
+            st.write(f"**{roommate}**")
+            if purchases:
+                purchases_df = pd.DataFrame(purchases)
+                st.table(purchases_df)
+            else:
+                st.write("No purchases recorded.")
+
+# Hauptlogik für die Barcode- und Produkthandhabung
+st.title("Upload your barcode")
 uploaded_file = st.file_uploader("Upload an image with a barcode", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
@@ -62,39 +101,16 @@ if uploaded_file is not None:
 
         if st.button("Add product to inventory"):
             if food_item and quantity > 0 and price >= 0:
-                purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                if food_item in st.session_state["inventory"]:
-                    st.session_state["inventory"][food_item]["Quantity"] += quantity
-                    st.session_state["inventory"][food_item]["Price"] += price
-                else:
-                    st.session_state["inventory"][food_item] = {"Quantity": quantity, "Unit": unit, "Price": price}
-                
-                st.session_state["expenses"][selected_roommate] += price
-                st.session_state["purchases"][selected_roommate].append({
-                    "Product": food_item,
-                    "Quantity": quantity,
-                    "Price": price,
-                    "Unit": unit,
-                    "Date": purchase_time
-                })
-                st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
+                add_product_to_inventory(food_item, quantity, unit, price, selected_roommate)
             else:
                 st.warning("Please fill in all fields.")
     else:
         st.write("No barcode found in the image.")
 
-# Anzeige der Gesamtausgaben pro Mitbewohner
-with st.expander("View Total Expenses per Roommate"):
-    expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
-    st.table(expenses_df)
+display_total_expenses()
+display_purchases()
 
-# Anzeige der Einkäufe pro Mitbewohner
-with st.expander("Purchases per Roommate"):
-    for roommate, purchases in st.session_state["purchases"].items():
-        st.write(f"**{roommate}**")
-        if purchases:
-            purchases_df = pd.DataFrame(purchases)
-            st.table(purchases_df)
-        else:
-            st.write("No purchases recorded.")
+
+
+
 
