@@ -11,6 +11,8 @@ if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]  # Beispielhafte Mitbewohnerliste
 if "expenses" not in st.session_state:
     st.session_state["expenses"] = {mate: 0.0 for mate in st.session_state["roommates"]}  # Ausgaben pro Mitbewohner
+if "purchases" not in st.session_state:
+    st.session_state["purchases"] = {mate: [] for mate in st.session_state["roommates"]}  # Liste der Einkäufe pro Mitbewohner
 
 # Funktion zur Suche und Rückgabe des Barcodes als String
 def decode_barcode(image):
@@ -74,8 +76,14 @@ if uploaded_file is not None:
                 else:
                     st.session_state["inventory"][food_item] = {"Quantity": quantity, "Unit": unit, "Price": price}
                 
-                # Aktualisierung der Ausgaben des Käufers
+                # Aktualisierung der Ausgaben und Einkäufe des Käufers
                 st.session_state["expenses"][selected_roommate] += price
+                st.session_state["purchases"][selected_roommate].append({
+                    "Product": food_item,
+                    "Quantity": quantity,
+                    "Price": price,
+                    "Unit": unit
+                })
                 st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
             else:
                 st.warning("Please fill in all fields.")
@@ -86,3 +94,13 @@ if uploaded_file is not None:
     st.write("Total expenses per roommate:")
     expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
     st.table(expenses_df)
+
+    # Anzeige der Einkäufe pro Mitbewohner
+    st.write("Purchases per roommate:")
+    for roommate, purchases in st.session_state["purchases"].items():
+        st.write(f"**{roommate}**")
+        if purchases:
+            purchases_df = pd.DataFrame(purchases)
+            st.table(purchases_df)
+        else:
+            st.write("No purchases recorded.")
