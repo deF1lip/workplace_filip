@@ -46,8 +46,7 @@ def get_recipes_from_inventory():
         if recipes:
             st.subheader("Recipe Suggestions")
             for recipe in recipes:
-                st.write(f"- **{recipe['title']}**")
-                st.write(f"  [View Recipe](https://spoonacular.com/recipes/{recipe['id']})")
+                st.write(f"- **{recipe['title']}** (Link: [View Recipe](https://spoonacular.com/recipes/{recipe['id']}))")
         else:
             st.write("No recipes found with the current ingredients.")
     else:
