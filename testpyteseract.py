@@ -3,6 +3,7 @@ import pandas as pd
 from PIL import Image
 from pyzbar.pyzbar import decode  # Funktion zum Decodieren der Barcodes
 import requests  # Für API-Anfragen an Open Food Facts
+from datetime import datetime  # Für das Erfassen der Zeit
 
 # Initialisierung von Session-State-Variablen
 if "inventory" not in st.session_state:
@@ -69,6 +70,9 @@ if uploaded_file is not None:
         # Button zum Hinzufügen des Produkts
         if st.button("Add product to inventory"):
             if food_item and quantity > 0 and price >= 0:
+                # Zeitstempel erfassen
+                purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
                 # Aktualisierung des Inventars
                 if food_item in st.session_state["inventory"]:
                     st.session_state["inventory"][food_item]["Quantity"] += quantity
@@ -82,7 +86,8 @@ if uploaded_file is not None:
                     "Product": food_item,
                     "Quantity": quantity,
                     "Price": price,
-                    "Unit": unit
+                    "Unit": unit,
+                    "Date": purchase_time  # Hinzufügen des Zeitstempels
                 })
                 st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
             else:

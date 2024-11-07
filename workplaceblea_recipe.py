@@ -31,7 +31,7 @@ def get_recipes_from_inventory():
     # Zutaten aus dem Inventar laden
     ingredients = list(st.session_state["inventory"].keys())
     if not ingredients:
-        st.warning("Inventory is empty. Please move your lazy ass to Migros.")
+        st.warning("Inventory is empty. Please move your lazy ass to Migros.") 
         return
     # Anfrage an Spoonacular API
     params = {
