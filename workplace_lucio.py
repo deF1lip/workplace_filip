@@ -42,7 +42,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Streamlit-Anwendung für die Zuweisung
+# Streamlit-Anwendung für die Zuweisung 
 if benutzer:
     st.title("Zuteilung der Lebensmittel an die Benutzer")
 
