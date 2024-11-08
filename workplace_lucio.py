@@ -10,7 +10,7 @@ lebensmittel_data = [
 
 # Eingabe der Benutzer (entweder Eingabe der Benutzer hier oder zu Beginn eine Registrierung für die Webapp erstellen)
 st.title("Wer war am Einkauf beteiligt?")
-benutzer_input = st.text_input("Geben Sie die Namen der Benutzer ein, getrennt durch ein Komma (z.B. Livio, Bela, Luca):")
+benutzer_input = st.text_input('Geben Sie die Namen der Benutzer ein (z.B. "Livio, Bela, Luca"):')
 
 # Konvertiere die Eingabe in eine Liste von Benutzern
 if benutzer_input:
