@@ -54,12 +54,21 @@ def select_user():
 
 
 def number_rating(recipe_title):
-    # Displays a numerical rating system (1-5)
     st.write(f"Rate {recipe_title}:")
+    
+    # Rating selection
     rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=recipe_title)
-    if rating:
-        st.session_state["ratings"][recipe_title] = rating
-        st.success(f"Thanks for rating {recipe_title} with {rating} stars!")
+    
+    # Submit rating button
+    if st.button(f"Finish Rating for {recipe_title}"):
+        if st.session_state["selected_user"]:
+            # Store rating under the selected user's name
+            if st.session_state["selected_user"] not in st.session_state["ratings"]:
+                st.session_state["ratings"][st.session_state["selected_user"]] = {}
+            st.session_state["ratings"][st.session_state["selected_user"]][recipe_title] = rating
+            st.success(f"{st.session_state['selected_user']} rated {recipe_title} with {rating} stars!")
+        else:
+            st.warning("Please select a user first.")
 
 
 
@@ -116,13 +125,12 @@ select_user()
 
 # Fetch recipe suggestions only if a user is selected
 if st.button("Get Recipe Suggestions"):
-    if st.session_state["selected_user"]:  # Check if a user is selected
-        recipe_titles = get_recipes_from_inventory()  # Get the recipe titles from the inventory
+    if st.session_state["selected_user"]:
+        recipe_titles = get_recipes_from_inventory()
         if recipe_titles:
             selected_recipe = st.selectbox("Select a recipe to rate", recipe_titles)
-            # Display the rating system after a recipe is selected
             if selected_recipe:
-                number_rating(selected_recipe)  # Show rating input for the selected recipe
+                number_rating(selected_recipe)
     else:
         st.warning("Please select a user first.")
 
