@@ -56,24 +56,25 @@ def select_user():
 
 def number_rating(recipe_title):
     st.write(f"Rate {recipe_title}:")
-
-    # Rating selection
-    temp_rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=f"rating_{recipe_title}")
     
-    # Store the selected rating temporarily
+    # Rating selection (with key for unique state tracking)
+    temp_rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=f"rating_{recipe_title}")
     st.session_state["temp_rating"] = temp_rating
     
-    # Submit rating button
-    if st.button(f"Submit Rating for {recipe_title}"):
+    # Submit button
+    submit_button_key = f"submit_{recipe_title}"
+    if st.button(f"Submit Rating for {recipe_title}", key=submit_button_key):
         if st.session_state["selected_user"]:
-            # Only save rating when button is pressed
-            if st.session_state["selected_user"] not in st.session_state["ratings"]:
-                st.session_state["ratings"][st.session_state["selected_user"]] = {}
-            st.session_state["ratings"][st.session_state["selected_user"]][recipe_title] = st.session_state["temp_rating"]
-            st.success(f"{st.session_state['selected_user']} rated {recipe_title} with {st.session_state['temp_rating']} stars!")
+            # Ensure ratings are stored per user and per recipe
+            user = st.session_state["selected_user"]
+            if user not in st.session_state["ratings"]:
+                st.session_state["ratings"][user] = {}
+            st.session_state["ratings"][user][recipe_title] = st.session_state["temp_rating"]
+            st.success(f"{user} rated {recipe_title} with {st.session_state['temp_rating']} stars!")
             st.session_state["temp_rating"] = None  # Clear the temp rating after submission
         else:
             st.warning("Please select a user first.")
+
 
 
 
@@ -142,7 +143,7 @@ if st.button("Get Recipe Suggestions"):
 
 # Display the ratings
 if st.session_state["ratings"]:
-    st.subheader("Your Ratings")
+    st.subheader("Ratings Summary")
     for user, user_ratings in st.session_state["ratings"].items():
         st.write(f"**{user}'s Ratings:**")
         for recipe, rating in user_ratings.items():
