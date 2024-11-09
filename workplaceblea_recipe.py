@@ -60,7 +60,7 @@ def number_rating(recipe_title):
     rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=recipe_title)
     
     # Submit rating button
-    if st.button(f"Finish Rating for {recipe_title}"):
+    if st.button(f"Submit Rating for {recipe_title}"):
         if st.session_state["selected_user"]:
             # Store rating under the selected user's name
             if st.session_state["selected_user"] not in st.session_state["ratings"]:
@@ -69,6 +69,7 @@ def number_rating(recipe_title):
             st.success(f"{st.session_state['selected_user']} rated {recipe_title} with {rating} stars!")
         else:
             st.warning("Please select a user first.")
+
 
 
 
@@ -137,5 +138,7 @@ if st.button("Get Recipe Suggestions"):
 # Display the ratings
 if st.session_state["ratings"]:
     st.subheader("Your Ratings")
-    for recipe, rating in st.session_state["ratings"].items():
-        st.write(f"- {recipe}: {rating} stars")
+    for user, user_ratings in st.session_state["ratings"].items():
+        st.write(f"**{user}'s Ratings:**")
+        for recipe, rating in user_ratings.items():
+            st.write(f"- {recipe}: {rating} stars")
