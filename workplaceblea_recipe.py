@@ -40,7 +40,8 @@ if "selected_user" not in st.session_state:
     st.session_state["selected_user"] = None
 if "ratings" not in st.session_state:
     st.session_state["ratings"] = {}
-
+if "temp_rating" not in st.session_state:
+    st.session_state["temp_rating"] = None
 
 # Choose roommate
 def select_user():
@@ -55,18 +56,22 @@ def select_user():
 
 def number_rating(recipe_title):
     st.write(f"Rate {recipe_title}:")
-    
+
     # Rating selection
-    rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=recipe_title)
+    temp_rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=f"rating_{recipe_title}")
+    
+    # Store the selected rating temporarily
+    st.session_state["temp_rating"] = temp_rating
     
     # Submit rating button
     if st.button(f"Submit Rating for {recipe_title}"):
         if st.session_state["selected_user"]:
-            # Store rating under the selected user's name
+            # Only save rating when button is pressed
             if st.session_state["selected_user"] not in st.session_state["ratings"]:
                 st.session_state["ratings"][st.session_state["selected_user"]] = {}
-            st.session_state["ratings"][st.session_state["selected_user"]][recipe_title] = rating
-            st.success(f"{st.session_state['selected_user']} rated {recipe_title} with {rating} stars!")
+            st.session_state["ratings"][st.session_state["selected_user"]][recipe_title] = st.session_state["temp_rating"]
+            st.success(f"{st.session_state['selected_user']} rated {recipe_title} with {st.session_state['temp_rating']} stars!")
+            st.session_state["temp_rating"] = None  # Clear the temp rating after submission
         else:
             st.warning("Please select a user first.")
 
