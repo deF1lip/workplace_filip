@@ -54,24 +54,23 @@ def select_user():
         st.warning("No user was added.")
 
 
+# Function to handle rating
 def number_rating(recipe_title):
     st.write(f"Rate {recipe_title}:")
-    
-    # Rating selection (with key for unique state tracking)
-    temp_rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=f"rating_{recipe_title}")
-    st.session_state["temp_rating"] = temp_rating
-    
-    # Submit button
+
+    # Temporary variable to hold rating before submission
+    temp_rating = st.selectbox("Select a rating:", [1, 2, 3, 4, 5], key=f"temp_rating_{recipe_title}")
+
+    # Button to submit rating
     submit_button_key = f"submit_{recipe_title}"
     if st.button(f"Submit Rating for {recipe_title}", key=submit_button_key):
-        if st.session_state["selected_user"]:
-            # Ensure ratings are stored per user and per recipe
-            user = st.session_state["selected_user"]
+        user = st.session_state["selected_user"]
+        if user:
+            # Store rating in session state after submit button is pressed
             if user not in st.session_state["ratings"]:
                 st.session_state["ratings"][user] = {}
-            st.session_state["ratings"][user][recipe_title] = st.session_state["temp_rating"]
-            st.success(f"{user} rated {recipe_title} with {st.session_state['temp_rating']} stars!")
-            st.session_state["temp_rating"] = None  # Clear the temp rating after submission
+            st.session_state["ratings"][user][recipe_title] = temp_rating
+            st.success(f"{user} rated {recipe_title} with {temp_rating} stars!")
         else:
             st.warning("Please select a user first.")
 
