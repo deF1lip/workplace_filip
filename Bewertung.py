@@ -29,8 +29,6 @@ if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
 if "selected_recipe_link" not in st.session_state:
     st.session_state["selected_recipe_link"] = None
-if "rating_mode" not in st.session_state:
-    st.session_state["rating_mode"] = False
 
 # Recipe suggestion function
 def get_recipes_from_inventory(selected_ingredients=None):
@@ -61,7 +59,7 @@ def get_recipes_from_inventory(selected_ingredients=None):
                     recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
                     st.write(f"- **{recipe['title']}** ([View Recipe]({recipe_link}))")
                     recipe_titles.append(recipe['title'])
-                    recipe_links[recipe['title']] = recipe_link
+                    recipe_links[recipe['title']] = recipe_link  # Store link for later use
                     displayed_recipes += 1
                     
                     if missed_ingredients > 0:
@@ -81,17 +79,17 @@ def get_recipes_from_inventory(selected_ingredients=None):
 # Rating function
 def rate_recipe(recipe_title, recipe_link):
     st.subheader(f"Rate the recipe: {recipe_title}")
-    st.write(f"**{recipe_title}**: ([View Recipe]({recipe_link}))")
+    st.write(f"**{recipe_title}**: ([View Recipe]({recipe_link}))")  # Show title and link for selected recipe
     rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
     
     if st.button("Submit Rating"):
         user = st.session_state["selected_user"]
         if user:
+            # Store rating in session state
             if user not in st.session_state["ratings"]:
                 st.session_state["ratings"][user] = {}
             st.session_state["ratings"][user][recipe_title] = rating
             st.success(f"You have rated '{recipe_title}' with {rating} stars!")
-            st.session_state["rating_mode"] = False
         else:
             st.warning("Please select a user first.")
 
@@ -100,7 +98,7 @@ def receipt_page():
     st.title("Who wants to cook a recipe?")
     if st.session_state["roommates"]:
         selected_user = st.selectbox("Select the roommate:", st.session_state["roommates"])
-        st.session_state["selected_user"] = selected_user
+        st.session_state["selected_user"] = selected_user  # Save selected user to session state
         
         # Recipe Search Options
         st.subheader("Recipe Search Options")
@@ -111,32 +109,29 @@ def receipt_page():
             if search_mode == "Custom (choose ingredients)":
                 selected_ingredients = st.multiselect("Select ingredients from inventory:", st.session_state["inventory"].keys())
             else:
-                selected_ingredients = None
+                selected_ingredients = None  # Use the entire inventory
             
             search_button = st.form_submit_button("Get Recipe Suggestions")
             if search_button:
-                st.session_state["search_triggered"] = True
+                st.session_state["search_triggered"] = True  # Mark search as triggered
 
         # Display the recipe suggestions if search was triggered
         if st.session_state["search_triggered"]:
             recipe_titles, recipe_links = get_recipes_from_inventory(selected_ingredients)
             if recipe_titles:
-                recipe_options = ["Bitte wählen..."] + recipe_titles  # Placeholder option
-                selected_recipe = st.selectbox("Select a recipe to make", recipe_options, key="selected_recipe_choice")
-                
-                if selected_recipe != "Bitte wählen...":
-                    st.session_state["selected_recipe"] = selected_recipe
-                    st.session_state["selected_recipe_link"] = recipe_links[selected_recipe]
-                    st.session_state["search_triggered"] = False
-                    st.session_state["rating_mode"] = True
-                    st.success(f"You have chosen to make '{selected_recipe}'!")
+                # Let the user choose one recipe to make
+                selected_recipe = st.selectbox("Select a recipe to make", recipe_titles, key="selected_recipe_choice")
+                st.session_state["selected_recipe"] = selected_recipe
+                st.session_state["selected_recipe_link"] = recipe_links[selected_recipe]  # Save recipe link for rating section
+                st.session_state["search_triggered"] = False  # Reset the trigger after displaying
+                st.success(f"You have chosen to make '{selected_recipe}'!")
                 
     else:
         st.warning("No roommates available.")
         return
 
     # Display the rating section if a recipe was selected
-    if st.session_state["rating_mode"] and st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
+    if st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
         rate_recipe(st.session_state["selected_recipe"], st.session_state["selected_recipe_link"])
 
     # Display the ratings summary in an expandable section
