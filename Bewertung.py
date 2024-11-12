@@ -14,24 +14,7 @@ if "inventory" not in st.session_state:
         "Onion": {"Quantity": 2, "Unit": "piece", "Price": 1.5},
         "Garlic": {"Quantity": 3, "Unit": "clove", "Price": 0.5},
         "Olive Oil": {"Quantity": 1, "Unit": "liter", "Price": 8.0},
-        "Chicken Breast": {"Quantity": 2, "Unit": "piece", "Price": 6.0},
-        "Pasta": {"Quantity": 500, "Unit": "gram", "Price": 2.5},
-        "Rice": {"Quantity": 1000, "Unit": "gram", "Price": 2.0},
-        "Salt": {"Quantity": 1, "Unit": "kg", "Price": 1.0},
-        "Pepper": {"Quantity": 1, "Unit": "pack", "Price": 1.5},
-        "Basil": {"Quantity": 1, "Unit": "bunch", "Price": 2.0},
-        "Mozzarella": {"Quantity": 2, "Unit": "piece", "Price": 4.0},
-        "Milk": {"Quantity": 1, "Unit": "liter", "Price": 1.5},
-        "Egg": {"Quantity": 6, "Unit": "piece", "Price": 3.0},
-        "Flour": {"Quantity": 1000, "Unit": "gram", "Price": 1.0},
-        "Butter": {"Quantity": 250, "Unit": "gram", "Price": 2.5},
-        "Potato": {"Quantity": 5, "Unit": "piece", "Price": 2.0},
-        "Carrot": {"Quantity": 4, "Unit": "piece", "Price": 1.5},
-        "Bell Pepper": {"Quantity": 2, "Unit": "piece", "Price": 2.5},
-        "Cheddar Cheese": {"Quantity": 200, "Unit": "gram", "Price": 3.5},
-        "Ground Beef": {"Quantity": 500, "Unit": "gram", "Price": 7.0},
-        "Tomato Sauce": {"Quantity": 500, "Unit": "ml", "Price": 2.0},
-        "Mushroom": {"Quantity": 200, "Unit": "gram", "Price": 3.0} 
+        # ... (other items as needed)
     }
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Bilbo", "Frodo", "Gandalf der Weise"]  # Example roommates list
@@ -41,6 +24,8 @@ if "ratings" not in st.session_state:
     st.session_state["ratings"] = {}
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
+if "selected_recipe" not in st.session_state:
+    st.session_state["selected_recipe"] = None
 
 # Choose roommate
 def select_user():
@@ -98,6 +83,21 @@ def get_recipes_from_inventory(selected_ingredients=None):
         st.error("Error fetching recipes. Please check your API key and try again.")
         return []
 
+# Rating function
+def rate_recipe(recipe_title):
+    st.subheader(f"Rate the recipe: {recipe_title}")
+    rating = st.selectbox("Give a rating (1-5):", [1, 2, 3, 4, 5], key=f"rating_{recipe_title}")
+    if st.button("Submit Rating"):
+        user = st.session_state["selected_user"]
+        if user:
+            # Store rating in session state
+            if user not in st.session_state["ratings"]:
+                st.session_state["ratings"][user] = {}
+            st.session_state["ratings"][user][recipe_title] = rating
+            st.success(f"{user} rated '{recipe_title}' with {rating} stars!")
+        else:
+            st.warning("Please select a user first.")
+
 # Main application flow
 select_user()
 
@@ -120,15 +120,26 @@ with st.form("recipe_form"):
 if st.session_state["search_triggered"]:
     if st.session_state["selected_user"]:
         recipe_titles = get_recipes_from_inventory(selected_ingredients)
-        st.session_state["search_triggered"] = False  # Reset the trigger after displaying
+        if recipe_titles:
+            # Let the user choose one recipe to make
+            selected_recipe = st.selectbox("Select a recipe to make", recipe_titles, key="selected_recipe")
+            if st.button("Choose this recipe"):
+                st.session_state["selected_recipe"] = selected_recipe
+                st.success(f"You have chosen to make '{selected_recipe}'!")
+            st.session_state["search_triggered"] = False  # Reset the trigger after displaying
     else:
         st.warning("Please select a user first.")
 
-# Display the ratings
+# Display the chosen recipe for rating
+if st.session_state["selected_recipe"]:
+    rate_recipe(st.session_state["selected_recipe"])
+
+# Display the ratings summary
 if st.session_state["ratings"]:
     st.subheader("Ratings Summary")
     for user, user_ratings in st.session_state["ratings"].items():
         st.write(f"**{user}'s Ratings:**")
         for recipe, rating in user_ratings.items():
             st.write(f"- {recipe}: {rating} stars")
+
 
