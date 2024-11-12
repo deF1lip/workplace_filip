@@ -105,17 +105,6 @@ def get_recipes_from_inventory():
 select_user()
 
 
-# Fetch recipe suggestions only if a user is selected
-if st.button("Get Recipe Suggestions"):
-    if st.session_state["selected_user"]:
-        recipe_titles = get_recipes_from_inventory()
-        if recipe_titles:
-            selected_recipe = st.selectbox("Select a recipe to rate", recipe_titles)
-            if selected_recipe:
-                number_rating(selected_recipe)
-    else:
-        st.warning("Please select a user first.")
-
 # Display the ratings
 if st.session_state["ratings"]:
     st.subheader("Ratings Summary")
