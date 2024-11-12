@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import random
+from datetime import datetime
 
 # API-Key and URL for Spoonacular
 API_KEY = 'b9265fc480cb489d9223fe572f840f30'
@@ -29,6 +30,8 @@ if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
 if "selected_recipe_link" not in st.session_state:
     st.session_state["selected_recipe_link"] = None
+if "cooking_history" not in st.session_state:
+    st.session_state["cooking_history"] = []
 
 # Recipe suggestion function
 def get_recipes_from_inventory(selected_ingredients=None):
@@ -79,7 +82,7 @@ def get_recipes_from_inventory(selected_ingredients=None):
 # Rating function
 def rate_recipe(recipe_title, recipe_link):
     st.subheader(f"Rate the recipe: {recipe_title}")
-    st.write(f"**{recipe_title}**: ([View Recipe]({recipe_link}))")  # Show title and link for selected recipe
+    st.write(f"**{recipe_title}**: ([View Recipe]({recipe_link}))")
     rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
     
     if st.button("Submit Rating"):
@@ -90,6 +93,19 @@ def rate_recipe(recipe_title, recipe_link):
                 st.session_state["ratings"][user] = {}
             st.session_state["ratings"][user][recipe_title] = rating
             st.success(f"You have rated '{recipe_title}' with {rating} stars!")
+            
+            # Save to cooking history
+            st.session_state["cooking_history"].append({
+                "user": user,
+                "recipe": recipe_title,
+                "rating": rating,
+                "link": recipe_link,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            
+            # Reset selected recipe after rating
+            st.session_state["selected_recipe"] = None
+            st.session_state["selected_recipe_link"] = None
         else:
             st.warning("Please select a user first.")
 
@@ -119,12 +135,12 @@ def receipt_page():
         if st.session_state["search_triggered"]:
             recipe_titles, recipe_links = get_recipes_from_inventory(selected_ingredients)
             if recipe_titles:
-                # Let the user choose one recipe to make
-                selected_recipe = st.selectbox("Select a recipe to make", recipe_titles, key="selected_recipe_choice")
-                st.session_state["selected_recipe"] = selected_recipe
-                st.session_state["selected_recipe_link"] = recipe_links[selected_recipe]  # Save recipe link for rating section
-                st.session_state["search_triggered"] = False  # Reset the trigger after displaying
-                st.success(f"You have chosen to make '{selected_recipe}'!")
+                selected_recipe = st.selectbox("Select a recipe to make", ["Please choose..."] + recipe_titles, key="selected_recipe_choice")
+                if selected_recipe != "Please choose...":
+                    st.session_state["selected_recipe"] = selected_recipe
+                    st.session_state["selected_recipe_link"] = recipe_links[selected_recipe]
+                    st.session_state["search_triggered"] = False
+                    st.success(f"You have chosen to make '{selected_recipe}'!")
                 
     else:
         st.warning("No roommates available.")
@@ -141,6 +157,12 @@ def receipt_page():
                 st.write(f"**{user}'s Ratings:**")
                 for recipe, rating in user_ratings.items():
                     st.write(f"- {recipe}: {rating} stars")
+    
+    # Display cooking history
+    if st.session_state["cooking_history"]:
+        with st.expander("Cooking History"):
+            for entry in st.session_state["cooking_history"]:
+                st.write(f"{entry['timestamp']} - **{entry['user']}** cooked **{entry['recipe']}** with a rating of {entry['rating']} stars ([View Recipe]({entry['link']}))")
 
 # Run the receipt page
 receipt_page()
