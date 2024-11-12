@@ -167,4 +167,3 @@ def receipt_page():
 # Run the receipt page
 receipt_page()
 
-
