@@ -39,14 +39,16 @@ if "selected_user" not in st.session_state:
     st.session_state["selected_user"] = None
 if "ratings" not in st.session_state:
     st.session_state["ratings"] = {}
-if "temp_rating" not in st.session_state:
-    st.session_state["temp_rating"] = None
+if "search_triggered" not in st.session_state:
+    st.session_state["search_triggered"] = False
 
 # Choose roommate
 def select_user():
     st.title("Who are you")
     if st.session_state["roommates"]:
-        selected_user = st.selectbox("Choose your name:", st.session_state["roommates"])
+        selected_user = st.selectbox("Choose your name:", st.session_state["roommates"], 
+                                     index=st.session_state["roommates"].index(st.session_state["selected_user"]) 
+                                     if st.session_state["selected_user"] else 0)
         st.session_state["selected_user"] = selected_user
         st.write(f"Hi, {selected_user}!")
     else:
@@ -54,13 +56,11 @@ def select_user():
 
 # Call up recipe suggestions based on inventory or selected ingredients
 def get_recipes_from_inventory(selected_ingredients=None):
-    # Use either provided ingredients or full inventory
     ingredients = selected_ingredients if selected_ingredients else list(st.session_state["inventory"].keys())
     if not ingredients:
         st.warning("Inventory is empty. Please restock.") 
         return []
     
-    # Request to Spoonacular API
     params = {
         "ingredients": ",".join(ingredients),
         "number": 100,
@@ -69,7 +69,6 @@ def get_recipes_from_inventory(selected_ingredients=None):
     }
     response = requests.get(SPOONACULAR_URL, params=params)
     
-    # Show results
     if response.status_code == 200:
         recipes = response.json()
         recipe_titles = []
@@ -106,18 +105,22 @@ select_user()
 st.subheader("Recipe Search Options")
 search_mode = st.radio("Choose a search mode:", ("Automatic (use all inventory)", "Custom (choose ingredients)"))
 
-# Fetch recipe suggestions based on selected mode
-if st.button("Get Recipe Suggestions"):
+# Define a form for recipe suggestions
+with st.form("recipe_form"):
+    if search_mode == "Custom (choose ingredients)":
+        selected_ingredients = st.multiselect("Select ingredients from inventory:", st.session_state["inventory"].keys())
+    else:
+        selected_ingredients = None  # Use the entire inventory
+
+    search_button = st.form_submit_button("Get Recipe Suggestions")
+    if search_button:
+        st.session_state["search_triggered"] = True  # Mark search as triggered
+
+# Display the recipe suggestions if search was triggered
+if st.session_state["search_triggered"]:
     if st.session_state["selected_user"]:
-        if search_mode == "Automatic (use all inventory)":
-            recipe_titles = get_recipes_from_inventory()
-        else:
-            # Allow user to select ingredients from inventory
-            selected_ingredients = st.multiselect("Select ingredients from inventory:", st.session_state["inventory"].keys())
-            if selected_ingredients:
-                recipe_titles = get_recipes_from_inventory(selected_ingredients)
-            else:
-                st.warning("Please select at least one ingredient for the custom search.")
+        recipe_titles = get_recipes_from_inventory(selected_ingredients)
+        st.session_state["search_triggered"] = False  # Reset the trigger after displaying
     else:
         st.warning("Please select a user first.")
 
@@ -128,3 +131,4 @@ if st.session_state["ratings"]:
         st.write(f"**{user}'s Ratings:**")
         for recipe, rating in user_ratings.items():
             st.write(f"- {recipe}: {rating} stars")
+
