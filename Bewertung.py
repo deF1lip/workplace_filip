@@ -106,19 +106,24 @@ def receipt_page():
                 selected_ingredients = None  # Use the entire inventory
             
             search_button = st.form_submit_button("Get Recipe Suggestions")
-            if search_button and not st.session_state["recipe_suggestions"]:
+            if search_button:
                 recipe_titles, recipe_links = get_recipes_from_inventory(selected_ingredients)
                 st.session_state["recipe_suggestions"] = recipe_titles
                 st.session_state["recipe_links"] = recipe_links
 
-        # Display recipe suggestions
+        # Display recipe suggestions with links
         if st.session_state["recipe_suggestions"]:
-            selected_recipe = st.selectbox("Select a recipe to make", ["Please choose..."] + st.session_state["recipe_suggestions"])
+            st.subheader("Choose a recipe to make")
+            for title in st.session_state["recipe_suggestions"]:
+                st.write(f"- **{title}**: ([View Recipe]({st.session_state['recipe_links'][title]}))")
+
+            # Let the user choose one recipe to make
+            selected_recipe = st.selectbox("Select a recipe to cook", ["Please choose..."] + st.session_state["recipe_suggestions"])
             if selected_recipe != "Please choose...":
                 st.session_state["selected_recipe"] = selected_recipe
                 st.session_state["selected_recipe_link"] = st.session_state["recipe_links"][selected_recipe]
                 st.success(f"You have chosen to make '{selected_recipe}'!")
-
+                
     else:
         st.warning("No roommates available.")
         return
@@ -153,4 +158,5 @@ def receipt_page():
 
 # Run the receipt page
 receipt_page()
+
 
