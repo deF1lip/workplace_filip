@@ -6,4 +6,3 @@ pillow
 pyzbar
 requests
 datetime
-settings_page
