@@ -16,7 +16,6 @@ if "inventory" not in st.session_state:
         "Onion": {"Quantity": 2, "Unit": "piece", "Price": 1.5},
         "Garlic": {"Quantity": 3, "Unit": "clove", "Price": 0.5},
         "Olive Oil": {"Quantity": 1, "Unit": "liter", "Price": 8.0},
-        # ... (other items as needed)
     }
 
 if "roommates" not in st.session_state:
@@ -84,8 +83,8 @@ def rate_recipe(recipe_title, recipe_link):
 def recipepage():
     st.title("Who wants to cook a recipe?")
     if st.session_state["roommates"]:
-        selected_user = st.selectbox("Select the roommate:", st.session_state["roommates"])
-        st.session_state["selected_user"] = selected_user  # Save selected user to session state
+        selected_roommate = st.selectbox("Select the roommate:", st.session_state["roommates"])
+        st.session_state["selected_user"] = selected_roommate  # Save selected user to session state
         
         # Recipe Search Options
         st.subheader("Recipe Search Options")
@@ -141,5 +140,3 @@ def recipepage():
 
 # Run the receipt page
 recipepage()
-
-
