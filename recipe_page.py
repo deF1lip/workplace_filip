@@ -42,7 +42,7 @@ def get_recipes_from_inventory(selected_ingredients=None):
     
     params = {
         "ingredients": ",".join(ingredients),
-        "number": 3,
+        "number": 100,
         "ranking": 2,
         "apiKey": API_KEY
     }
@@ -52,6 +52,8 @@ def get_recipes_from_inventory(selected_ingredients=None):
         recipes = response.json()
         recipe_titles = []
         recipe_links = {}
+        displayed_recipes = 0
+        random.shuffle(recipes)
         for recipe in recipes:
             missed_ingredients = recipe.get("missedIngredientCount", 0)
             if missed_ingredients <= 2: #error margin of missing ingredients
@@ -61,6 +63,8 @@ def get_recipes_from_inventory(selected_ingredients=None):
                 if missed_ingredients > 0:
                     missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
                     st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
+                if displayed_recipes >= 3:
+                    break
         return recipe_titles, recipe_links
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
