@@ -31,13 +31,10 @@ if "selected_recipe" not in st.session_state:
 def select_user():
     st.title("Who are you")
     if st.session_state["roommates"]:
-        selected_user = st.selectbox("Choose your name:", st.session_state["roommates"], 
-                                     index=st.session_state["roommates"].index(st.session_state["selected_user"]) 
-                                     if st.session_state["selected_user"] else 0)
-        st.session_state["selected_user"] = selected_user
-        st.write(f"Hi, {selected_user}!")
+        selected_roommate = st.selectbox("Select the roommate:", st.session_state["roommates"])
     else:
-        st.warning("No user was added.")
+        st.warning("No roommates available.")
+        return
 
 # Call up recipe suggestions based on inventory or selected ingredients
 def get_recipes_from_inventory(selected_ingredients=None):
