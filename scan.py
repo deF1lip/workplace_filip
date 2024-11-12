@@ -14,6 +14,9 @@ if uploaded_file is not None:
     # Bild laden
     image = Image.open(uploaded_file)
     
+    # Bild in der Originalversion anzeigen
+    st.image(image, caption='Hochgeladenes Bild der Rechnung', use_column_width=True)
+
     # Bildvorverarbeitung (Graustufen und Kontrastverbesserung)
     image = image.convert("L")  # Konvertiere in Graustufen
     enhancer = ImageEnhance.Contrast(image)
@@ -26,17 +29,41 @@ if uploaded_file is not None:
     st.write("Extrahiere Text aus der Rechnung...")
     results = reader.readtext(image_np)
 
+    # Funktion zum Zusammenfügen von Zeilen
+    def combine_lines(results):
+        combined_text = []
+        current_line = ""
+        
+        for i, result in enumerate(results):
+            line = result[1].strip()
+            # Prüfen, ob die Zeile einen Preis enthält, was darauf hinweist, dass sie abgeschlossen ist
+            if re.search(r'\d+,\d{2}', line):
+                if current_line:
+                    # Wenn bereits ein "current_line" existiert, füge ihn zur Liste hinzu
+                    combined_text.append(current_line)
+                current_line = line  # Beginne eine neue Zeile
+            else:
+                # Wenn keine Preisangabe vorhanden ist, füge die Zeile zu "current_line" hinzu
+                current_line += " " + line
+        
+        # Die letzte Zeile hinzufügen
+        if current_line:
+            combined_text.append(current_line)
+        
+        return combined_text
+
+    # Kombinierte Zeilen
+    combined_text = combine_lines(results)
+
     # Extrahierten Text Zeile für Zeile anzeigen
-    st.write("Extrahierter Text (Zeile für Zeile):")
-    for result in results:
-        st.write(result[1])  # Jede Textzeile anzeigen
+    st.write("Kombinierte und Extrahierte Zeilen:")
+    for line in combined_text:
+        st.write(line)
 
-    # Funktion zum Extrahieren von Artikeln, Mengen und Preisen aus jeder Zeile
-    def extract_items_from_lines(results):
+    # Funktion zum Extrahieren von Artikeln, Mengen und Preisen aus jeder kombinierten Zeile
+    def extract_items_from_lines(combined_text):
         items = []
-        for result in results:
-            line = result[1]
-
+        for line in combined_text:
             # Liste möglicher Regex-Muster für verschiedene Rechnungsformate
             patterns = [
                 r'(.+?)\s+(\d+,\d{2})\s+(\d+,\d{2})',       # Artikelname, Einzelpreis, Gesamtpreis
@@ -74,16 +101,6 @@ if uploaded_file is not None:
             if not matched:
                 st.write(f"Nicht erkanntes Zeilenformat: {line}")
 
-        return items
+        return item
 
-    # Informationen aus jeder Zeile extrahieren
-    items = extract_items_from_lines(results)
-
-    # Extrahierte Artikel anzeigen
-    if items:
-        st.write("Extrahierte Artikel:")
-        for item in items:
-            st.write(f"{item['Artikel']} - Menge: {item['Menge']}, Preis: {item['Preis']} EUR, Gesamtpreis: {item['Gesamtpreis']} EUR")
-    else:
-        st.write("Es konnten keine Artikel aus dem Text extrahiert werden.")
 
