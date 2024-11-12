@@ -27,6 +27,8 @@ if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
 if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
+if "selected_recipe_link" not in st.session_state:
+    st.session_state["selected_recipe_link"] = None
 
 # Recipe suggestion function
 def get_recipes_from_inventory(selected_ingredients=None):
@@ -46,6 +48,7 @@ def get_recipes_from_inventory(selected_ingredients=None):
     if response.status_code == 200:
         recipes = response.json()
         recipe_titles = []
+        recipe_links = {}
         if recipes:
             random.shuffle(recipes)
             st.subheader("Recipe Suggestions")
@@ -56,6 +59,7 @@ def get_recipes_from_inventory(selected_ingredients=None):
                     recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
                     st.write(f"- **{recipe['title']}** ([View Recipe]({recipe_link}))")
                     recipe_titles.append(recipe['title'])
+                    recipe_links[recipe['title']] = recipe_link  # Store link for later use
                     displayed_recipes += 1
                     
                     if missed_ingredients > 0:
@@ -64,17 +68,18 @@ def get_recipes_from_inventory(selected_ingredients=None):
                 
                 if displayed_recipes >= 3:
                     break
-            return recipe_titles
+            return recipe_titles, recipe_links
         else:
             st.write("No recipes found with the current ingredients.")
-            return []
+            return [], {}
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
-        return []
+        return [], {}
 
 # Rating function
-def rate_recipe(recipe_title):
+def rate_recipe(recipe_title, recipe_link):
     st.subheader(f"Rate the recipe: {recipe_title}")
+    st.write(f"[View Recipe]({recipe_link})")  # Show link for selected recipe
     rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
     
     if st.button("Submit Rating"):
@@ -112,11 +117,12 @@ def receipt_page():
 
         # Display the recipe suggestions if search was triggered
         if st.session_state["search_triggered"]:
-            recipe_titles = get_recipes_from_inventory(selected_ingredients)
+            recipe_titles, recipe_links = get_recipes_from_inventory(selected_ingredients)
             if recipe_titles:
                 # Let the user choose one recipe to make
                 selected_recipe = st.selectbox("Select a recipe to make", recipe_titles, key="selected_recipe_choice")
                 st.session_state["selected_recipe"] = selected_recipe
+                st.session_state["selected_recipe_link"] = recipe_links[selected_recipe]  # Save recipe link for rating section
                 st.session_state["search_triggered"] = False  # Reset the trigger after displaying
                 st.success(f"You have chosen to make '{selected_recipe}'!")
                 
@@ -125,8 +131,8 @@ def receipt_page():
         return
 
     # Display the rating section if a recipe was selected
-    if st.session_state["selected_recipe"]:
-        rate_recipe(st.session_state["selected_recipe"])
+    if st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
+        rate_recipe(st.session_state["selected_recipe"], st.session_state["selected_recipe_link"])
 
     # Display the ratings summary
     if st.session_state["ratings"]:
@@ -138,3 +144,4 @@ def receipt_page():
 
 # Run the receipt page
 receipt_page()
+
