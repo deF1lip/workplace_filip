@@ -1,116 +1,98 @@
 import streamlit as st
 import pandas as pd
+import json
+import os
 
-# Beispiel-Daten: Liste der Lebensmittel mit allen Details (Hier Schnittstelle zur Datenbank der gescannten Lebensmittel)
-lebensmittel_data = [
-    {"Name": "Apfel", "Preis": 2.5, "Menge": 5, "Ablaufdatum": "2024-11-10", "Anzahl der Käufe": 5},
-    {"Name": "Milch", "Preis": 1.2, "Menge": 3, "Ablaufdatum": "2024-11-05", "Anzahl der Käufe": 3},
-    {"Name": "Brot", "Preis": 3.0, "Menge": 7, "Ablaufdatum": "2024-11-03", "Anzahl der Käufe": 7}
-]
+# File path for saving data
+DATA_FILE = "account_data.json"
 
-# Eingabe der Benutzer (entweder Eingabe der Benutzer hier oder zu Beginn eine Registrierung für die Webapp erstellen)
-st.title("Wer war am Einkauf beteiligt?")
-benutzer_input = st.text_input('Geben Sie die Namen der Benutzer ein (z.B. "Livio, Bela, Luca"):')
+# Load data from file
+def load_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as file:
+            return json.load(file)
+    return {}
 
-# Konvertiere die Eingabe in eine Liste von Benutzern
-if benutzer_input:
-    benutzer = [name.strip() for name in benutzer_input.split(",") if name.strip()]
-else:
-    benutzer = []  # Leere Liste, falls keine Benutzer eingegeben wurden
+# Save data to file
+def save_data(data):
+    with open(DATA_FILE, "w") as file:
+        json.dump(data, file)
 
-# Konvertiere die Lebensmittel-Daten in ein Pandas DataFrame
-df = pd.DataFrame(lebensmittel_data)
+# Initialization of session state variables
+if "accounts" not in st.session_state:
+    st.session_state["accounts"] = load_data()
+if "current_account" not in st.session_state:
+    st.session_state["current_account"] = None
+if "setup_finished" not in st.session_state:
+    st.session_state["setup_finished"] = False
+if "page" not in st.session_state:
+    st.session_state["page"] = "settings"
 
-# Füge eine Spalte für die Benutzerzuweisung hinzu
-df["Zugewiesen an"] = [[] for _ in range(len(df))]  # Leere Listen für Zuweisungen
+# Function to set up a new account
+def create_account(account_name):
+    if account_name and account_name not in st.session_state["accounts"]:
+        st.session_state["accounts"][account_name] = {
+            "flate_name": account_name,
+            "roommates": [],
+            "inventory": {},
+            "expenses": {},
+            "purchases": {},
+            "consumed": {},
+            "recipe_suggestions": [],
+            "selected_recipe": None,
+            "selected_recipe_link": None,
+            "cooking_history": [],
+        }
+        st.session_state["current_account"] = account_name
+        save_data(st.session_state["accounts"])
+        st.success(f"Account '{account_name}' created and selected.")
 
-# CSS-Stil für den dicken Strich
-st.markdown("""
-    <style>
-    .divider {
-        border-top: 4px solid #444;
-        margin: 20px 0;
-    }
-    .stButton > button.plus-button {
-        border: 2px solid green !important;
-        color: green !important;
-    }
-    .stButton > button.minus-button {
-        border: 2px solid red !important;
-        color: red !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Function to select an account
+def select_account(account_name):
+    if account_name in st.session_state["accounts"]:
+        st.session_state["current_account"] = account_name
+        st.session_state.update(st.session_state["accounts"][account_name])
+        st.success(f"Account '{account_name}' selected.")
 
-# Streamlit-Anwendung für die Zuweisung 
-if benutzer:
-    st.title("Zuteilung der Lebensmittel an die Benutzer")
+# Function to save current account data
+def save_current_account_data():
+    if st.session_state["current_account"]:
+        account_name = st.session_state["current_account"]
+        st.session_state["accounts"][account_name] = {
+            "flate_name": st.session_state["flate_name"],
+            "roommates": st.session_state["roommates"],
+            "inventory": st.session_state["inventory"],
+            "expenses": st.session_state["expenses"],
+            "purchases": st.session_state["purchases"],
+            "consumed": st.session_state["consumed"],
+            "recipe_suggestions": st.session_state["recipe_suggestions"],
+            "selected_recipe": st.session_state["selected_recipe"],
+            "selected_recipe_link": st.session_state["selected_recipe_link"],
+            "cooking_history": st.session_state["cooking_history"],
+        }
+        save_data(st.session_state["accounts"])
 
-    # Zeige die Lebensmittelübersicht in einer klassischen Liste
-    st.subheader("Hier sind Ihre gescannten Einkäufe:")
-    for item in lebensmittel_data:
-        st.write(f"- {item['Name']}: {item['Preis']} CHF")
+# Sidebar for account management
+st.sidebar.title("Account Management")
+account_name = st.sidebar.text_input("Enter account name")
+if st.sidebar.button("Create Account"):
+    create_account(account_name)
+if st.sidebar.selectbox("Select Account", options=list(st.session_state["accounts"].keys()), on_change=lambda: select_account(st.session_state["current_account"])):
+    select_account(st.session_state["current_account"])
+if st.sidebar.button("Save Data"):
+    save_current_account_data()
 
-    # Zuweisungsformular für jedes Lebensmittel
-    st.subheader("Weisen Sie die Lebensmittel den Benutzern zu")
-    for index, row in df.iterrows():
-        # Gesamtmenge des Lebensmittels
-        total_quantity = row["Menge"]
+# Sidebar navigation with buttons
+st.sidebar.title("Navigation")
+if st.sidebar.button("Overview"):
+    st.session_state["page"] = "overview"
+if st.sidebar.button("Fridge"):
+    st.session_state["page"] = "fridge"
+if st.sidebar.button("Scan"):
+    st.session_state["page"] = "scan"
+if st.sidebar.button("Recipes"):
+    st.session_state["page"] = "recipes"
+if st.sidebar.button("Settings"):
+    st.session_state["page"] = "settings"
 
-        # Berechne die aktuell zugewiesene Gesamtmenge
-        zugewiesene_menge = sum([st.session_state.get(f"{benutzer_name}_{index}", 0) for benutzer_name in benutzer])
-        remaining_quantity = total_quantity - zugewiesene_menge
-
-        # Zeige die verbleibende Menge
-        st.write(f"Zuweisung für {row['Name']} (Verfügbare Menge: {remaining_quantity})")
-
-        # Erstelle eine horizontale Anordnung der Benutzer mit `st.columns`
-        columns = st.columns(len(benutzer))
-
-        # Benutzer einzeln die Anzahl zuweisen (Zuweisung ist noch Fehlerhaft -> muss ich noch überarbeiten)
-        for col, benutzer_name in zip(columns, benutzer):
-            with col:
-                # Zeige den Benutzernamen
-                st.write(benutzer_name)
-
-                # Initialisiere den Zähler für die zugewiesene Anzahl von Einheiten, falls nicht vorhanden
-                if f"{benutzer_name}_{index}" not in st.session_state:
-                    st.session_state[f"{benutzer_name}_{index}"] = 0
-
-                # Zeige die aktuelle Anzahl
-                einheiten = st.session_state[f"{benutzer_name}_{index}"]
-
-                # Die "+" Taste ist nur aktiv, wenn noch Einheiten verfügbar sind
-                plus_disabled = remaining_quantity <= 0
-                if st.button("➕", key=f"plus_{index}_{benutzer_name}", disabled=plus_disabled):
-                    if einheiten < total_quantity:
-                        einheiten += 1
-                        st.session_state[f"{benutzer_name}_{index}"] = einheiten
-
-                # Die "-" Taste ist nur aktiv, wenn die Anzahl größer als 0 ist
-                minus_disabled = einheiten <= 0
-                if st.button("➖", key=f"minus_{index}_{benutzer_name}", disabled=minus_disabled):
-                    if einheiten > 0:
-                        einheiten -= 1
-                        st.session_state[f"{benutzer_name}_{index}"] = einheiten
-
-                # Zeige die aktuelle Zuweisung für den Benutzer
-                st.write(f"Anzahl für {benutzer_name}: {einheiten}")
-
-        # Füge den dicken Strich als Trennlinie zwischen den Produkten ein
-        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-
-    # Berechnung der anteiligen Kosten pro Benutzer
-    st.subheader("Kostenaufteilung für jeden Benutzer")
-    kosten_pro_benutzer = {benutzer_name: 0 for benutzer_name in benutzer}
-
-    # Berechne die Kosten für jeden Benutzer basierend auf den zugewiesenen Einheiten der Lebensmittel
-    for index, row in df.iterrows():
-        preis_pro_einheit = row["Preis"] / row["Menge"]
-        for benutzer_name in benutzer:
-            anzahl_einheiten = st.session_state.get(f"{benutzer_name}_{index}", 0)
-            kosten_pro_benutzer[benutzer_name] += anzahl_einheiten * preis_pro_einheit
-
-    # Zeige die anteiligen Kosten für jeden Benutzer
-    for benutzer_name, kosten in kosten_pro_benutzer.items():
-        st.write(f"{benutzer_name}: {kosten:.2f} CHF")
+# Your existing page logic goes here
