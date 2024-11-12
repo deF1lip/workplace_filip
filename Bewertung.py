@@ -134,13 +134,11 @@ if st.session_state["search_triggered"]:
 # Display the chosen recipe for rating
 if st.session_state["selected_recipe"]:
     rate_recipe(st.session_state["selected_recipe"])
-
-# Display the ratings summary
-if st.session_state["ratings"]:
-    st.subheader("Ratings Summary")
-    for user, user_ratings in st.session_state["ratings"].items():
-        st.write(f"**{user}'s Ratings:**")
-        for recipe, rating in user_ratings.items():
-            st.write(f"- {recipe}: {rating} stars")
+    if st.session_state["ratings"]:
+        st.subheader("Ratings Summary")
+        for user, user_ratings in st.session_state["ratings"].items():
+            st.write(f"**{user}'s Ratings:**")
+            for recipe, rating in user_ratings.items():
+                st.write(f"- {recipe}: {rating} stars")
 
 
