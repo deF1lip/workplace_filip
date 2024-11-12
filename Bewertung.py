@@ -83,10 +83,11 @@ def get_recipes_from_inventory(selected_ingredients=None):
         st.error("Error fetching recipes. Please check your API key and try again.")
         return []
 
-# Rating function
+# Rating function with stars
 def rate_recipe(recipe_title):
     st.subheader(f"Rate the recipe: {recipe_title}")
-    rating = st.selectbox("Give a rating (1-5):", [1, 2, 3, 4, 5], key=f"rating_{recipe_title}")
+    rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
+    
     if st.button("Submit Rating"):
         user = st.session_state["selected_user"]
         if user:
@@ -94,7 +95,7 @@ def rate_recipe(recipe_title):
             if user not in st.session_state["ratings"]:
                 st.session_state["ratings"][user] = {}
             st.session_state["ratings"][user][recipe_title] = rating
-            st.success(f"{user} rated '{recipe_title}' with {rating} stars!")
+            st.success(f"You have rated '{recipe_title}' with {rating} stars!")
         else:
             st.warning("Please select a user first.")
 
