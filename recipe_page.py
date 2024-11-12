@@ -33,7 +33,7 @@ if "selected_recipe_link" not in st.session_state:
 if "cooking_history" not in st.session_state:
     st.session_state["cooking_history"] = []
 
-# Recipe suggestion function with missing ingredients display
+# Recipe suggestion function
 def get_recipes_from_inventory(selected_ingredients=None):
     ingredients = selected_ingredients if selected_ingredients else list(st.session_state["inventory"].keys())
     if not ingredients:
@@ -53,21 +53,9 @@ def get_recipes_from_inventory(selected_ingredients=None):
         recipe_titles = []
         recipe_links = {}
         for recipe in recipes:
-            # Show recipes with up to 2 missing ingredients
-            missed_ingredients = recipe.get("missedIngredientCount", 0)
-            if missed_ingredients <= 2:
-                recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
-                recipe_titles.append(recipe['title'])
-                recipe_links[recipe['title']] = recipe_link
-                
-                # Display recipe title with link
-                st.write(f"- **{recipe['title']}**: ([View Recipe]({recipe_link}))")
-                
-                # Display extra ingredients if any
-                if missed_ingredients > 0:
-                    missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
-                    st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
-                
+            recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
+            recipe_titles.append(recipe['title'])
+            recipe_links[recipe['title']] = recipe_link
         return recipe_titles, recipe_links
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
