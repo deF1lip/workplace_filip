@@ -2,7 +2,6 @@ import streamlit as st
 from PIL import Image, ImageEnhance
 import easyocr
 import numpy as np
-from streamlit_drawable_canvas import st_canvas
 import re
 
 # Initialisierung des EasyOCR-Lesers
@@ -15,98 +14,104 @@ if uploaded_file is not None:
     # Bild laden
     image = Image.open(uploaded_file)
     
-    # Bild in der Originalversion anzeigen und interaktive Leinwand hinzufügen
-    st.write("Markiere den Bereich, den du für die Texterkennung analysieren möchtest:")
-    canvas_result = st_canvas(
-        fill_color="rgba(255, 0, 0, 0.3)",  # Transparente rote Markierung
-        stroke_width=2,
-        stroke_color="red",
-        background_image=image,
-        update_streamlit=True,
-        height=image.size[1],
-        width=image.size[0],
-        drawing_mode="rect",  # Rechteck-Auswahlmodus
-        key="canvas",
-    )
+    # Bild in der Originalversion anzeigen
+    st.image(image, caption='Hochgeladenes Bild der Rechnung', use_column_width=True)
 
-    # Überprüfe, ob ein Bereich ausgewählt wurde
-    if canvas_result.json_data is not None:
-        for shape in canvas_result.json_data["objects"]:
-            # Extrahiere die Position des ausgewählten Bereichs
-            left = shape["left"]
-            top = shape["top"]
-            width = shape["width"]
-            height = shape["height"]
+    # Bildvorverarbeitung (Graustufen und Kontrastverbesserung)
+    image = image.convert("L")  # Konvertiere in Graustufen
+    enhancer = ImageEnhance.Contrast(image)
+    image = enhancer.enhance(2)  # Kontrasterhöhung für bessere OCR-Erkennung
 
-            # Bild zuschneiden auf den ausgewählten Bereich
-            cropped_image = image.crop((left, top, left + width, top + height))
-            
-            # Bild anzeigen, das für OCR verwendet wird
-            st.image(cropped_image, caption="Ausgewählter Bereich für Texterkennung", use_column_width=True)
-            
-            # Bildvorverarbeitung (Graustufen und Kontrastverbesserung)
-            cropped_image = cropped_image.convert("L")  # Konvertiere in Graustufen
-            enhancer = ImageEnhance.Contrast(cropped_image)
-            cropped_image = enhancer.enhance(2)  # Kontrasterhöhung für bessere OCR-Erkennung
-            
-            # OCR auf das zugeschnittene Bild anwenden
-            st.write("Extrahiere Text aus dem ausgewählten Bereich...")
-            results = reader.readtext(np.array(cropped_image))
+    # Bild als NumPy-Array konvertieren
+    image_np = np.array(image)
 
-            # Funktion zum Extrahieren von Artikeln, Mengen und Preisen aus jeder Zeile
-            def extract_items_from_lines(results):
-                items = []
-                for result in results:
-                    line = result[1].strip()
+    # OCR auf das Bild anwenden
+    st.write("Extrahiere Text aus der Rechnung...")
+    results = reader.readtext(image_np)
 
-                    # Liste möglicher Regex-Muster für verschiedene Rechnungsformate
-                    patterns = [
-                        r'(\d+)\s*x?\s*(.+?)\s+(\d+,\d{2})',          # Menge, Artikelname, Preis/Gesamtpreis
-                        r'(.+?)\s+(\d+,\d{2})\s+(\d+,\d{2})',        # Artikelname, Einzelpreis, Gesamtpreis
-                        r'(.+?)\s+(\d+,\d{2})'                       # Artikelname und Preis ohne Gesamtpreis
-                    ]
-
-                    # Durchlaufe die Muster, bis eine Übereinstimmung gefunden wird
-                    matched = False
-                    for pattern in patterns:
-                        match = re.search(pattern, line)
-                        if match:
-                            quantity = 1  # Standardmenge auf 1 setzen
-                            item_name = match.group(1).strip()
-                            price = None
-                            total_price = None
-
-                            # Je nach gefundenem Muster die Details extrahieren
-                            if len(match.groups()) == 2:
-                                item_name = match.group(1).strip()
-                                price = float(match.group(2).replace(',', '.'))
-                                total_price = price
-                            elif len(match.groups()) == 3:
-                                quantity = int(match.group(1)) if match.group(1).isdigit() else 1
-                                item_name = match.group(2).strip()
-                                price = float(match.group(3).replace(',', '.'))
-                                total_price = price
-                            
-                            items.append({"Menge": quantity, "Artikel": item_name, "Preis": total_price})
-                            matched = True
-                            break
-
-                    # Wenn keine der Regex übereinstimmt, füge die Zeile als unerkannt hinzu
-                    if not matched:
-                        st.write(f"Nicht erkanntes Zeilenformat: {line}")
-
-                return items
-
-            # Informationen aus jeder Zeile extrahieren
-            items = extract_items_from_lines(results)
-
-            # Extrahierte Artikel anzeigen
-            if items:
-                st.write("Extrahierte Artikel:")
-                for item in items:
-                    st.write(f"Menge: {item['Menge']} - Artikel: {item['Artikel']} - Preis: {item['Preis']} EUR")
+    # Funktion zum Zusammenfügen von Zeilen
+    def combine_lines(results):
+        combined_text = []
+        current_line = ""
+        
+        for i, result in enumerate(results):
+            line = result[1].strip()
+            # Prüfen, ob die Zeile einen Preis enthält, was darauf hinweist, dass sie abgeschlossen ist
+            if re.search(r'\d+,\d{2}', line):
+                if current_line:
+                    # Wenn bereits ein "current_line" existiert, füge ihn zur Liste hinzu
+                    combined_text.append(current_line)
+                current_line = line  # Beginne eine neue Zeile
             else:
-                st.write("Es konnten keine Artikel aus dem Text extrahiert werden.")
+                # Wenn keine Preisangabe vorhanden ist, füge die Zeile zu "current_line" hinzu
+                current_line += " " + line
+        
+        # Die letzte Zeile hinzufügen
+        if current_line:
+            combined_text.append(current_line)
+        
+        return combined_text
+
+    # Kombinierte Zeilen
+    combined_text = combine_lines(results)
+
+    # Extrahierten Text Zeile für Zeile anzeigen
+    st.write("Kombinierte und Extrahierte Zeilen:")
+    for line in combined_text:
+        st.write(line)
+
+    # Funktion zum Extrahieren von Artikeln, Mengen und Preisen aus jeder kombinierten Zeile
+    def extract_items_from_lines(combined_text):
+        items = []
+        for line in combined_text:
+            # Liste möglicher Regex-Muster für verschiedene Rechnungsformate
+            patterns = [
+                r'(\d+)\s*x?\s*(.+?)\s+(\d+,\d{2})',          # Menge, Artikelname, Preis/Gesamtpreis
+                r'(.+?)\s+(\d+,\d{2})\s+(\d+,\d{2})',        # Artikelname, Einzelpreis, Gesamtpreis
+                r'(.+?)\s+(\d+,\d{2})'                       # Artikelname und Preis ohne Gesamtpreis
+            ]
+
+            # Durchlaufe die Muster, bis eine Übereinstimmung gefunden wird
+            matched = False
+            for pattern in patterns:
+                match = re.search(pattern, line)
+                if match:
+                    quantity = 1  # Standardmenge auf 1 setzen
+                    item_name = match.group(1).strip()
+                    price = None
+                    total_price = None
+
+                    # Je nach gefundenem Muster die Details extrahieren
+                    if len(match.groups()) == 2:
+                        item_name = match.group(1).strip()
+                        price = float(match.group(2).replace(',', '.'))
+                        total_price = price
+                    elif len(match.groups()) == 3:
+                        quantity = int(match.group(1)) if match.group(1).isdigit() else 1
+                        item_name = match.group(2).strip()
+                        price = float(match.group(3).replace(',', '.'))
+                        total_price = price
+                    
+                    items.append({"Menge": quantity, "Artikel": item_name, "Preis": total_price})
+                    matched = True
+                    break
+
+            # Wenn keine der Regex übereinstimmt, füge die Zeile als unerkannt hinzu
+            if not matched:
+                st.write(f"Nicht erkanntes Zeilenformat: {line}")
+
+        return items
+
+    # Informationen aus jeder kombinierten Zeile extrahieren
+    items = extract_items_from_lines(combined_text)
+
+    # Extrahierte Artikel anzeigen
+    if items:
+        st.write("Extrahierte Artikel:")
+        for item in items:
+            st.write(f"Menge: {item['Menge']} - Artikel: {item['Artikel']} - Preis: {item['Preis']} EUR")
+    else:
+        st.write("Es konnten keine Artikel aus dem Text extrahiert werden.")
 
 
 
