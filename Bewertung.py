@@ -29,8 +29,6 @@ if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
 if "selected_recipe_link" not in st.session_state:
     st.session_state["selected_recipe_link"] = None
-if "rating_mode" not in st.session_state:
-    st.session_state["rating_mode"] = False  # New state variable to control rating mode
 
 # Recipe suggestion function
 def get_recipes_from_inventory(selected_ingredients=None):
@@ -92,7 +90,6 @@ def rate_recipe(recipe_title, recipe_link):
                 st.session_state["ratings"][user] = {}
             st.session_state["ratings"][user][recipe_title] = rating
             st.success(f"You have rated '{recipe_title}' with {rating} stars!")
-            st.session_state["rating_mode"] = False  # Exit rating mode after submitting
         else:
             st.warning("Please select a user first.")
 
@@ -128,14 +125,13 @@ def receipt_page():
                 st.session_state["selected_recipe_link"] = recipe_links[selected_recipe]  # Save recipe link for rating section
                 st.session_state["search_triggered"] = False  # Reset the trigger after displaying
                 st.success(f"You have chosen to make '{selected_recipe}'!")
-                st.session_state["rating_mode"] = True  # Enable rating mode after choosing a recipe
                 
     else:
         st.warning("No roommates available.")
         return
 
-    # Display the rating section only if rating mode is enabled
-    if st.session_state["rating_mode"] and st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
+    # Display the rating section if a recipe was selected
+    if st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
         rate_recipe(st.session_state["selected_recipe"], st.session_state["selected_recipe_link"])
 
     # Display the ratings summary in an expandable section
