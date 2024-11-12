@@ -66,8 +66,8 @@ if uploaded_file is not None:
         for line in combined_text:
             # Liste möglicher Regex-Muster für verschiedene Rechnungsformate
             patterns = [
-                r'(.+?)\s+(\d+,\d{2})\s+(\d+,\d{2})',       # Artikelname, Einzelpreis, Gesamtpreis
-                r'(.+?)\s+(\d+)x\s+(\d+,\d{2})\s+(\d+,\d{2})', # Artikelname, Menge, Einzelpreis, Gesamtpreis
+                r'(\d+)\s*x?\s*(.+?)\s+(\d+,\d{2})',          # Menge, Artikelname, Preis/Gesamtpreis
+                r'(.+?)\s+(\d+,\d{2})\s+(\d+,\d{2})',        # Artikelname, Einzelpreis, Gesamtpreis
                 r'(.+?)\s+(\d+,\d{2})'                       # Artikelname und Preis ohne Gesamtpreis
             ]
 
@@ -76,24 +76,23 @@ if uploaded_file is not None:
             for pattern in patterns:
                 match = re.search(pattern, line)
                 if match:
-                    item_name = match.group(1).strip()
                     quantity = 1  # Standardmenge auf 1 setzen
+                    item_name = match.group(1).strip()
                     price = None
                     total_price = None
 
                     # Je nach gefundenem Muster die Details extrahieren
                     if len(match.groups()) == 2:
+                        item_name = match.group(1).strip()
                         price = float(match.group(2).replace(',', '.'))
                         total_price = price
                     elif len(match.groups()) == 3:
-                        price = float(match.group(2).replace(',', '.'))
-                        total_price = float(match.group(3).replace(',', '.'))
-                    elif len(match.groups()) == 4:
-                        quantity = int(match.group(2))
+                        quantity = int(match.group(1)) if match.group(1).isdigit() else 1
+                        item_name = match.group(2).strip()
                         price = float(match.group(3).replace(',', '.'))
-                        total_price = float(match.group(4).replace(',', '.'))
-
-                    items.append({"Artikel": item_name, "Menge": quantity, "Preis": price, "Gesamtpreis": total_price})
+                        total_price = price
+                    
+                    items.append({"Menge": quantity, "Artikel": item_name, "Preis": total_price})
                     matched = True
                     break
 
@@ -101,6 +100,18 @@ if uploaded_file is not None:
             if not matched:
                 st.write(f"Nicht erkanntes Zeilenformat: {line}")
 
-        return item
+        return items
+
+    # Informationen aus jeder kombinierten Zeile extrahieren
+    items = extract_items_from_lines(combined_text)
+
+    # Extrahierte Artikel anzeigen
+    if items:
+        st.write("Extrahierte Artikel:")
+        for item in items:
+            st.write(f"Menge: {item['Menge']} - Artikel: {item['Artikel']} - Preis: {item['Preis']} EUR")
+    else:
+        st.write("Es konnten keine Artikel aus dem Text extrahiert werden.")
+
 
 
