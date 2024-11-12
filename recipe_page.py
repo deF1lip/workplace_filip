@@ -24,6 +24,8 @@ if "selected_user" not in st.session_state:
     st.session_state["selected_user"] = None
 if "recipe_suggestions" not in st.session_state:
     st.session_state["recipe_suggestions"] = []
+if "recipe_links" not in st.session_state:
+    st.session_state["recipe_links"] = {}
 if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
 if "selected_recipe_link" not in st.session_state:
@@ -103,7 +105,7 @@ def recipepage():
                 st.session_state["recipe_suggestions"] = recipe_titles
                 st.session_state["recipe_links"] = recipe_links
 
-        # Display recipe suggestions with links
+        # Display recipe suggestions with links only if they have been generated
         if st.session_state["recipe_suggestions"]:
             st.subheader("Choose a recipe to make")
             for title in st.session_state["recipe_suggestions"]:
