@@ -14,8 +14,19 @@ if "purchases" not in st.session_state:
 if "consumed" not in st.session_state:
     st.session_state["consumed"] = {mate: [] for mate in st.session_state["roommates"]}
 
+# Ensure each roommate has initialized entries in expenses, purchases, and consumed
+def ensure_roommate_entries():
+    for mate in st.session_state["roommates"]:
+        if mate not in st.session_state["expenses"]:
+            st.session_state["expenses"][mate] = 0.0
+        if mate not in st.session_state["purchases"]:
+            st.session_state["purchases"][mate] = []
+        if mate not in st.session_state["consumed"]:
+            st.session_state["consumed"][mate] = []
+
 # Function to remove product from inventory
 def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
+    ensure_roommate_entries()
     delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if food_item and quantity > 0 and selected_roommate:
         if food_item in st.session_state["inventory"]:
@@ -50,6 +61,7 @@ def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
 
 # Function to add product to inventory
 def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
+    ensure_roommate_entries()
     purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if food_item in st.session_state["inventory"]:
         st.session_state["inventory"][food_item]["Quantity"] += quantity
@@ -69,6 +81,7 @@ def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate
 
 # Main page function
 def fridge_page():
+    ensure_roommate_entries()
     st.title("Fridge")
 
     # Roommate selection

@@ -4,7 +4,7 @@ from PIL import Image
 import requests
 from datetime import datetime
 from settings_page import setup_flat_name, setup_roommates, add_roommate, display_roommates, settingspage, change_flat_name, manage_roommates, remove_roommate
-from fridge_page import delete_product_from_inventory, add_product_to_inventory, fridge_page
+from fridge_page import delete_product_from_inventory, add_product_to_inventory, fridge_page, ensure_rommate_entries
 from barcode_page import decode_barcode, get_product_info, display_total_expenses, display_purchases, barcode_page
 
 # Initialization of session state variables
@@ -25,15 +25,6 @@ if "purchases" not in st.session_state:
 if "consumed" not in st.session_state:
     st.session_state["consumed"] = {mate: [] for mate in st.session_state["roommates"]}
 
-# Ensure each roommate has initialized entries in expenses, purchases, and consumed
-def ensure_roommate_entries():
-    for mate in st.session_state["roommates"]:
-        if mate not in st.session_state["expenses"]:
-            st.session_state["expenses"][mate] = 0.0
-        if mate not in st.session_state["purchases"]:
-            st.session_state["purchases"][mate] = []
-        if mate not in st.session_state["consumed"]:
-            st.session_state["consumed"][mate] = []
 
 # Function to change pages
 def change_page(new_page):
