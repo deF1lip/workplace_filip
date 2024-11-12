@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image, ImageEnhance
 import easyocr
+import numpy as np
 import re
 
 # Initialisierung des EasyOCR-Lesers
@@ -13,17 +14,17 @@ if uploaded_file is not None:
     # Bild laden
     image = Image.open(uploaded_file)
     
-    # Bildvorverarbeitung (Optionen für Graustufen und Kontrastverbesserung)
+    # Bildvorverarbeitung (Graustufen und Kontrastverbesserung)
     image = image.convert("L")  # Konvertiere in Graustufen
     enhancer = ImageEnhance.Contrast(image)
     image = enhancer.enhance(2)  # Kontrasterhöhung für bessere OCR-Erkennung
 
-    # Bild anzeigen
-    st.image(image, caption='Vorverarbeitetes Bild der Rechnung', use_column_width=True)
+    # Bild als NumPy-Array konvertieren
+    image_np = np.array(image)
 
     # OCR auf das Bild anwenden
     st.write("Extrahiere Text aus der Rechnung...")
-    results = reader.readtext(image)
+    results = reader.readtext(image_np)
 
     # Extrahierten Text Zeile für Zeile anzeigen
     st.write("Extrahierter Text (Zeile für Zeile):")
@@ -85,4 +86,5 @@ if uploaded_file is not None:
             st.write(f"{item['Artikel']} - Menge: {item['Menge']}, Preis: {item['Preis']} EUR, Gesamtpreis: {item['Gesamtpreis']} EUR")
     else:
         st.write("Es konnten keine Artikel aus dem Text extrahiert werden.")
+
 
