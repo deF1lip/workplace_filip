@@ -290,4 +290,4 @@ elif st.session_state["page"] == "settings":
         else:
             setup_roommates()
     else:
-        settings_page()
+        settingspage()
