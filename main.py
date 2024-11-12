@@ -6,7 +6,7 @@ from datetime import datetime
 from settings_page import setup_flat_name, setup_roommates, add_roommate, display_roommates, settingspage, change_flat_name, manage_roommates, remove_roommate
 from fridge_page import delete_product_from_inventory, add_product_to_inventory, fridge_page, ensure_roommate_entries
 from barcode_page import decode_barcode, get_product_info, display_total_expenses, display_purchases, barcode_page
-from recipe_page import recipepage
+from recipe_page import receipt_page
 
 # Initialization of session state variables
 if "flate_name" not in st.session_state:
@@ -51,7 +51,11 @@ def overview_page():
     st.write("Welcome to the main page of your app.")
     st.write("Here you can display general information.")
 
-
+# Function for the recipes page
+def recipes_page():
+    st.title("Recipes")
+    st.write("This is the content of the Recipes page.")
+    st.slider("Choose a value:", 0, 100, 50, key="slider_recipes")
 
 # Page display logic for the selected page
 if st.session_state["page"] == "overview":
@@ -61,7 +65,7 @@ elif st.session_state["page"] == "fridge":
 elif st.session_state["page"] == "scan":
     barcode_page()
 elif st.session_state["page"] == "recipes":
-    recipepage()
+    recipes_page()
 elif st.session_state["page"] == "settings":
     if not st.session_state["setup_finished"]:
         if st.session_state["flate_name"] == "":
