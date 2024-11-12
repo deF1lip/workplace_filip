@@ -53,9 +53,14 @@ def get_recipes_from_inventory(selected_ingredients=None):
         recipe_titles = []
         recipe_links = {}
         for recipe in recipes:
-            recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
-            recipe_titles.append(recipe['title'])
-            recipe_links[recipe['title']] = recipe_link
+            missed_ingredients = recipe.get("missedIngredientCount", 0)
+            if missed_ingredients <= 2: #error margin of missing ingredients
+                recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
+                recipe_titles.append(recipe['title'])
+                recipe_links[recipe['title']] = recipe_link
+                if missed_ingredients > 0:
+                    missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
+                    st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
         return recipe_titles, recipe_links
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
