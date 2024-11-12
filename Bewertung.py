@@ -23,8 +23,6 @@ if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Bilbo", "Frodo", "Gandalf der Weise"]
 if "selected_user" not in st.session_state:
     st.session_state["selected_user"] = None
-if "ratings" not in st.session_state:
-    st.session_state["ratings"] = {}
 if "recipe_suggestions" not in st.session_state:
     st.session_state["recipe_suggestions"] = []
 if "selected_recipe" not in st.session_state:
@@ -71,18 +69,13 @@ def rate_recipe(recipe_title, recipe_link):
     if st.button("Submit Rating"):
         user = st.session_state["selected_user"]
         if user:
-            if user not in st.session_state["ratings"]:
-                st.session_state["ratings"][user] = {}
-            st.session_state["ratings"][user][recipe_title] = rating
             st.success(f"You have rated '{recipe_title}' with {rating} stars!")
-            
-            # Save to cooking history
             st.session_state["cooking_history"].append({
-                "user": user,
-                "recipe": recipe_title,
-                "rating": rating,
-                "link": recipe_link,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "Person": user,
+                "Recipe": recipe_title,
+                "Rating": rating,
+                "Link": recipe_link,
+                "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
         else:
             st.warning("Please select a user first.")
@@ -132,25 +125,15 @@ def receipt_page():
     if st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
         rate_recipe(st.session_state["selected_recipe"], st.session_state["selected_recipe_link"])
 
-    # Display the ratings summary in a table
-    if st.session_state["ratings"]:
-        with st.expander("Ratings Summary"):
-            rating_data = [
-                {"Recipe": recipe, "Rating": rating}
-                for user_ratings in st.session_state["ratings"].values()
-                for recipe, rating in user_ratings.items()
-            ]
-            st.table(pd.DataFrame(rating_data))
-
     # Display cooking history in a table
     if st.session_state["cooking_history"]:
         with st.expander("Cooking History"):
             history_data = [
                 {
-                    "Person": entry["user"],
-                    "Recipe": entry["recipe"],
-                    "Rating": entry["rating"],
-                    "Date": entry["timestamp"]
+                    "Person": entry["Person"],
+                    "Recipe": entry["Recipe"],
+                    "Rating": entry["Rating"],
+                    "Date": entry["Date"]
                 }
                 for entry in st.session_state["cooking_history"]
             ]
