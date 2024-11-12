@@ -110,7 +110,7 @@ def get_recipes_from_inventory():
                     displayed_recipes += 1
                     
                     # If there are any missed ingredients, list them
-                    if missed_ingredients > 0:
+                    if missed_ingredients > 0:  # kkanst glaubich > 0 weg lah well es führt nur dure wenn 1 Lebensmittel feht (schüsch han passiere ) eifach If missed_ingredients
                         missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
                         st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
                 
