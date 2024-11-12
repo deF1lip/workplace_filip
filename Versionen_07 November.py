@@ -4,14 +4,17 @@ from PIL import Image
 from pyzbar.pyzbar import decode
 import requests
 from datetime import datetime
-from settings_page import setup_flat_name
-from settings_page import setup_roommates
-from settings_page import add_roommate
-from settings_page import display_roommates
-from settings_page import settings_page
-from settings_page import change_flat_name
-from settings_page import manage_roommates
-from settings_page import remove_roommate
+from settings_page import (
+    setup_flat_name,
+    setup_roommates,
+    add_roommate,
+    display_roommates,
+    settingspage,
+    change_flat_name,
+    manage_roommates,
+    remove_roommate
+)
+
 
 # Initialization of session state variables
 if "flate_name" not in st.session_state:

@@ -37,7 +37,7 @@ def display_roommates():
             st.write(f"- {mate}")
 
 # Seite für Einstellungen, wenn das Setup abgeschlossen ist
-def settings_page():
+def settingspage():
     st.write("Congratulations, your settings are done.")
     change_flat_name()
     manage_roommates()
@@ -88,5 +88,4 @@ if not st.session_state["setup_finished"]:
     else:
         setup_roommates()
 else:
-    settings_page()
-    settings_page()
+    settingspage()
