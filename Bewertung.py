@@ -3,7 +3,7 @@ import requests
 import random
 
 # API-Key and URL for Spoonacular
-API_KEY = '21c590f808c74caabbaa1494c6196e7a'
+API_KEY = 'b9265fc480cb489d9223fe572f840f30'
 SPOONACULAR_URL = 'https://api.spoonacular.com/recipes/findByIngredients'
 
 # Initialisation
