@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import random
+import pandas as pd
 from datetime import datetime
 
 # API-Key and URL for Spoonacular
@@ -15,7 +16,7 @@ if "inventory" not in st.session_state:
         "Onion": {"Quantity": 2, "Unit": "piece", "Price": 1.5},
         "Garlic": {"Quantity": 3, "Unit": "clove", "Price": 0.5},
         "Olive Oil": {"Quantity": 1, "Unit": "liter", "Price": 8.0},
-        # ... (and other items as needed)
+        # ... (other items as needed)
     }
 
 if "roommates" not in st.session_state:
@@ -42,7 +43,7 @@ def get_recipes_from_inventory(selected_ingredients=None):
     
     params = {
         "ingredients": ",".join(ingredients),
-        "number": 3,  # Reduced to limit to 3 recipes
+        "number": 3,
         "ranking": 2,
         "apiKey": API_KEY
     }
@@ -126,19 +127,29 @@ def receipt_page():
     if st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
         rate_recipe(st.session_state["selected_recipe"], st.session_state["selected_recipe_link"])
 
-    # Display the ratings summary in an expandable section
+    # Display the ratings summary in a table
     if st.session_state["ratings"]:
         with st.expander("Ratings Summary"):
-            for user, user_ratings in st.session_state["ratings"].items():
-                st.write(f"**{user}'s Ratings:**")
-                for recipe, rating in user_ratings.items():
-                    st.write(f"- {recipe}: {rating} stars")
-    
-    # Display cooking history
+            rating_data = [
+                {"Recipe": recipe, "Rating": rating}
+                for user_ratings in st.session_state["ratings"].values()
+                for recipe, rating in user_ratings.items()
+            ]
+            st.table(pd.DataFrame(rating_data))
+
+    # Display cooking history in a table
     if st.session_state["cooking_history"]:
         with st.expander("Cooking History"):
-            for entry in st.session_state["cooking_history"]:
-                st.write(f"{entry['timestamp']} - **{entry['user']}** cooked **{entry['recipe']}** with a rating of {entry['rating']} stars ([View Recipe]({entry['link']}))")
+            history_data = [
+                {
+                    "Person": entry["user"],
+                    "Recipe": entry["recipe"],
+                    "Rating": entry["rating"],
+                    "Date": entry["timestamp"]
+                }
+                for entry in st.session_state["cooking_history"]
+            ]
+            st.table(pd.DataFrame(history_data))
 
 # Run the receipt page
 receipt_page()
