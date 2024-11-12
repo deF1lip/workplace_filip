@@ -140,6 +140,6 @@ def recipepage():
             st.table(pd.DataFrame(history_data))
 
 # Run the receipt page
-receipt_page()
+recipepage()
 
 
