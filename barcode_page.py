@@ -112,6 +112,3 @@ def barcode_page():
     display_purchases()
 
 barcode_page()
-
-
-
