@@ -5,10 +5,10 @@ import pandas as pd
 from datetime import datetime
 
 # API-Key and URL for Spoonacular
-API_KEY = 'b9265fc480cb489d9223fe572f840f30'
+API_KEY = 'a79012e4b3e1431e812d8b17bee3a4d7'
 SPOONACULAR_URL = 'https://api.spoonacular.com/recipes/findByIngredients'
 
-# Initialisation
+# Initialization of session state variables
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {
         "Tomato": {"Quantity": 5, "Unit": "gram", "Price": 3.0},
@@ -58,10 +58,16 @@ def get_recipes_from_inventory(selected_ingredients=None):
 
         for recipe in recipes:
             missed_ingredients = recipe.get("missedIngredientCount", 0)
-            if missed_ingredients <= 2: #error margin of missing ingredients
+            if missed_ingredients <= 2:  # Allow up to 2 missing ingredients
                 recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
+                missed_ingredients_names = [item["name"] for item in recipe.get("missedIngredients", [])]
+                
+                # Store both link and missed ingredients for each recipe
                 recipe_titles.append(recipe['title'])
-                recipe_links[recipe['title']] = recipe_link
+                recipe_links[recipe['title']] = {
+                    "link": recipe_link,
+                    "missed_ingredients": missed_ingredients_names
+                }
                 displayed_recipes += 1
                 
                 if displayed_recipes >= 3:
@@ -120,13 +126,18 @@ def recipepage():
         if st.session_state["recipe_suggestions"]:
             st.subheader("Choose a recipe to make")
             for title in st.session_state["recipe_suggestions"]:
-                st.write(f"- **{title}**: ([View Recipe]({st.session_state['recipe_links'][title]}))")
-                missed_ingredients = st.session_state["recipe_links"][title]["missed_ingredients"] #add missed ingredients
+                link = st.session_state["recipe_links"][title]["link"]
+                missed_ingredients = st.session_state["recipe_links"][title]["missed_ingredients"]
+
+                st.write(f"- **{title}**: ([View Recipe]({link}))")
+                if missed_ingredients:
+                    st.write(f"  *Extra ingredients needed:* {', '.join(missed_ingredients)}")
+
             # Let the user choose one recipe to make
             selected_recipe = st.selectbox("Select a recipe to cook", ["Please choose..."] + st.session_state["recipe_suggestions"])
             if selected_recipe != "Please choose...":
                 st.session_state["selected_recipe"] = selected_recipe
-                st.session_state["selected_recipe_link"] = st.session_state["recipe_links"][selected_recipe]
+                st.session_state["selected_recipe_link"] = st.session_state["recipe_links"][selected_recipe]["link"]
                 st.success(f"You have chosen to make '{selected_recipe}'!")
                 
     else:
@@ -151,8 +162,5 @@ def recipepage():
             ]
             st.table(pd.DataFrame(history_data))
 
-# Run the receipt page
+# Run the recipe page
 recipepage()
-
-
-
