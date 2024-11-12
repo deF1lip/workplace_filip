@@ -88,6 +88,32 @@ if not st.session_state["logged_in"]:
                 # WG-Daten in den Session State laden
                 st.session_state.update(st.session_state["data"])
 
+# Sicherstellen, dass alle Session-State-Variablen initialisiert sind
+if "flate_name" not in st.session_state:
+    st.session_state["flate_name"] = ""
+if "roommates" not in st.session_state:
+    st.session_state["roommates"] = []
+if "setup_finished" not in st.session_state:
+    st.session_state["setup_finished"] = False
+if "page" not in st.session_state:
+    st.session_state["page"] = "settings"
+if "inventory" not in st.session_state:
+    st.session_state["inventory"] = {}
+if "expenses" not in st.session_state:
+    st.session_state["expenses"] = {}
+if "purchases" not in st.session_state:
+    st.session_state["purchases"] = {}
+if "consumed" not in st.session_state:
+    st.session_state["consumed"] = {}
+if "recipe_suggestions" not in st.session_state:
+    st.session_state["recipe_suggestions"] = []
+if "selected_recipe" not in st.session_state:
+    st.session_state["selected_recipe"] = None
+if "selected_recipe_link" not in st.session_state:
+    st.session_state["selected_recipe_link"] = None
+if "cooking_history" not in st.session_state:
+    st.session_state["cooking_history"] = []
+
 # Wenn der Benutzer angemeldet ist, zeige die Hauptseite
 if st.session_state["logged_in"]:
     # Sidebar navigation with buttons
