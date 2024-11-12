@@ -3,53 +3,79 @@ from PIL import Image
 import easyocr
 import re
 
-# Initialize EasyOCR reader
-reader = easyocr.Reader(['en'])  # Du kannst zusätzliche Sprachen angeben, z.B. ['en', 'de'] für Englisch und Deutsch
+# Initialisierung des EasyOCR-Lesers
+reader = easyocr.Reader(['de', 'en'])  # Unterstützung für Deutsch und Englisch
 
-# Initialization of session state variables
-if "roommates" not in st.session_state:
-    st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]
-
-# Upload widget for the receipt
-uploaded_file = st.file_uploader("Upload an image of your receipt", type=["jpg", "jpeg", "png"])
+# Hochlade-Widget für die Rechnung
+uploaded_file = st.file_uploader("Lade ein Bild der Rechnung hoch", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Load and display the image
+    # Bild laden und anzeigen
     image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Receipt', use_column_width=True)
+    st.image(image, caption='Hochgeladene Rechnung', use_column_width=True)
 
-    # Apply OCR (text recognition) to the image
-    st.write("Extracting text from the receipt...")
+    # OCR auf das Bild anwenden
+    st.write("Extrahiere Text aus der Rechnung...")
     results = reader.readtext(image)
 
-    # Display the extracted text line by line
-    st.write("Extracted Text (Line by Line):")
+    # Extrahierten Text Zeile für Zeile anzeigen
+    st.write("Extrahierter Text (Zeile für Zeile):")
     for result in results:
-        st.write(result[1])  # Display each line of text
+        st.write(result[1])  # Jede Textzeile anzeigen
 
-    # Function to extract items, quantities, and prices from each line
+    # Funktion zum Extrahieren von Artikeln, Mengen und Preisen aus jeder Zeile
     def extract_items_from_lines(results):
         items = []
         for result in results:
             line = result[1]
-            # Regex to extract item name, quantity, and price for each line
-            match = re.search(r'(\D+)\s+(\d+)\s+(?:CHF|chf|€|eur)?\s?(\d+[\.,]?\d*)', line, re.IGNORECASE)
-            if match:
-                item_name = match.group(1).strip()
-                quantity = int(match.group(2))
-                price = float(match.group(3).replace(',', '.'))
-                items.append({"Item": item_name, "Quantity": quantity, "Price": price})
+
+            # Liste möglicher Regex-Muster für verschiedene Rechnungsformate
+            patterns = [
+                r'(.+?)\s+(\d+,\d{2})\s+(\d+,\d{2})',       # Artikelname, Einzelpreis, Gesamtpreis
+                r'(.+?)\s+(\d+)x\s+(\d+,\d{2})\s+(\d+,\d{2})', # Artikelname, Menge, Einzelpreis, Gesamtpreis
+                r'(.+?)\s+(\d+,\d{2})'                       # Artikelname und Preis ohne Gesamtpreis
+            ]
+
+            # Durchlaufe die Muster, bis eine Übereinstimmung gefunden wird
+            matched = False
+            for pattern in patterns:
+                match = re.search(pattern, line)
+                if match:
+                    item_name = match.group(1).strip()
+                    quantity = 1  # Standardmenge auf 1 setzen
+                    price = None
+                    total_price = None
+
+                    # Je nach gefundenem Muster die Details extrahieren
+                    if len(match.groups()) == 2:
+                        price = float(match.group(2).replace(',', '.'))
+                        total_price = price
+                    elif len(match.groups()) == 3:
+                        price = float(match.group(2).replace(',', '.'))
+                        total_price = float(match.group(3).replace(',', '.'))
+                    elif len(match.groups()) == 4:
+                        quantity = int(match.group(2))
+                        price = float(match.group(3).replace(',', '.'))
+                        total_price = float(match.group(4).replace(',', '.'))
+
+                    items.append({"Artikel": item_name, "Menge": quantity, "Preis": price, "Gesamtpreis": total_price})
+                    matched = True
+                    break
+
+            # Wenn keine der Regex übereinstimmt, füge die Zeile als unerkannt hinzu
+            if not matched:
+                st.write(f"Unrecognized line format: {line}")
+
         return items
 
-    # Extract information from each line
+    # Informationen aus jeder Zeile extrahieren
     items = extract_items_from_lines(results)
 
-    # Display extracted items
+    # Extrahierte Artikel anzeigen
     if items:
-        st.write("Extracted Items:")
+        st.write("Extrahierte Artikel:")
         for item in items:
-            st.write(f"{item['Item']} - Quantity: {item['Quantity']}, Price: {item['Price']} CHF")
+            st.write(f"{item['Artikel']} - Menge: {item['Menge']}, Preis: {item['Preis']} EUR, Gesamtpreis: {item['Gesamtpreis']} EUR")
     else:
-        st.write("No items could be extracted from the text.")
+        st.write("Es konnten keine Artikel aus dem Text extrahiert werden.")
 
-        st.write("No items found.")
