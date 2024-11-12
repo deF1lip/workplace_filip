@@ -22,12 +22,16 @@ if "temp_rating" not in st.session_state:
     st.session_state["temp_rating"] = None
 if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
+if "rating_submitted" not in st.session_state:
+    st.session_state["rating_submitted"] = False  # Track if rating was just submitted
 
 # Choose roommate
 def select_user():
     st.title("Who are you")
     if st.session_state["roommates"]:
-        selected_user = st.selectbox("Choose your name:", st.session_state["roommates"])
+        selected_user = st.selectbox("Choose your name:", st.session_state["roommates"], 
+                                     index=st.session_state["roommates"].index(st.session_state["selected_user"]) 
+                                     if st.session_state["selected_user"] else 0)
         st.session_state["selected_user"] = selected_user
         st.write(f"Hi, {selected_user}!")
     else:
@@ -46,6 +50,7 @@ def number_rating(recipe_title):
             if user not in st.session_state["ratings"]:
                 st.session_state["ratings"][user] = {}
             st.session_state["ratings"][user][recipe_title] = temp_rating
+            st.session_state["rating_submitted"] = True  # Indicate rating was submitted
             st.success(f"{user} rated {recipe_title} with {temp_rating} stars!")
         else:
             st.warning("Please select a user first.")
@@ -58,13 +63,11 @@ def number_rating(recipe_title):
 
 # Call up recipe suggestions based on inventory
 def get_recipes_from_inventory():
-    # Load Ingredients from Inventory
     ingredients = list(st.session_state["inventory"].keys())
     if not ingredients:
         st.warning("Inventory is empty. Please restock.") 
         return []
     
-    # Request to Spoonacular API
     params = {
         "ingredients": ",".join(ingredients),
         "number": 100,
@@ -73,7 +76,6 @@ def get_recipes_from_inventory():
     }
     response = requests.get(SPOONACULAR_URL, params=params)
     
-    # Show results
     if response.status_code == 200:
         recipes = response.json()
         recipe_titles = []
@@ -108,23 +110,5 @@ select_user()
 
 # Fetch recipe suggestions only if a user is selected
 if st.button("Get Recipe Suggestions"):
-    if st.session_state["selected_user"]:
-        recipe_titles = get_recipes_from_inventory()
-        if recipe_titles:
-            # If a recipe was already selected, set it as the default option
-            selected_recipe = st.selectbox("Select a recipe to rate", recipe_titles, 
-                                           index=recipe_titles.index(st.session_state["selected_recipe"]) 
-                                           if st.session_state["selected_recipe"] in recipe_titles else 0)
-            st.session_state["selected_recipe"] = selected_recipe
-            if selected_recipe:
-                number_rating(selected_recipe)
-    else:
-        st.warning("Please select a user first.")
+    st.session_state["rating_submitted"] = False  # Reset submission flag when fetching new
 
-# Display the ratings
-if st.session_state["ratings"]:
-    st.subheader("Ratings Summary")
-    for user, user_ratings in st.session_state["ratings"].items():
-        st.write(f"**{user}'s Ratings:**")
-        for recipe, rating in user_ratings.items():
-            st.write(f"- {recipe}: {rating} stars")
