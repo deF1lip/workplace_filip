@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 
 # API-Key and URL for Spoonacular
-API_KEY = 'b9265fc480cb489d9223fe572f840f30'
+API_KEY = a79012e4b3e1431e812d8b17bee3a4d7
 SPOONACULAR_URL = 'https://api.spoonacular.com/recipes/findByIngredients'
 
 # Initialization of session state variables
