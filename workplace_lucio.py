@@ -113,6 +113,8 @@ if "selected_recipe_link" not in st.session_state:
     st.session_state["selected_recipe_link"] = None
 if "cooking_history" not in st.session_state:
     st.session_state["cooking_history"] = []
+if "recipe_links" not in st.session_state:
+    st.session_state["recipe_links"] = {}
 
 # Wenn der Benutzer angemeldet ist, zeige die Hauptseite
 if st.session_state["logged_in"]:
@@ -142,7 +144,8 @@ if st.session_state["logged_in"]:
             "recipe_suggestions": st.session_state.get("recipe_suggestions", []),
             "selected_recipe": st.session_state.get("selected_recipe", None),
             "selected_recipe_link": st.session_state.get("selected_recipe_link", None),
-            "cooking_history": st.session_state.get("cooking_history", [])
+            "cooking_history": st.session_state.get("cooking_history", []),
+            "recipe_links": st.session_state.get("recipe_links", {})
         }
         save_data(st.session_state["username"], st.session_state["data"])
 
