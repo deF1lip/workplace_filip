@@ -29,8 +29,6 @@ if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
 if "selected_recipe_link" not in st.session_state:
     st.session_state["selected_recipe_link"] = None
-if "recipe_confirmed" not in st.session_state:
-    st.session_state["recipe_confirmed"] = False
 
 # Recipe suggestion function
 def get_recipes_from_inventory(selected_ingredients=None):
@@ -116,7 +114,6 @@ def receipt_page():
             search_button = st.form_submit_button("Get Recipe Suggestions")
             if search_button:
                 st.session_state["search_triggered"] = True  # Mark search as triggered
-                st.session_state["recipe_confirmed"] = False  # Reset recipe confirmation
 
         # Display the recipe suggestions if search was triggered
         if st.session_state["search_triggered"]:
@@ -126,18 +123,15 @@ def receipt_page():
                 selected_recipe = st.selectbox("Select a recipe to make", recipe_titles, key="selected_recipe_choice")
                 st.session_state["selected_recipe"] = selected_recipe
                 st.session_state["selected_recipe_link"] = recipe_links[selected_recipe]  # Save recipe link for rating section
-
-                # Confirm recipe selection
-                if st.button("Confirm Recipe Choice"):
-                    st.session_state["recipe_confirmed"] = True
-                    st.success(f"You have chosen to make '{selected_recipe}'!")
-
+                st.session_state["search_triggered"] = False  # Reset the trigger after displaying
+                st.success(f"You have chosen to make '{selected_recipe}'!")
+                
     else:
         st.warning("No roommates available.")
         return
 
-    # Display the rating section only if a recipe was confirmed
-    if st.session_state["recipe_confirmed"] and st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
+    # Display the rating section if a recipe was selected
+    if st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
         rate_recipe(st.session_state["selected_recipe"], st.session_state["selected_recipe_link"])
 
     # Display the ratings summary in an expandable section
@@ -150,5 +144,4 @@ def receipt_page():
 
 # Run the receipt page
 receipt_page()
-
 
