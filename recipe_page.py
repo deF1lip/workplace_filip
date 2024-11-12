@@ -26,6 +26,8 @@ if "recipe_suggestions" not in st.session_state:
     st.session_state["recipe_suggestions"] = []
 if "recipe_links" not in st.session_state:
     st.session_state["recipe_links"] = {}
+if "missing_ingredients" not in st.session_state:
+    st.session_state["missing_ingredients"] = {}
 if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
 if "selected_recipe_link" not in st.session_state:
@@ -33,13 +35,13 @@ if "selected_recipe_link" not in st.session_state:
 if "cooking_history" not in st.session_state:
     st.session_state["cooking_history"] = []
 
-# Recipe suggestion function
+# Recipe suggestion function with missing ingredients
 def get_recipes_from_inventory(selected_ingredients=None):
     ingredients = selected_ingredients if selected_ingredients else list(st.session_state["inventory"].keys())
     if not ingredients:
         st.warning("Inventory is empty. Please restock.")
-        return [], {}
-    
+        return [], {}, {}
+
     params = {
         "ingredients": ",".join(ingredients),
         "number": 3,
@@ -47,26 +49,43 @@ def get_recipes_from_inventory(selected_ingredients=None):
         "apiKey": API_KEY
     }
     response = requests.get(SPOONACULAR_URL, params=params)
-    
+
     if response.status_code == 200:
         recipes = response.json()
         recipe_titles = []
         recipe_links = {}
+        missing_ingredients = {}
         for recipe in recipes:
-            recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
-            recipe_titles.append(recipe['title'])
-            recipe_links[recipe['title']] = recipe_link
-        return recipe_titles, recipe_links
+            # Show recipes with up to 2 missing ingredients
+            missed_ingredients = recipe.get("missedIngredientCount", 0)
+            if missed_ingredients <= 2:
+                recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
+                recipe_titles.append(recipe['title'])
+                recipe_links[recipe['title']] = recipe_link
+
+                # Store missing ingredients for later display
+                if missed_ingredients > 0:
+                    missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
+                    missing_ingredients[recipe['title']] = missed_names
+                else:
+                    missing_ingredients[recipe['title']] = []
+
+        return recipe_titles, recipe_links, missing_ingredients
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
-        return [], {}
+        return [], {}, {}
 
-# Rating function
-def rate_recipe(recipe_title, recipe_link):
+# Rating function with missing ingredients display
+def rate_recipe(recipe_title, recipe_link, missing_ingredients):
     st.subheader(f"Rate the recipe: {recipe_title}")
     st.write(f"**{recipe_title}**: ([View Recipe]({recipe_link}))")
-    rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
     
+    # Show missing ingredients if any
+    if missing_ingredients:
+        st.write(f"  *Extra ingredients needed:* {', '.join(missing_ingredients)}")
+    
+    rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
+
     if st.button("Submit Rating"):
         user = st.session_state["selected_user"]
         if user:
@@ -102,15 +121,19 @@ def recipepage():
             
             search_button = st.form_submit_button("Get Recipe Suggestions")
             if search_button:
-                recipe_titles, recipe_links = get_recipes_from_inventory(selected_ingredients)
+                recipe_titles, recipe_links, missing_ingredients = get_recipes_from_inventory(selected_ingredients)
                 st.session_state["recipe_suggestions"] = recipe_titles
                 st.session_state["recipe_links"] = recipe_links
+                st.session_state["missing_ingredients"] = missing_ingredients
 
         # Display recipe suggestions with links only if they have been generated
         if st.session_state["recipe_suggestions"]:
             st.subheader("Choose a recipe to make")
+            # Only display the options here
             for title in st.session_state["recipe_suggestions"]:
                 st.write(f"- **{title}**: ([View Recipe]({st.session_state['recipe_links'][title]}))")
+                if st.session_state["missing_ingredients"].get(title):
+                    st.write(f"  *Extra ingredients needed:* {', '.join(st.session_state['missing_ingredients'][title])}")
 
             # Let the user choose one recipe to make
             selected_recipe = st.selectbox("Select a recipe to cook", ["Please choose..."] + st.session_state["recipe_suggestions"])
@@ -125,7 +148,11 @@ def recipepage():
 
     # Display the rating section if a recipe was selected
     if st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
-        rate_recipe(st.session_state["selected_recipe"], st.session_state["selected_recipe_link"])
+        rate_recipe(
+            st.session_state["selected_recipe"],
+            st.session_state["selected_recipe_link"],
+            st.session_state["missing_ingredients"].get(st.session_state["selected_recipe"], [])
+        )
 
     # Display cooking history in a table
     if st.session_state["cooking_history"]:
@@ -141,8 +168,9 @@ def recipepage():
             ]
             st.table(pd.DataFrame(history_data))
 
-# Run the receipt page
+# Run the recipe page
 recipepage()
+
 
 
 
