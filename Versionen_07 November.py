@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image
-from pyzbar.pyzbar import decode
 import requests
 from datetime import datetime
 from settings_page import setup_flat_name 
@@ -12,7 +11,7 @@ from settings_page import settingspage
 from settings_page import change_flat_name
 from settings_page import remove_roommate
 from settings_page import manage_roommates
-#ufu
+
 
 # Initialization of session state variables
 if "flate_name" not in st.session_state:
