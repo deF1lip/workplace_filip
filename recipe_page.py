@@ -85,10 +85,6 @@ def rate_recipe(recipe_title, recipe_link):
 def recipepage():
     st.title("Who wants to cook a recipe?")
     
-    # Zurücksetzen der Rezeptvorschläge, wenn die Seite erneut aufgerufen wird
-    st.session_state["recipe_suggestions"] = []
-    st.session_state["recipe_links"] = {}
-
     if st.session_state["roommates"]:
         selected_roommate = st.selectbox("Select the roommate:", st.session_state["roommates"])
         st.session_state["selected_user"] = selected_roommate  # Save selected user to session state
@@ -122,6 +118,8 @@ def recipepage():
                 st.session_state["selected_recipe"] = selected_recipe
                 st.session_state["selected_recipe_link"] = st.session_state["recipe_links"][selected_recipe]
                 st.success(f"You have chosen to make '{selected_recipe}'!")
+                 # Zurücksetzen der Rezeptvorschläge, wenn die Seite erneut aufgerufen wird
+            return
                 
     else:
         st.warning("No roommates available.")
