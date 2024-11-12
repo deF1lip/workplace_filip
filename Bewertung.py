@@ -12,8 +12,11 @@ if "inventory" not in st.session_state:
         "Tomato": {"Quantity": 5, "Unit": "gram", "Price": 3.0},
         "Banana": {"Quantity": 3, "Unit": "gram", "Price": 5.0},
         "Onion": {"Quantity": 2, "Unit": "piece", "Price": 1.5},
+        "Garlic": {"Quantity": 3, "Unit": "clove", "Price": 0.5},
+        "Olive Oil": {"Quantity": 1, "Unit": "liter", "Price": 8.0},
         # ... (other items as needed)
     }
+
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = ["Bilbo", "Frodo", "Gandalf der Weise"]
 if "selected_user" not in st.session_state:
@@ -135,11 +138,3 @@ def receipt_page():
 
 # Run the receipt page
 receipt_page()
-
-
-
-
-# Display the chosen recipe for rating
-
-
-
