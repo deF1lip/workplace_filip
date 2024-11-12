@@ -37,7 +37,7 @@ if "cooking_history" not in st.session_state:
 def get_recipes_from_inventory(selected_ingredients=None):
     ingredients = selected_ingredients if selected_ingredients else list(st.session_state["inventory"].keys())
     if not ingredients:
-        st.warning("Inventory is empty. Please restock.")
+        st.warning("Inventory is empty. Move your lazy ass to Migros!")
         return [], {}
     
     params = {
@@ -53,16 +53,17 @@ def get_recipes_from_inventory(selected_ingredients=None):
         recipe_titles = []
         recipe_links = {}
         displayed_recipes = 0
+
         random.shuffle(recipes)
+
         for recipe in recipes:
             missed_ingredients = recipe.get("missedIngredientCount", 0)
             if missed_ingredients <= 2: #error margin of missing ingredients
                 recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
                 recipe_titles.append(recipe['title'])
                 recipe_links[recipe['title']] = recipe_link
-                if missed_ingredients > 0:
-                    missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
-                    st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
+                displayed_recipes += 1
+                
                 if displayed_recipes >= 3:
                     break
         return recipe_titles, recipe_links
@@ -120,7 +121,7 @@ def recipepage():
             st.subheader("Choose a recipe to make")
             for title in st.session_state["recipe_suggestions"]:
                 st.write(f"- **{title}**: ([View Recipe]({st.session_state['recipe_links'][title]}))")
-
+                missed_ingredients = st.session_state["recipe_links"][title]["missed_ingredients"] #add missed ingredients
             # Let the user choose one recipe to make
             selected_recipe = st.selectbox("Select a recipe to cook", ["Please choose..."] + st.session_state["recipe_suggestions"])
             if selected_recipe != "Please choose...":
