@@ -75,7 +75,9 @@ if st.session_state["logged_in"] and menu == "Registrieren":
     st.session_state["logged_in"] = False
     st.session_state["username"] = None
     st.session_state["data"] = {}
-    st.experimental_rerun()
+    # Leiten Sie den Benutzer zur Anmeldeseite um, indem Sie den Zustand ändern
+    st.sidebar.selectbox("Menü", ["Anmelden"])  # Ändern Sie das Menü zu "Anmelden"
+    st.stop()  # Beenden Sie die Ausführung, um die Seite neu zu laden
 
 if not st.session_state["logged_in"]:
     username = st.sidebar.text_input("Benutzername")
