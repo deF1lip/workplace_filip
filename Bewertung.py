@@ -134,13 +134,14 @@ def receipt_page():
     if st.session_state["selected_recipe"] and st.session_state["selected_recipe_link"]:
         rate_recipe(st.session_state["selected_recipe"], st.session_state["selected_recipe_link"])
 
-    # Display the ratings summary
+    # Display the ratings summary in an expandable section
     if st.session_state["ratings"]:
-        st.subheader("Ratings Summary")
-        for user, user_ratings in st.session_state["ratings"].items():
-            st.write(f"**{user}'s Ratings:**")
-            for recipe, rating in user_ratings.items():
-                st.write(f"- {recipe}: {rating} stars")
+        with st.expander("Ratings Summary"):
+            for user, user_ratings in st.session_state["ratings"].items():
+                st.write(f"**{user}'s Ratings:**")
+                for recipe, rating in user_ratings.items():
+                    st.write(f"- {recipe}: {rating} stars")
 
 # Run the receipt page
 receipt_page()
+
