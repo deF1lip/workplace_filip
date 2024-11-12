@@ -15,7 +15,7 @@ if "inventory" not in st.session_state:
         "Onion": {"Quantity": 2, "Unit": "piece", "Price": 1.5},
         "Garlic": {"Quantity": 3, "Unit": "clove", "Price": 0.5},
         "Olive Oil": {"Quantity": 1, "Unit": "liter", "Price": 8.0},
-        # ... (other items as needed)
+        # ... (and other items as needed)
     }
 
 if "roommates" not in st.session_state:
@@ -24,8 +24,8 @@ if "selected_user" not in st.session_state:
     st.session_state["selected_user"] = None
 if "ratings" not in st.session_state:
     st.session_state["ratings"] = {}
-if "search_triggered" not in st.session_state:
-    st.session_state["search_triggered"] = False
+if "recipe_suggestions" not in st.session_state:
+    st.session_state["recipe_suggestions"] = []
 if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
 if "selected_recipe_link" not in st.session_state:
@@ -38,11 +38,11 @@ def get_recipes_from_inventory(selected_ingredients=None):
     ingredients = selected_ingredients if selected_ingredients else list(st.session_state["inventory"].keys())
     if not ingredients:
         st.warning("Inventory is empty. Please restock.")
-        return []
+        return [], {}
     
     params = {
         "ingredients": ",".join(ingredients),
-        "number": 100,
+        "number": 3,  # Reduced to limit to 3 recipes
         "ranking": 2,
         "apiKey": API_KEY
     }
@@ -52,29 +52,11 @@ def get_recipes_from_inventory(selected_ingredients=None):
         recipes = response.json()
         recipe_titles = []
         recipe_links = {}
-        if recipes:
-            random.shuffle(recipes)
-            st.subheader("Recipe Suggestions")
-            displayed_recipes = 0
-            for recipe in recipes:
-                missed_ingredients = recipe.get("missedIngredientCount", 0)
-                if missed_ingredients <= 2:
-                    recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
-                    st.write(f"- **{recipe['title']}** ([View Recipe]({recipe_link}))")
-                    recipe_titles.append(recipe['title'])
-                    recipe_links[recipe['title']] = recipe_link  # Store link for later use
-                    displayed_recipes += 1
-                    
-                    if missed_ingredients > 0:
-                        missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
-                        st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
-                
-                if displayed_recipes >= 3:
-                    break
-            return recipe_titles, recipe_links
-        else:
-            st.write("No recipes found with the current ingredients.")
-            return [], {}
+        for recipe in recipes:
+            recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
+            recipe_titles.append(recipe['title'])
+            recipe_links[recipe['title']] = recipe_link
+        return recipe_titles, recipe_links
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
         return [], {}
@@ -88,7 +70,6 @@ def rate_recipe(recipe_title, recipe_link):
     if st.button("Submit Rating"):
         user = st.session_state["selected_user"]
         if user:
-            # Store rating in session state
             if user not in st.session_state["ratings"]:
                 st.session_state["ratings"][user] = {}
             st.session_state["ratings"][user][recipe_title] = rating
@@ -102,10 +83,6 @@ def rate_recipe(recipe_title, recipe_link):
                 "link": recipe_link,
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
-            
-            # Reset selected recipe after rating
-            st.session_state["selected_recipe"] = None
-            st.session_state["selected_recipe_link"] = None
         else:
             st.warning("Please select a user first.")
 
@@ -128,20 +105,19 @@ def receipt_page():
                 selected_ingredients = None  # Use the entire inventory
             
             search_button = st.form_submit_button("Get Recipe Suggestions")
-            if search_button:
-                st.session_state["search_triggered"] = True  # Mark search as triggered
+            if search_button and not st.session_state["recipe_suggestions"]:
+                recipe_titles, recipe_links = get_recipes_from_inventory(selected_ingredients)
+                st.session_state["recipe_suggestions"] = recipe_titles
+                st.session_state["recipe_links"] = recipe_links
 
-        # Display the recipe suggestions if search was triggered
-        if st.session_state["search_triggered"]:
-            recipe_titles, recipe_links = get_recipes_from_inventory(selected_ingredients)
-            if recipe_titles:
-                selected_recipe = st.selectbox("Select a recipe to make", ["Please choose..."] + recipe_titles, key="selected_recipe_choice")
-                if selected_recipe != "Please choose...":
-                    st.session_state["selected_recipe"] = selected_recipe
-                    st.session_state["selected_recipe_link"] = recipe_links[selected_recipe]
-                    st.session_state["search_triggered"] = False
-                    st.success(f"You have chosen to make '{selected_recipe}'!")
-                
+        # Display recipe suggestions
+        if st.session_state["recipe_suggestions"]:
+            selected_recipe = st.selectbox("Select a recipe to make", ["Please choose..."] + st.session_state["recipe_suggestions"])
+            if selected_recipe != "Please choose...":
+                st.session_state["selected_recipe"] = selected_recipe
+                st.session_state["selected_recipe_link"] = st.session_state["recipe_links"][selected_recipe]
+                st.success(f"You have chosen to make '{selected_recipe}'!")
+
     else:
         st.warning("No roommates available.")
         return
