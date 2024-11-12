@@ -3,11 +3,11 @@ import streamlit as st
 # Setup-Seite für die Eingabe des WG-Namens
 def setup_flat_name():
     st.title("🏠 Wasteless App - Setup")
-    flate_name = st.text_input("Please enter your flat name", key="flat_name_input")
-    if st.button("Confirm Flat Name", key="confirm_flat_name_button"): 
+    flate_name = st.text_input("Please enter your flat name")
+    if st.button("Confirm Flat Name"): 
         if flate_name:
             st.session_state["flate_name"] = flate_name
-            st.success(f"You successfully saved your flat name: {flate_name}")
+            st.success(f"You successfully saved your flate name:{flate_name}")
         else:
             st.warning("Please enter a flat_name")
 
@@ -15,10 +15,10 @@ def setup_flat_name():
 def setup_roommates():
     st.title(f"Welcome to {st.session_state['flate_name']}!")
     room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
-    if st.button("Add a new roommate", key="add_roommate_button"):
+    if st.button("Add a new roommate"):
         add_roommate(room_mate)
     display_roommates()
-    if st.button("Finish", key="finish_button"):
+    if st.button("Finish"):
         st.session_state["setup_finished"] = True
 
 # Funktion zum Hinzufügen eines Mitbewohners
@@ -45,8 +45,8 @@ def settingspage():
 # Funktion zum Ändern des WG-Namens
 def change_flat_name():
     with st.expander("Flat name"):
-        flate_name = st.text_input("Please enter your flat name", key="change_flat_name_input")
-        if st.button("Change Flat Name", key="change_flat_name_button"):
+        flate_name = st.text_input("Please enter your flat name")
+        if st.button("Change Flat Name"):
             if flate_name:
                 st.session_state["flate_name"] = flate_name
                 st.success(f"You successfully changed your flat name to {flate_name}!")
@@ -57,7 +57,7 @@ def change_flat_name():
 def manage_roommates():
     with st.expander("Roommates"):
         room_mate = st.text_input("Please enter the name of a roommate", key="new_room_mate_input")
-        if st.button("Add new roommate", key="add_new_roommate_button"):
+        if st.button("Add new roommate"):
             add_roommate(room_mate)
         display_roommates()
         remove_roommate()
@@ -66,10 +66,11 @@ def manage_roommates():
 def remove_roommate():
     if st.session_state["roommates"]:
         roommate_to_remove = st.selectbox("Select a roommate to remove", st.session_state["roommates"])
-        if st.button("Remove roommate", key="remove_roommate_button"):
+        if st.button("Remove roommate"):
             if roommate_to_remove in st.session_state["roommates"]:
                 st.session_state["roommates"].remove(roommate_to_remove)
                 st.success(f"Roommate {roommate_to_remove} has been removed!")
+
 
 # Ablauf
 if "flate_name" not in st.session_state:
