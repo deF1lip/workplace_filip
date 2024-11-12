@@ -17,16 +17,6 @@ if "inventory" not in st.session_state:
         # ... (other items as needed)
     }
 
-if "roommates" not in st.session_state:
-    st.session_state["roommates"] = ["Bilbo", "Frodo", "Gandalf der Weise"]
-if "selected_user" not in st.session_state:
-    st.session_state["selected_user"] = None
-if "ratings" not in st.session_state:
-    st.session_state["ratings"] = {}
-if "search_triggered" not in st.session_state:
-    st.session_state["search_triggered"] = False
-if "selected_recipe" not in st.session_state:
-    st.session_state["selected_recipe"] = None
 
 # Recipe suggestion function
 def get_recipes_from_inventory(selected_ingredients=None):
@@ -85,6 +75,7 @@ def rate_recipe(recipe_title):
                 st.session_state["ratings"][user] = {}
             st.session_state["ratings"][user][recipe_title] = rating
             st.success(f"You have rated '{recipe_title}' with {rating} stars!")
+            st.session_state["recipe_confirmed"] = False  # Reset confirmation for future recipes
         else:
             st.warning("Please select a user first.")
 
@@ -118,14 +109,18 @@ def receipt_page():
                 selected_recipe = st.selectbox("Select a recipe to make", recipe_titles, key="selected_recipe_choice")
                 st.session_state["selected_recipe"] = selected_recipe
                 st.session_state["search_triggered"] = False  # Reset the trigger after displaying
-                st.success(f"You have chosen to make '{selected_recipe}'!")
-                
+
+                # Confirmation button to start cooking the recipe
+                if st.button("Confirm Recipe Choice"):
+                    st.session_state["recipe_confirmed"] = True
+                    st.success(f"You have chosen to make '{selected_recipe}'!")
+
     else:
         st.warning("No roommates available.")
         return
 
-    # Display the rating section if a recipe was selected
-    if st.session_state["selected_recipe"]:
+    # Display the rating section if a recipe was confirmed
+    if st.session_state["recipe_confirmed"] and st.session_state["selected_recipe"]:
         rate_recipe(st.session_state["selected_recipe"])
 
     # Display the ratings summary
