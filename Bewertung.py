@@ -2,12 +2,11 @@ import streamlit as st
 import requests
 import random
 
-
 # API-Key and URL for Spoonacular
 API_KEY = '21c590f808c74caabbaa1494c6196e7a'
 SPOONACULAR_URL = 'https://api.spoonacular.com/recipes/findByIngredients'
 
-# initialisation
+# Initialisation
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {
         "Tomato": {"Quantity": 5, "Unit": "gram", "Price": 3.0},
@@ -53,47 +52,46 @@ def select_user():
     else:
         st.warning("No user was added.")
 
-
-# Call up recipe suggestions based on inventory
-def get_recipes_from_inventory():
-    # Load Ingredients from Inventory
-    ingredients = list(st.session_state["inventory"].keys())
+# Call up recipe suggestions based on inventory or selected ingredients
+def get_recipes_from_inventory(selected_ingredients=None):
+    # Use either provided ingredients or full inventory
+    ingredients = selected_ingredients if selected_ingredients else list(st.session_state["inventory"].keys())
     if not ingredients:
-        st.warning("Inventory is empty. Please move your lazy ass to Migros.") 
-        return[]
+        st.warning("Inventory is empty. Please restock.") 
+        return []
+    
     # Request to Spoonacular API
     params = {
-        "ingredients": ",".join(ingredients), # Ingredients of Inventory
-        "number": 100, # Nr of Recipes
-        "ranking": 2,  # Prioritize recipes with maximum matching ingredients
+        "ingredients": ",".join(ingredients),
+        "number": 100,
+        "ranking": 2,
         "apiKey": API_KEY
     }
     response = requests.get(SPOONACULAR_URL, params=params)
+    
     # Show results
     if response.status_code == 200:
         recipes = response.json()
-        recipe_titles = []  # List to hold the titles of recipes
+        recipe_titles = []
         if recipes:
             random.shuffle(recipes)
             st.subheader("Recipe Suggestions")
             displayed_recipes = 0
             for recipe in recipes:
-                # Show recipes with up to 2 missing ingredients
                 missed_ingredients = recipe.get("missedIngredientCount", 0)
                 if missed_ingredients <= 2:
                     recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
                     st.write(f"- **{recipe['title']}** ([View Recipe]({recipe_link}))")
-                    recipe_titles.append(recipe['title'])  # Add recipe title to the list
+                    recipe_titles.append(recipe['title'])
                     displayed_recipes += 1
                     
-                    # If there are any missed ingredients, list them
-                    if missed_ingredients > 0:  # kkanst glaubich > 0 weg lah well es führt nur dure wenn 1 Lebensmittel feht (schüsch han passiere ) eifach If missed_ingredients
+                    if missed_ingredients > 0:
                         missed_names = [item["name"] for item in recipe.get("missedIngredients", [])]
                         st.write(f"  *Extra ingredients needed:* {', '.join(missed_names)}")
                 
                 if displayed_recipes >= 3:
                     break
-            return recipe_titles  # Return the list of recipe titles
+            return recipe_titles
         else:
             st.write("No recipes found with the current ingredients.")
             return []
@@ -101,14 +99,25 @@ def get_recipes_from_inventory():
         st.error("Error fetching recipes. Please check your API key and try again.")
         return []
 
-
+# Main application flow
 select_user()
 
+# User choice for recipe search mode
+st.subheader("Recipe Search Options")
+search_mode = st.radio("Choose a search mode:", ("Automatic (use all inventory)", "Custom (choose ingredients)"))
 
-# Fetch recipe suggestions only if a user is selected
+# Fetch recipe suggestions based on selected mode
 if st.button("Get Recipe Suggestions"):
     if st.session_state["selected_user"]:
-        recipe_titles = get_recipes_from_inventory()
+        if search_mode == "Automatic (use all inventory)":
+            recipe_titles = get_recipes_from_inventory()
+        else:
+            # Allow user to select ingredients from inventory
+            selected_ingredients = st.multiselect("Select ingredients from inventory:", st.session_state["inventory"].keys())
+            if selected_ingredients:
+                recipe_titles = get_recipes_from_inventory(selected_ingredients)
+            else:
+                st.warning("Please select at least one ingredient for the custom search.")
     else:
         st.warning("Please select a user first.")
 
