@@ -118,7 +118,6 @@ def recipepage():
                 st.session_state["selected_recipe"] = selected_recipe
                 st.session_state["selected_recipe_link"] = st.session_state["recipe_links"][selected_recipe]
                 st.success(f"You have chosen to make '{selected_recipe}'!")
-
                 
     else:
         st.warning("No roommates available.")
