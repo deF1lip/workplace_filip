@@ -69,6 +69,14 @@ if "data" not in st.session_state:
 
 menu = st.sidebar.selectbox("Menü", ["Anmelden", "Registrieren"])
 
+# Prüfen, ob der Benutzer angemeldet ist und auf "Registrieren" klickt
+if st.session_state["logged_in"] and menu == "Registrieren":
+    # Abmelden und zur Anmeldeseite zurückkehren
+    st.session_state["logged_in"] = False
+    st.session_state["username"] = None
+    st.session_state["data"] = {}
+    st.experimental_rerun()
+
 if not st.session_state["logged_in"]:
     username = st.sidebar.text_input("Benutzername")
     password = st.sidebar.text_input("Passwort", type="password")
