@@ -79,7 +79,7 @@ def get_recipes_from_inventory(selected_ingredients=None):
 # Rating function
 def rate_recipe(recipe_title, recipe_link):
     st.subheader(f"Rate the recipe: {recipe_title}")
-    st.write(f"**{recipe_title}**: [View Recipe]({recipe_link})")  # Show title and link for selected recipe
+    st.write(f"**{recipe_title}**({recipe_link})")  # Show title and link for selected recipe
     rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
     
     if st.button("Submit Rating"):
