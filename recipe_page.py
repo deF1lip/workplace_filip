@@ -81,7 +81,7 @@ def rate_recipe(recipe_title, recipe_link):
             st.warning("Please select a user first.")
 
 # Main application flow
-def recipe_page():
+def recipepage():
     st.title("Who wants to cook a recipe?")
     if st.session_state["roommates"]:
         selected_user = st.selectbox("Select the roommate:", st.session_state["roommates"])
