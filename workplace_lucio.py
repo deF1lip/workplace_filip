@@ -69,7 +69,7 @@ menu = st.sidebar.selectbox("Menu", ["Log In", "Register"])
 
 # Display the title only if the user is not logged in
 if not st.session_state["logged_in"]:
-    st.title("WG-Manager App")
+    st.title("Wasteless")
 
 # Check if user is logged in and clicks "Register"
 if st.session_state["logged_in"] and menu == "Register":
