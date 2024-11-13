@@ -9,15 +9,6 @@ from fridge_page import fridge_page
 from barcode_page import barcode_page
 from recipe_page import recipepage
 
-# Custom CSS to change the hover color of the "Log In" button
-st.markdown("""
-    <style>
-    .stButton>button:hover {
-        background-color: green !important;
-        color: white !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 # Function to register a user
 def register_user(username, password):
