@@ -9,6 +9,16 @@ from fridge_page import fridge_page
 from barcode_page import barcode_page
 from recipe_page import recipepage
 
+# Custom CSS to change the hover color of the "Log In" button
+st.markdown("""
+    <style>
+    .stButton>button:hover {
+        background-color: green !important;
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Function to register a user
 def register_user(username, password):
     if os.path.exists("users.json"):
@@ -170,3 +180,24 @@ if st.session_state["logged_in"]:
     if st.session_state["page"] == "overview":
         st.title(f"Overview: {st.session_state['flate_name']}")
         st.write("Welcome to your WG overview page!")
+        auto_save()  # Automatically save data
+    elif st.session_state["page"] == "fridge":
+        fridge_page()
+        auto_save()  # Automatically save data
+    elif st.session_state["page"] == "scan":
+        barcode_page()
+        auto_save()  # Automatically save data
+    elif st.session_state["page"] == "recipes":
+        recipepage()
+        auto_save()  # Automatically save data
+    elif st.session_state["page"] == "settings":
+        if not st.session_state["setup_finished"]:
+            if st.session_state["flate_name"] == "":
+                setup_flat_name()
+            else:
+                setup_roommates()
+        else:
+            settingspage()
+        auto_save()  # Automatically save data
+else:
+    st.write("Please log in or register to continue.")
