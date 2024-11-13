@@ -72,7 +72,7 @@ def load_data(username):
         return {}
 
 # User registration or login
-st.title("Wasteless")
+st.title("Welcome to Wasteless")
 
 # Initialize session state
 if "logged_in" not in st.session_state:
