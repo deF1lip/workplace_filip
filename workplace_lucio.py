@@ -13,7 +13,7 @@ from recipe_page import recipepage
 st.markdown("""
     <style>
     .stButton>button:hover {
-        background-color: red !important;
+        background-color: green !important;
         color: white !important;
     }
     </style>
