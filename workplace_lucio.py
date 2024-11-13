@@ -9,12 +9,17 @@ from fridge_page import fridge_page
 from barcode_page import barcode_page
 from recipe_page import recipepage
 
-# Custom CSS to change the hover color of the "Log In" button
+# Custom CSS to change the button style to have a green outline
 st.markdown("""
     <style>
+    .stButton>button {
+        border: 2px solid green !important;
+        color: green !important;
+        background-color: transparent !important;
+    }
     .stButton>button:hover {
-        background-color: green !important;
-        color: white !important;
+        border: 2px solid darkgreen !important;
+        color: darkgreen !important;
     }
     </style>
 """, unsafe_allow_html=True)
