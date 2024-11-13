@@ -140,8 +140,8 @@ if st.session_state["logged_in"]:
     if st.sidebar.button("Settings"):
         st.session_state["page"] = "settings"
 
-    # Logout button
-    if st.sidebar.button("Log Out"):
+    # Make the "Log Out" button red
+    if st.sidebar.button("Log Out", type="primary"):
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
@@ -170,24 +170,3 @@ if st.session_state["logged_in"]:
     if st.session_state["page"] == "overview":
         st.title(f"Overview: {st.session_state['flate_name']}")
         st.write("Welcome to your WG overview page!")
-        auto_save()  # Automatically save data
-    elif st.session_state["page"] == "fridge":
-        fridge_page()
-        auto_save()  # Automatically save data
-    elif st.session_state["page"] == "scan":
-        barcode_page()
-        auto_save()  # Automatically save data
-    elif st.session_state["page"] == "recipes":
-        recipepage()
-        auto_save()  # Automatically save data
-    elif st.session_state["page"] == "settings":
-        if not st.session_state["setup_finished"]:
-            if st.session_state["flate_name"] == "":
-                setup_flat_name()
-            else:
-                setup_roommates()
-        else:
-            settingspage()
-        auto_save()  # Automatically save data
-else:
-    st.write("Please log in or register to continue.")
