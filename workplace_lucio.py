@@ -9,17 +9,29 @@ from fridge_page import fridge_page
 from barcode_page import barcode_page
 from recipe_page import recipepage
 
-# Custom CSS to change the button style to have a green outline
+# Custom CSS for button styling
 st.markdown("""
     <style>
-    .stButton>button {
+    /* Style for the "Log In" button */
+    .login-button > button {
         border: 2px solid green !important;
         color: green !important;
         background-color: transparent !important;
     }
-    .stButton>button:hover {
+    .login-button > button:hover {
         border: 2px solid darkgreen !important;
         color: darkgreen !important;
+    }
+    
+    /* Style for the "Log Out" button */
+    .logout-button > button {
+        border: 2px solid red !important;
+        color: red !important;
+        background-color: transparent !important;
+    }
+    .logout-button > button:hover {
+        border: 2px solid darkred !important;
+        color: darkred !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -72,7 +84,7 @@ def load_data(username):
         return {}
 
 # User registration or login
-st.title("Welcome to Wasteless")
+st.title("WG-Manager App")
 
 # Initialize session state
 if "logged_in" not in st.session_state:
@@ -102,7 +114,7 @@ if not st.session_state["logged_in"]:
             if register_user(username, password):
                 st.success("Successfully registered! Please log in.")
     elif menu == "Log In":
-        if st.sidebar.button("Log In"):
+        if st.sidebar.button("Log In", key="login-button", css_class="login-button"):
             if login_user(username, password):
                 st.success(f"Welcome, {username}!")
                 st.session_state["logged_in"] = True
@@ -155,8 +167,8 @@ if st.session_state["logged_in"]:
     if st.sidebar.button("Settings"):
         st.session_state["page"] = "settings"
 
-    # Make the "Log Out" button red
-    if st.sidebar.button("Log Out", type="primary"):
+    # "Log Out" button with red outline
+    if st.sidebar.button("Log Out", key="logout-button", css_class="logout-button"):
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
