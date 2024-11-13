@@ -5,7 +5,7 @@ from pyzbar.pyzbar import decode
 import requests
 from datetime import datetime
 
-# Initialisierung von Session-State-Variablen
+# Initialization of the session status for saving values between interactions.
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {}
 if "roommates" not in st.session_state:
@@ -15,31 +15,31 @@ if "expenses" not in st.session_state:
 if "purchases" not in st.session_state:
     st.session_state["purchases"] = {mate: [] for mate in st.session_state["roommates"]}
 
-# Barcode dekodieren
+# Decoding barcodes
 def decode_barcode(image):
-    decoded_objects = decode(image)
+    decoded_objects = decode(image) #searching the barcode
     for obj in decoded_objects:
-        return obj.data.decode("utf-8")
+        return obj.data.decode("utf-8") # Convert a binary number into a string
     return None
 
-# Produktinformationen abrufen
+# Get product information
 def get_product_info(barcode):
-    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
-    response = requests.get(url)
-    if response.status_code == 200:
+    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json" #URL refers to the Open Food Facts API
+    response = requests.get(url) 
+    if response.status_code == 200: # it means that the request was successful and the data is available
         data = response.json()
-        if data.get("status") == 1:
-            product = data["product"]
+        if data.get("status") == 1: 
+            product = data["product"] # extract product information
             return {
                 "name": product.get("product_name", "Unknown Product"),
                 "brand": product.get("brands", "Unknown Brand")
             }
     return None
 
-# Produkt zum Inventar hinzufügen
+# add product to inventory
 def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
     purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if food_item in st.session_state["inventory"]:
+    if food_item in st.session_state["inventory"]:  #checks if the food is currently in inventory
         st.session_state["inventory"][food_item]["Quantity"] += quantity
         st.session_state["inventory"][food_item]["Price"] += price
     else:
@@ -55,13 +55,13 @@ def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate
     })
     st.success(f"'{food_item}' has been added to the inventory, and {selected_roommate}'s expenses were updated.")
 
-# Gesamtausgaben anzeigen
+# Show total expenses
 def display_total_expenses():
     with st.expander("View Total Expenses per Roommate"):
         expenses_df = pd.DataFrame(list(st.session_state["expenses"].items()), columns=["Roommate", "Total Expenses (CHF)"])
         st.table(expenses_df)
 
-# Einkäufe anzeigen
+# show purchases
 def display_purchases():
     with st.expander("Purchases per Roommate"):
         for roommate, purchases in st.session_state["purchases"].items():
@@ -77,26 +77,27 @@ def barcode_page():
     st.title("Upload your barcode")
     uploaded_file = st.file_uploader("Upload an image with a barcode", type=["jpg", "jpeg", "png"])
 
-    if uploaded_file is not None:
+    if uploaded_file is not None: #Checks if an image has been uploaded
         image = Image.open(uploaded_file)
         st.write("Scanning for barcode...")
         barcode = decode_barcode(image)
 
         if barcode:
             st.write(f"Barcode found: {barcode}")
-            st.write("Looking up product information...")
+            st.write("Searching for product information...")
             product_info = get_product_info(barcode)
 
-            if product_info:
-                food_item = st.text_input("Product:", value=product_info['name'])
-                brand = st.text_input("Brand:", value=product_info['brand'])
+            if product_info: 
+                food_item = st.text_input("Product:", value=product_info['name']) # takes values ​​from barcode
+                brand = st.text_input("Brand:", value=product_info['brand']) # takes values ​​from barcode
             else:
                 st.write("Product not found in database.")
                 food_item = st.text_input("Product:")
                 brand = st.text_input("Brand:")
-
+            
+            # Correct and add information manually
             selected_roommate = st.selectbox("Who bought the product?", st.session_state["roommates"])
-            quantity = st.number_input("Quantity:", min_value=0.0, step=0.1, format="%.2f")
+            quantity = st.number_input("Quantity:", min_value=0.0, step=0.1, format="%.1f")
             unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
             price = st.number_input("Price (in CHF):", min_value=0.0, step=0.1, format="%.2f")
 
