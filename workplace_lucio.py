@@ -75,7 +75,8 @@ if st.session_state["logged_in"] and menu == "Register":
     st.session_state["logged_in"] = False
     st.session_state["username"] = None
     st.session_state["data"] = {}
-    st.experimental_rerun()  # Refresh the app to reset the page
+    st.experimental_set_query_params()  # Simulate a rerun by setting query params
+    st.stop()  # End execution to reload the app
 
 if not st.session_state["logged_in"]:
     username = st.sidebar.text_input("Username")
@@ -144,7 +145,8 @@ if st.session_state["logged_in"]:
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
-        st.experimental_rerun()  # Refresh the app to reset the page
+        st.experimental_set_query_params()  # Simulate a rerun by setting query params
+        st.stop()  # End execution to reload the app
 
     # Function to automatically save WG data
     def auto_save():
