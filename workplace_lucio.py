@@ -72,7 +72,7 @@ def load_data(username):
         return {}
 
 # User registration or login
-st.title("WG-Manager App")
+st.title("Wasteless")
 
 # Initialize session state
 if "logged_in" not in st.session_state:
