@@ -56,8 +56,8 @@ def load_data(username):
     else:
         return {}
 
+# Benutzerregistrierung oder -anmeldung
 st.title("WG-Manager App")
-
 
 # Initialisierung der Sitzung
 if "logged_in" not in st.session_state:
