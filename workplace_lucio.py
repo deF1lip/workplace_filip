@@ -9,7 +9,7 @@ from fridge_page import fridge_page
 from barcode_page import barcode_page
 from recipe_page import recipepage
 
-# Function to register and save a user
+# Funktion, um Benutzer zu registrieren und zu speichern
 def register_user(username, password):
     if os.path.exists("users.json"):
         with open("users.json", "r") as file:
@@ -18,7 +18,7 @@ def register_user(username, password):
         users = {}
 
     if username in users:
-        st.error("Username already exists!")
+        st.error("Benutzername existiert bereits!")
         return False
     else:
         users[username] = password
@@ -26,28 +26,28 @@ def register_user(username, password):
             json.dump(users, file)
         return True
 
-# Function to log in a user
+# Funktion, um Benutzer anzumelden
 def login_user(username, password):
     if os.path.exists("users.json"):
         with open("users.json", "r") as file:
             users = json.load(file)
     else:
-        st.error("No users found! Please register first.")
+        st.error("Keine Benutzer gefunden! Bitte registriere dich zuerst.")
         return False
 
     if username in users and users[username] == password:
         return True
     else:
-        st.error("Incorrect username or password!")
+        st.error("Falscher Benutzername oder falsches Passwort!")
         return False
 
-# Function to save flat data
+# Funktion, um WG-Daten zu speichern
 def save_data(username, data):
     data_file = f"{username}_data.json"
     with open(data_file, "w") as file:
         json.dump(data, file)
 
-# Function to load flat data
+# Funktion, um WG-Daten zu laden
 def load_data(username):
     data_file = f"{username}_data.json"
     if os.path.exists(data_file):
@@ -56,10 +56,10 @@ def load_data(username):
     else:
         return {}
 
-# User registration or login
-st.title("Flat-Manager App")
+# Benutzerregistrierung oder -anmeldung
+st.title("WG-Manager App")
 
-# Initialize session state
+# Initialisierung der Sitzung
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 if "username" not in st.session_state:
@@ -67,38 +67,38 @@ if "username" not in st.session_state:
 if "data" not in st.session_state:
     st.session_state["data"] = {}
 
-menu = st.sidebar.selectbox("Menu", ["Login", "Register"])
+menu = st.sidebar.selectbox("Menü", ["Anmelden", "Registrieren"])
 
-# Check if the user is logged in and clicks "Register"
-if st.session_state["logged_in"] and menu == "Register":
-    # Log out and return to the login page
+# Prüfen, ob der Benutzer angemeldet ist und auf "Registrieren" klickt
+if st.session_state["logged_in"] and menu == "Registrieren":
+    # Abmelden und zur Anmeldeseite zurückkehren
     st.session_state["logged_in"] = False
     st.session_state["username"] = None
     st.session_state["data"] = {}
-    # Redirect to the login page by changing the state
-    st.sidebar.selectbox("Menu", ["Login"])  # Change the menu to "Login"
-    st.stop()  # Stop execution to refresh the page
+    # Leiten Sie den Benutzer zur Anmeldeseite um, indem Sie den Zustand ändern
+    st.sidebar.selectbox("Menü", ["Anmelden"])  # Ändern Sie das Menü zu "Anmelden"
+    st.stop()  # Beenden Sie die Ausführung, um die Seite neu zu laden
 
 if not st.session_state["logged_in"]:
-    username = st.sidebar.text_input("Username")
-    password = st.sidebar.text_input("Password", type="password")
+    username = st.sidebar.text_input("Benutzername")
+    password = st.sidebar.text_input("Passwort", type="password")
 
-    if menu == "Register":
-        if st.sidebar.button("Register"):
+    if menu == "Registrieren":
+        if st.sidebar.button("Registrieren"):
             if register_user(username, password):
-                st.success("Successfully registered! Please log in.")
-    elif menu == "Login":
-        if st.sidebar.button("Login"):
+                st.success("Erfolgreich registriert! Bitte melde dich an.")
+    elif menu == "Anmelden":
+        if st.sidebar.button("Anmelden"):
             if login_user(username, password):
-                st.success(f"Welcome, {username}!")
+                st.success(f"Willkommen, {username}!")
                 st.session_state["logged_in"] = True
                 st.session_state["username"] = username
-                # Load flat data
+                # WG-Daten laden
                 st.session_state["data"] = load_data(username)
-                # Load flat data into session state
+                # WG-Daten in den Session State laden
                 st.session_state.update(st.session_state["data"])
 
-# Ensure all session state variables are initialized
+# Sicherstellen, dass alle Session-State-Variablen initialisiert sind
 if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
 if "roommates" not in st.session_state:
@@ -126,7 +126,7 @@ if "cooking_history" not in st.session_state:
 if "recipe_links" not in st.session_state:
     st.session_state["recipe_links"] = {}
 
-# If the user is logged in, show the main page
+# Wenn der Benutzer angemeldet ist, zeige die Hauptseite
 if st.session_state["logged_in"]:
     # Sidebar navigation with buttons
     st.sidebar.title("Navigation")
@@ -141,7 +141,7 @@ if st.session_state["logged_in"]:
     if st.sidebar.button("Settings"):
         st.session_state["page"] = "settings"
 
-    # Function to automatically save flat data
+    # Funktion zum automatischen Speichern der WG-Daten
     def auto_save():
         st.session_state["data"] = {
             "flate_name": st.session_state.get("flate_name", ""),
@@ -162,17 +162,17 @@ if st.session_state["logged_in"]:
     # Page display logic for the selected page
     if st.session_state["page"] == "overview":
         st.title(f"Overview: {st.session_state['flate_name']}")
-        st.write("Welcome to your flat's overview page!")
-        auto_save()  # Automatically save data
+        st.write("Willkommen auf der Übersichtsseite deiner WG!")
+        auto_save()  # Daten automatisch speichern
     elif st.session_state["page"] == "fridge":
         fridge_page()
-        auto_save()  # Automatically save data
+        auto_save()  # Daten automatisch speichern
     elif st.session_state["page"] == "scan":
         barcode_page()
-        auto_save()  # Automatically save data
+        auto_save()  # Daten automatisch speichern
     elif st.session_state["page"] == "recipes":
         recipepage()
-        auto_save()  # Automatically save data
+        auto_save()  # Daten automatisch speichern
     elif st.session_state["page"] == "settings":
         if not st.session_state["setup_finished"]:
             if st.session_state["flate_name"] == "":
@@ -181,6 +181,6 @@ if st.session_state["logged_in"]:
                 setup_roommates()
         else:
             settingspage()
-        auto_save()  # Automatically save data
+        auto_save()  # Daten automatisch speichern
 else:
-    st.write("Please log in or register to continue.")
+    st.write("Bitte melde dich an oder registriere dich, um fortzufahren.")
