@@ -138,9 +138,9 @@ def auto_save():
 
 # Funktion zum Löschen des Accounts
 def delete_account():
-    with st.expander("Delete Account"):
+    with st.expander("Delete account"):
         st.warning("This action is irreversible. Deleting your account will remove all your data.")
-        confirm = st.button("Delete Account")
+        confirm = st.button("Delete account")
         if confirm:
             delete_data()
             st.session_state["logged_in"] = False
