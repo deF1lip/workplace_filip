@@ -72,6 +72,7 @@ if st.session_state["logged_in"]:
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
+        st.experimental_set_query_params()
 
 
 # Page display logic for the selected page
