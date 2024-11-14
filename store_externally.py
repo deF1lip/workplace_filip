@@ -88,24 +88,6 @@ def load_data(username):
     else:
         return {}
 
-# Function to automatically save WG data
-def auto_save():
-    st.session_state["data"] = {
-        "flate_name": st.session_state.get("flate_name", ""),
-        "roommates": st.session_state.get("roommates", []),
-        "setup_finished": st.session_state.get("setup_finished", False),
-        "inventory": st.session_state.get("inventory", {}),
-        "expenses": st.session_state.get("expenses", {}),
-        "purchases": st.session_state.get("purchases", {}),
-        "consumed": st.session_state.get("consumed", {}),
-        "recipe_suggestions": st.session_state.get("recipe_suggestions", []),
-        "selected_recipe": st.session_state.get("selected_recipe", None),
-        "selected_recipe_link": st.session_state.get("selected_recipe_link", None),
-        "cooking_history": st.session_state.get("cooking_history", []),
-        "recipe_links": st.session_state.get("recipe_links", {})
-    }
-    save_data(st.session_state["username"], st.session_state["data"])
-
 # Show menu only if the user is not logged in
 def authentication():
     if not st.session_state["logged_in"]:
@@ -128,6 +110,46 @@ def authentication():
                     st.session_state["data"] = load_data(username)
                     # Load WG data into the session state
                     st.session_state.update(st.session_state["data"])
+
+# Function to automatically save WG data
+def auto_save():
+    st.session_state["data"] = {
+        "flate_name": st.session_state.get("flate_name", ""),
+        "roommates": st.session_state.get("roommates", []),
+        "setup_finished": st.session_state.get("setup_finished", False),
+        "inventory": st.session_state.get("inventory", {}),
+        "expenses": st.session_state.get("expenses", {}),
+        "purchases": st.session_state.get("purchases", {}),
+        "consumed": st.session_state.get("consumed", {}),
+        "recipe_suggestions": st.session_state.get("recipe_suggestions", []),
+        "selected_recipe": st.session_state.get("selected_recipe", None),
+        "selected_recipe_link": st.session_state.get("selected_recipe_link", None),
+        "cooking_history": st.session_state.get("cooking_history", []),
+        "recipe_links": st.session_state.get("recipe_links", {})
+    }
+    save_data(st.session_state["username"], st.session_state["data"])
+
+
+# Funktion zum Löschen des Accounts
+def delete_account_option():
+    with st.expander("Delete Account"):
+        st.warning("This action is irreversible. Deleting your account will remove all your data.")
+        if st.button("Delete Account"):
+            if st.confirm("Are you sure you want to delete your account?"):
+                delete_account()
+
+def delete_account():
+    username = st.session_state.get("username")
+    if username:
+        # Entferne den Benutzer aus der Datei users.json
+        if os.path.exists("users.json"):
+            with open("users.json", "r") as file:
+                users = json.load(file)
+            if username in users:
+                del users[username]
+                with open("users.json", "w") as file:
+                    json.dump(users, file)
+
 
 # If the user is logged in, show the main page
 if st.session_state["logged_in"]:
@@ -174,6 +196,7 @@ if st.session_state["logged_in"]:
                 setup_roommates()
         else:
             settingspage()
+            delete_account_option()
         auto_save()  # Automatically save data
 else:
     st.title("Wasteless")
