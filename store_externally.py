@@ -155,6 +155,7 @@ def delete_account():
         data_file = f"{username}_data.json"
         if os.path.exists(data_file):
             os.remove(data_file)
+        auto_save()
 
 
 # If the user is logged in, show the main page
