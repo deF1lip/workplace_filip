@@ -183,8 +183,7 @@ if st.session_state["logged_in"]:
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
-        st.experimental_set_query_params()  # Simulate a rerun by setting query params
-        st.stop()  # End execution to reload the app
+
 
     # Page display logic for the selected page
     if st.session_state["page"] == "overview":
