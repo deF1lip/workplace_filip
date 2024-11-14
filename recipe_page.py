@@ -100,7 +100,8 @@ def rate_recipe(recipe_title, recipe_link):
 
 # Main application flow
 def recipepage():
-    st.title("Who wants to cook a recipe?")
+    st.title("You think you can cook! Better take a recipe!")
+    st.subheader("Delulu is not the solulu")
     
     if st.session_state["roommates"]: # Select one roommate
         selected_roommate = st.selectbox("Select the roommate:", st.session_state["roommates"])
