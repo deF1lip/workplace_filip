@@ -1,4 +1,5 @@
 import streamlit as st
+from store_externally import delete_account
 
 #Initialization of session state variables
 if "flate_name" not in st.session_state:
@@ -76,7 +77,7 @@ def remove_roommate():
                 st.session_state["roommates"].remove(roommate_to_remove)
                 st.success(f"Roommate {roommate_to_remove} has been removed!")
 
-# settings page when the setup is completed
+# settings when the setup is completed
 def settings():
     change_flat_name()
     manage_roommates()
@@ -90,3 +91,4 @@ def settingspage():
             setup_roommates()
     else:
         settings()
+        delete_account()
