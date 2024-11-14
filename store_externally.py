@@ -99,7 +99,7 @@ def authentication():
         if menu == "Register":
             if st.sidebar.button("Register"):
                 if register_user(username, password):
-                st.success("Successfully registered! Please log in.")
+                    st.success("Successfully registered! Please log in.")
         elif menu == "Log In":
             if st.sidebar.button("Log In"):
                 if login_user(username, password):
