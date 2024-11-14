@@ -107,26 +107,27 @@ def auto_save():
     save_data(st.session_state["username"], st.session_state["data"])
 
 # Show menu only if the user is not logged in
-if not st.session_state["logged_in"]:
-    menu = st.sidebar.selectbox("Menu", ["Log In", "Register"])
+def authentication():
+    if not st.session_state["logged_in"]:
+        menu = st.sidebar.selectbox("Menu", ["Log In", "Register"])
 
-    username = st.sidebar.text_input("Username")
-    password = st.sidebar.text_input("Password", type="password")
+        username = st.sidebar.text_input("Username")
+        password = st.sidebar.text_input("Password", type="password")
 
-    if menu == "Register":
-        if st.sidebar.button("Register"):
-            if register_user(username, password):
+        if menu == "Register":
+            if st.sidebar.button("Register"):
+                if register_user(username, password):
                 st.success("Successfully registered! Please log in.")
-    elif menu == "Log In":
-        if st.sidebar.button("Log In"):
-            if login_user(username, password):
-                st.success(f"Welcome, {username}!")
-                st.session_state["logged_in"] = True
-                st.session_state["username"] = username
-                # Load WG data
-                st.session_state["data"] = load_data(username)
-                # Load WG data into the session state
-                st.session_state.update(st.session_state["data"])
+        elif menu == "Log In":
+            if st.sidebar.button("Log In"):
+                if login_user(username, password):
+                    st.success(f"Welcome, {username}!")
+                    st.session_state["logged_in"] = True
+                    st.session_state["username"] = username
+                    # Load WG data
+                    st.session_state["data"] = load_data(username)
+                    # Load WG data into the session state
+                    st.session_state.update(st.session_state["data"])
 
 # If the user is logged in, show the main page
 if st.session_state["logged_in"]:
@@ -177,3 +178,4 @@ if st.session_state["logged_in"]:
 else:
     st.title("Wasteless")
     st.write("Please log in or register to continue.")
+    authentication()
