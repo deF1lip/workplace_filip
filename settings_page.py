@@ -5,8 +5,6 @@ if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = []
-if "room_mate_input" not in st.session_state:
-    st.session_state["room_mate_input"] = ""
 if "setup_finished" not in st.session_state:
     st.session_state["setup_finished"] = False
 
@@ -34,7 +32,7 @@ def setup_roommates():
 
 # Function for adding a roommate
 def add_roommate(room_mate):
-    if room_mate and room_mate not in st.session_state["roommates"]:
+    if room_mate and room_mate not in st.session_state["roommates"]: # Checks if room_mate is not empty and not already in the list
         st.session_state["roommates"].append(room_mate)
         st.success(f"Roommate {room_mate} has been added!")
     elif room_mate in st.session_state["roommates"]:
