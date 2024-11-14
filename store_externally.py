@@ -138,7 +138,6 @@ def delete_account_option():
         if confirm:
             delete_account()
             st.session_state["logged_in"] = False
-            auto_save()
 
 def delete_account():
     username = st.session_state.get("username")
@@ -151,6 +150,11 @@ def delete_account():
                 del users[username]
                 with open("users.json", "w") as file:
                     json.dump(users, file)
+        
+        # Lösche die spezifische Daten-Datei des Benutzers
+        data_file = f"{username}_data.json"
+        if os.path.exists(data_file):
+            os.remove(data_file)
 
 
 # If the user is logged in, show the main page
