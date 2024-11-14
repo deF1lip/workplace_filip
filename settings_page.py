@@ -77,12 +77,8 @@ def remove_roommate():
                 st.session_state["roommates"].remove(roommate_to_remove)
                 st.success(f"Roommate {roommate_to_remove} has been removed!")
 
-# settings when the setup is completed
-def settings():
-    change_flat_name()
-    manage_roommates()
 
-
+# settings page
 def settingspage():
     if not st.session_state["setup_finished"]:
         if st.session_state["flate_name"] == "":
@@ -90,5 +86,6 @@ def settingspage():
         else:
             setup_roommates()
     else:
-        settings()
+        change_flat_name()
+        manage_roommates()
         delete_account()
