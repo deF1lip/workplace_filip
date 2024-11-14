@@ -113,21 +113,24 @@ def authentication():
 
 # Function to automatically save WG data
 def auto_save():
-    st.session_state["data"] = {
-        "flate_name": st.session_state.get("flate_name", ""),
-        "roommates": st.session_state.get("roommates", []),
-        "setup_finished": st.session_state.get("setup_finished", False),
-        "inventory": st.session_state.get("inventory", {}),
-        "expenses": st.session_state.get("expenses", {}),
-        "purchases": st.session_state.get("purchases", {}),
-        "consumed": st.session_state.get("consumed", {}),
-        "recipe_suggestions": st.session_state.get("recipe_suggestions", []),
-        "selected_recipe": st.session_state.get("selected_recipe", None),
-        "selected_recipe_link": st.session_state.get("selected_recipe_link", None),
-        "cooking_history": st.session_state.get("cooking_history", []),
-        "recipe_links": st.session_state.get("recipe_links", {})
-    }
-    save_data(st.session_state["username"], st.session_state["data"])
+    # Nur speichern, wenn "username" im session_state gesetzt ist
+    if "username" in st.session_state and st.session_state["username"]:
+        st.session_state["data"] = {
+            "flate_name": st.session_state.get("flate_name", ""),
+            "roommates": st.session_state.get("roommates", []),
+            "setup_finished": st.session_state.get("setup_finished", False),
+            "inventory": st.session_state.get("inventory", {}),
+            "expenses": st.session_state.get("expenses", {}),
+            "purchases": st.session_state.get("purchases", {}),
+            "consumed": st.session_state.get("consumed", {}),
+            "recipe_suggestions": st.session_state.get("recipe_suggestions", []),
+            "selected_recipe": st.session_state.get("selected_recipe", None),
+            "selected_recipe_link": st.session_state.get("selected_recipe_link", None),
+            "cooking_history": st.session_state.get("cooking_history", []),
+            "recipe_links": st.session_state.get("recipe_links", {})
+        }
+        save_data(st.session_state["username"], st.session_state["data"])
+
 
 
 # Funktion zum Löschen des Accounts
