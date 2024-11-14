@@ -183,7 +183,7 @@ if st.session_state["logged_in"]:
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
-        auto_save() 
+        st.experimental_rerun()
 
 
     # Page display logic for the selected page
