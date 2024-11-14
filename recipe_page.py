@@ -84,7 +84,7 @@ def rate_recipe(recipe_title, recipe_link):
     st.write(f"**{recipe_title}**: ([View Recipe]({recipe_link}))")
     rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
     
-    if st.button("Submit Rating"): # Checks if button is clicked
+    if st.button("Submit rating"): # Checks if button is clicked
         user = st.session_state["selected_user"]
         if user:
             st.success(f"You have rated '{recipe_title}' with {rating} stars!")
@@ -108,7 +108,7 @@ def recipepage():
         st.session_state["selected_user"] = selected_roommate  # Save selected user to session state
         
         # Recipe Search Options
-        st.subheader("Recipe Search Options")
+        st.subheader("Recipe search options")
         search_mode = st.radio("Choose a search mode:", ("Automatic (use all inventory)", "Custom (choose ingredients)"))
         
         # Recipe selection form - custom or inventory
@@ -118,7 +118,7 @@ def recipepage():
             else:
                 selected_ingredients = None  # Use the entire inventory
             
-            search_button = st.form_submit_button("Get Recipe Suggestions")
+            search_button = st.form_submit_button("Get recipe suggestions")
             if search_button:
                 recipe_titles, recipe_links = get_recipes_from_inventory(selected_ingredients)
                 st.session_state["recipe_suggestions"] = recipe_titles
