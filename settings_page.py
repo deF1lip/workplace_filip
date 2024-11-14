@@ -1,6 +1,6 @@
 import streamlit as st
 
-#Initialization of session state variables
+# Initialization of session state variables
 if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
 if "roommates" not in st.session_state:
@@ -10,7 +10,7 @@ if "room_mate_input" not in st.session_state:
 if "setup_finished" not in st.session_state:
     st.session_state["setup_finished"] = False
 
-# function for app setup: Flat name
+# Function for app setup: Flat name
 def setup_flat_name():
     st.title("🏠 Wasteless App - Setup")
     flate_name = st.text_input("Please enter your flat name")
@@ -21,7 +21,7 @@ def setup_flat_name():
         else:
             st.warning("Please enter a flat_name")
 
-# function for app setup: rooomates
+# Function for app setup: rooomates
 def setup_roommates():
     st.title(f"Welcome to {st.session_state['flate_name']}!")
     room_mate = st.text_input("Please enter the name of a roommate", key="room_mate_input")
@@ -32,7 +32,7 @@ def setup_roommates():
         st.success("Congratulations, your settings are done.")
         st.session_state["setup_finished"] = True
 
-# function for adding a roommate
+# Function for adding a roommate
 def add_roommate(room_mate):
     if room_mate and room_mate not in st.session_state["roommates"]:
         st.session_state["roommates"].append(room_mate)
@@ -40,14 +40,14 @@ def add_roommate(room_mate):
     elif room_mate in st.session_state["roommates"]:
         st.warning(f"Roommate {room_mate} is already in the list!")
 
-# function to display the roommates
+# Function to display the roommates
 def display_roommates():
     if st.session_state["roommates"]:
         st.write("Current roommates:")
         for mate in st.session_state["roommates"]:
             st.write(f"- {mate}")
 
-# function to change the flate name
+# Function to change the flate name
 def change_flat_name():
     with st.expander("Flat name"):
         flate_name = st.text_input("Please enter your flat name")

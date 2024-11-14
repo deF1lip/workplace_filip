@@ -82,7 +82,7 @@ def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate
 # Main page function
 def fridge_page():
     ensure_roommate_entries()
-    st.title("Fridge")
+    st.title("Inventory")
 
     # Roommate selection
     if st.session_state["roommates"]:

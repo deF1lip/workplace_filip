@@ -9,6 +9,7 @@ from barcode_page import decode_barcode, get_product_info, display_total_expense
 from recipe_page import recipepage
 from store_externally import register_user, login_user, save_data, load_data, authentication, auto_save, delete_account, delete_data
 
+
 # Initialization of session state variables
 if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
@@ -43,6 +44,7 @@ if "username" not in st.session_state:
 if "data" not in st.session_state:
     st.session_state["data"] = {}    
 
+# Test
 def overview_page():
     title = f"Overview: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Overview"
     st.title(title)
@@ -58,8 +60,8 @@ if st.session_state["logged_in"]:
     st.sidebar.title("Navigation")
     if st.sidebar.button("Overview"):
         change_page("overview")
-    if st.sidebar.button("Fridge"):
-        change_page("fridge")
+    if st.sidebar.button("Inventory"):
+        change_page("inventory")
     if st.sidebar.button("Scan"):
         change_page("scan")
     if st.sidebar.button("Recipes"):
@@ -76,7 +78,7 @@ if st.session_state["logged_in"]:
     if st.session_state["page"] == "overview":
         overview_page()
         auto_save()
-    elif st.session_state["page"] == "fridge":
+    elif st.session_state["page"] == "inventory":
         fridge_page()
         auto_save()
     elif st.session_state["page"] == "scan":
