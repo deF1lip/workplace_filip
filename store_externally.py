@@ -1,7 +1,6 @@
 import streamlit as st
 import json
 import os
-from datetime import datetime
 from settings_page import setup_flat_name, setup_roommates, settingspage
 from fridge_page import fridge_page
 from barcode_page import barcode_page
@@ -183,7 +182,7 @@ if st.session_state["logged_in"]:
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
-        st.experimental_rerun()
+
 
 
     # Page display logic for the selected page
