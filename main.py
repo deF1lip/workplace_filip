@@ -86,7 +86,14 @@ if st.session_state["logged_in"]:
         recipepage()
         auto_save()
     elif st.session_state["page"] == "settings":
-        settingspage()
+        if not st.session_state["setup_finished"]:
+            if st.session_state["flate_name"] == "":
+                setup_flat_name()
+            else:
+                setup_roommates()
+        else:
+            settingspage()
+            delete_account()
         auto_save()
 else:
     st.title("Wasteless")
