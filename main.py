@@ -44,12 +44,12 @@ if "username" not in st.session_state:
 if "data" not in st.session_state:
     st.session_state["data"] = {}    
 
-# Test
+# only for testing
 def overview_page():
     title = f"Overview: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Overview"
     st.title(title)
-    st.write("Welcome to the main page of your app.")
-    st.write("Here you can display general information.")
+    st.write("In progress!!!")
+ 
 
 # Function to change pages
 def change_page(new_page):
