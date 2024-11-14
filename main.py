@@ -8,6 +8,7 @@ from fridge_page import delete_product_from_inventory, add_product_to_inventory,
 from barcode_page import decode_barcode, get_product_info, display_total_expenses, display_purchases, barcode_page
 from recipe_page import recipepage
 from store_externally import register_user, login_user, save_data, load_data, authentication, auto_save, delete_account, delete_data
+
 # Initialization of session state variables
 if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
@@ -69,8 +70,7 @@ if st.session_state["logged_in"]:
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
-        st.experimental_set_query_params()  # Simulate a rerun by setting query params
-        st.stop()  # End execution to reload the app
+
 
 
 # Page display logic for the selected page
