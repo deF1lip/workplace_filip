@@ -184,7 +184,6 @@ if st.session_state["logged_in"]:
         st.session_state["data"] = {}
 
 
-
     # Page display logic for the selected page
     if st.session_state["page"] == "overview":
         st.title(f"Overview: {st.session_state['flate_name']}")
