@@ -138,11 +138,11 @@ def fridge_page():
     # Display purchases and consumed items per roommate
     st.write("Purchases and Consumptions per roommate:")
     for mate in st.session_state["roommates"]:
-        st.write(f"**{mate}'s Purchases:**")
+        st.write(f"{mate}'s Purchases:")
         purchases_df = pd.DataFrame(st.session_state["purchases"][mate])
         st.table(purchases_df)
 
-        st.write(f"**{mate}'s Consumptions:**")
+        st.write(f"{mate}'s Consumptions:")
         consumed_df = pd.DataFrame(st.session_state["consumed"][mate])
         st.table(consumed_df)
 
