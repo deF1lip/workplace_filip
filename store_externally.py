@@ -134,16 +134,16 @@ def auto_save():
 
 
 # Funktion zum Löschen des Accounts
-def delete_account_option():
+def delete_account():
     with st.expander("Delete Account"):
         st.warning("This action is irreversible. Deleting your account will remove all your data.")
         confirm = st.button("Delete Account")
         if confirm:
-            delete_account()
+            delete_data()
             st.session_state["logged_in"] = False
-            st.session_state.clear()
 
-def delete_account():
+
+def delete_data():
     username = st.session_state.get("username")
     if username:
         # Entferne den Benutzer aus der Datei users.json
@@ -159,6 +159,7 @@ def delete_account():
         data_file = f"{username}_data.json"
         if os.path.exists(data_file):
             os.remove(data_file)
+    st.session_state.clear()
         
 
 
@@ -207,7 +208,7 @@ if st.session_state["logged_in"]:
                 setup_roommates()
         else:
             settingspage()
-            delete_account_option()
+            delete_account()
         auto_save()  # Automatically save data
 else:
     st.title("Wasteless")
