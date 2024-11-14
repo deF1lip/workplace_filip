@@ -7,7 +7,7 @@ from settings_page import setup_flat_name, setup_roommates, add_roommate, displa
 from fridge_page import delete_product_from_inventory, add_product_to_inventory, fridge_page, ensure_roommate_entries
 from barcode_page import decode_barcode, get_product_info, display_total_expenses, display_purchases, barcode_page
 from recipe_page import recipepage
-
+from store_externally import register_user, login_user, save_data, load_data, authentication, auto_save, delete_account, delete_data
 # Initialization of session state variables
 if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
@@ -29,56 +29,74 @@ if "recipe_suggestions" not in st.session_state:
     st.session_state["recipe_suggestions"] = []
 if "selected_recipe" not in st.session_state:
     st.session_state["selected_recipe"] = None
+if "recipe_links" not in st.session_state:
+    st.session_state["recipe_links"] = {}
 if "selected_recipe_link" not in st.session_state:
     st.session_state["selected_recipe_link"] = None
 if "cooking_history" not in st.session_state:
-    st.session_state["cooking_history"] = []    
+    st.session_state["cooking_history"] = []
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+if "username" not in st.session_state:
+    st.session_state["username"] = None
+if "data" not in st.session_state:
+    st.session_state["data"] = {}    
 
-
-# Function to change pages
-def change_page(new_page):
-    st.session_state["page"] = new_page
-
-# Sidebar navigation with buttons
-st.sidebar.title("Navigation")
-if st.sidebar.button("Overview"):
-    change_page("overview")
-if st.sidebar.button("Fridge"):
-    change_page("fridge")
-if st.sidebar.button("Scan"):
-    change_page("scan")
-if st.sidebar.button("Recipes"):
-    change_page("recipes")
-if st.sidebar.button("Settings"):
-    change_page("settings")
-
-# Function for the overview page
 def overview_page():
     title = f"Overview: {st.session_state['flate_name']}" if st.session_state["flate_name"] else "Overview"
     st.title(title)
     st.write("Welcome to the main page of your app.")
     st.write("Here you can display general information.")
 
-# Function for the recipes page
-def recipes_page():
-    st.title("Recipes")
-    st.write("This is the content of the Recipes page.")
-    st.slider("Choose a value:", 0, 100, 50, key="slider_recipes")
+# Function to change pages
+def change_page(new_page):
+    st.session_state["page"] = new_page
+
+# Sidebar navigation with buttons
+if st.session_state["logged_in"]:
+    st.sidebar.title("Navigation")
+    if st.sidebar.button("Overview"):
+        change_page("overview")
+    if st.sidebar.button("Fridge"):
+        change_page("fridge")
+    if st.sidebar.button("Scan"):
+        change_page("scan")
+    if st.sidebar.button("Recipes"):
+        change_page("recipes")
+    if st.sidebar.button("Settings"):
+        change_page("settings")
+    if st.sidebar.button("Log Out", type="primary"):
+        st.session_state["logged_in"] = False
+        st.session_state["username"] = None
+        st.session_state["data"] = {}
+        st.experimental_set_query_params()  # Simulate a rerun by setting query params
+        st.stop()  # End execution to reload the app
+
 
 # Page display logic for the selected page
-if st.session_state["page"] == "overview":
-    overview_page()
-elif st.session_state["page"] == "fridge":
-    fridge_page()
-elif st.session_state["page"] == "scan":
-    barcode_page()
-elif st.session_state["page"] == "recipes":
-    recipepage()
-elif st.session_state["page"] == "settings":
-    if not st.session_state["setup_finished"]:
-        if st.session_state["flate_name"] == "":
-            setup_flat_name()
+    if st.session_state["page"] == "overview":
+        overview_page()
+        auto_save()
+    elif st.session_state["page"] == "fridge":
+        fridge_page()
+        auto_save()
+    elif st.session_state["page"] == "scan":
+        barcode_page()
+        auto_save()
+    elif st.session_state["page"] == "recipes":
+        recipepage()
+        auto_save()
+    elif st.session_state["page"] == "settings":
+        if not st.session_state["setup_finished"]:
+            if st.session_state["flate_name"] == "":
+                setup_flat_name()
+            else:
+                setup_roommates()
         else:
-            setup_roommates()
-    else:
-        settingspage()
+            settingspage()
+            delete_account()
+        auto_save()
+else:
+    st.title("Wasteless")
+    st.write("Please log in or register to continue.")
+    authentication()
