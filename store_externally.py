@@ -186,9 +186,6 @@ if st.session_state["logged_in"]:
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
-        st.experimental_rerun()
-
-
 
     # Page display logic for the selected page
     if st.session_state["page"] == "overview":
