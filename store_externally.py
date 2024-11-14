@@ -64,7 +64,7 @@ def login_user(username, password):
         with open("users.json", "r") as file:
             users = json.load(file)
     else:
-        st.error("No users found! Please register first.")
+        st.error("No users found! Please sign up first.")
         return False
 
     if username in users and users[username] == password:
@@ -94,17 +94,17 @@ def load_data(username):
 # Show menu only if the user is not logged in
 def authentication():
     if not st.session_state["logged_in"]:
-        menu = st.sidebar.selectbox("Menu", ["Log In", "Register"])
+        account = st.sidebar.selectbox("Account:", ["Sign in", "Sign up"])
 
-        username = st.sidebar.text_input("Username")
+        username = st.sidebar.text_input("Flat")
         password = st.sidebar.text_input("Password", type="password")
 
-        if menu == "Register":
-            if st.sidebar.button("Register"):
+        if account == "Sign up":
+            if st.sidebar.button("Sign up"):
                 if register_user(username, password):
-                    st.success("Successfully registered! Please log in.")
-        elif menu == "Log In":
-            if st.sidebar.button("Log In"):
+                    st.success("Successfully registered! Please sign in.")
+        elif account == "Sign in":
+            if st.sidebar.button("Sign in"):
                 if login_user(username, password):
                     st.success(f"Welcome, {username}!")
                     st.session_state["logged_in"] = True
@@ -215,5 +215,5 @@ if st.session_state["logged_in"]:
         auto_save()  # Automatically save data
 else:
     st.title("Wasteless")
-    st.write("Please log in or register to continue.")
+    st.write("Please sign in or sign up to continue.")
     authentication()
