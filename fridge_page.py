@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
-# Initialization of the session status for saving values between interactions.
+# Initialization of the session status for saving values between interactions
 if "roommates" not in st.session_state:
-    st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"]
+    st.session_state["roommates"] = ["Livio", "Flurin", "Anderin"] # use for testing code
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {}
 if "expenses" not in st.session_state:
