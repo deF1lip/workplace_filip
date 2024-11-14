@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd
+import pandas as pd # Library to handle data
 from datetime import datetime
 
 # Initialization of the session status for saving values between interactions
@@ -14,7 +14,7 @@ if "purchases" not in st.session_state:
 if "consumed" not in st.session_state:
     st.session_state["consumed"] = {mate: [] for mate in st.session_state["roommates"]}
 
-# Ensure each roommate has initialized entries in expenses, purchases, and consumed
+# Ensure that entries in expenses, purchases and consumption are initialized when adding or removing roommates
 def ensure_roommate_entries():
     for mate in st.session_state["roommates"]:
         if mate not in st.session_state["expenses"]:
@@ -27,13 +27,13 @@ def ensure_roommate_entries():
 # Function to remove product from inventory
 def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
     ensure_roommate_entries()
-    delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    delete_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Records the current time
     if food_item and quantity > 0 and selected_roommate:
-        if food_item in st.session_state["inventory"]:
+        if food_item in st.session_state["inventory"]: # Checks if the ingredient is in the inventory
             current_quantity = st.session_state["inventory"][food_item]["Quantity"]
             current_price = st.session_state["inventory"][food_item]["Price"]
             if quantity <= current_quantity:
-                # Calculate the price per unit
+                # Calculate the price
                 price_per_unit = current_price / current_quantity if current_quantity > 0 else 0
                 amount_to_deduct = price_per_unit * quantity
                 # Update inventory
@@ -41,7 +41,7 @@ def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
                 st.session_state["inventory"][food_item]["Price"] -= amount_to_deduct
                 st.session_state["expenses"][selected_roommate] -= amount_to_deduct
                 st.success(f"'{quantity}' of '{food_item}' has been removed.")
-                # Log the removal in consumed
+                # Report the ingredients in consumed
                 st.session_state["consumed"][selected_roommate].append({
                     "Product": food_item,
                     "Quantity": quantity,
@@ -63,7 +63,7 @@ def delete_product_from_inventory(food_item, quantity, unit, selected_roommate):
 def add_product_to_inventory(food_item, quantity, unit, price, selected_roommate):
     ensure_roommate_entries()
     purchase_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if food_item in st.session_state["inventory"]:
+    if food_item in st.session_state["inventory"]: # Checks if the ingredient is already in the inventory
         st.session_state["inventory"][food_item]["Quantity"] += quantity
         st.session_state["inventory"][food_item]["Price"] += price
     else:
@@ -91,7 +91,7 @@ def fridge_page():
         st.warning("No roommates available.")
         return
 
-    # Action selection: Add or Remove
+    # Selection: Add or remove item from inventory
     action = st.selectbox("Would you like to add or remove an item?", ["Add", "Remove"])
 
     if action == "Add":
@@ -100,8 +100,7 @@ def fridge_page():
         quantity = st.number_input("Quantity:", min_value=0.0)
         unit = st.selectbox("Unit:", ["Pieces", "Liters", "Grams"])
         price = st.number_input("Price (in CHF):", min_value=0.0)
-
-        # Button to add the food item
+        
         if st.button("Add item"):
             if food_item and quantity > 0 and price >= 0 and selected_roommate:
                 add_product_to_inventory(food_item, quantity, unit, price, selected_roommate)
@@ -109,13 +108,11 @@ def fridge_page():
                 st.warning("Please fill in all fields.")
     
     elif action == "Remove":
-        # Select the item to remove
         if st.session_state["inventory"]:
+            # Selection of the food and quantity to be removed
             food_item = st.selectbox("Select a food item to remove:", list(st.session_state["inventory"].keys()))
             quantity = st.number_input("Quantity to remove:", min_value=1.0, step=1.0)
             unit = st.session_state["inventory"][food_item]["Unit"]
-
-            # Button to remove the item
             if st.button("Remove item"):
                 delete_product_from_inventory(food_item, quantity, unit, selected_roommate)
         else:
@@ -124,8 +121,8 @@ def fridge_page():
     # Display current inventory
     if st.session_state["inventory"]:
         st.write("Current Inventory:")
-        inventory_df = pd.DataFrame.from_dict(st.session_state["inventory"], orient='index')
-        inventory_df = inventory_df.reset_index().rename(columns={'index': 'Food Item'})
+        inventory_df = pd.DataFrame.from_dict(st.session_state["inventory"], orient='index') # Creates a DataFrame and sets food items as row labels
+        inventory_df = inventory_df.reset_index().rename(columns={'index': 'Food Item'}) # Move food item to the second column and rename the column title
         st.table(inventory_df)
     else:
         st.write("The inventory is empty.")

@@ -2,7 +2,7 @@ import streamlit as st # Creates app interface
 import requests # To send http requests for API
 import random # Enables radom selection
 import pandas as pd # Library to handle data
-from datetime import datetime # To work with time and date
+from datetime import datetime 
 
 # API-Key and URL for Spoonacular
 API_KEY = 'a79012e4b3e1431e812d8b17bee3a4d7'
