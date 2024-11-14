@@ -5,7 +5,7 @@ if "flate_name" not in st.session_state:
     st.session_state["flate_name"] = ""
 if "roommates" not in st.session_state:
     st.session_state["roommates"] = []
-if "setup_finished" not in st.session_state:
+if "setup_finished" not in st.session_state: # use to get to the initial setup
     st.session_state["setup_finished"] = False
 
 # Function for app setup: Flat name
