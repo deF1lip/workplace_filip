@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import os
+from datetime import datetime
 from settings_page import setup_flat_name, setup_roommates, settingspage
 from fridge_page import fridge_page
 from barcode_page import barcode_page
@@ -67,6 +68,9 @@ def login_user(username, password):
         return False
 
     if username in users and users[username] == password:
+        st.session_state["logged_in"] = True
+        st.session_state["username"] = username
+        st.session_state.update(load_data(username))
         return True
     else:
         st.error("Incorrect username or password!")
@@ -182,6 +186,7 @@ if st.session_state["logged_in"]:
         st.session_state["logged_in"] = False
         st.session_state["username"] = None
         st.session_state["data"] = {}
+
 
 
     # Page display logic for the selected page
