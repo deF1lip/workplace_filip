@@ -135,7 +135,8 @@ def delete_account_option():
     with st.expander("Delete Account"):
         st.warning("This action is irreversible. Deleting your account will remove all your data.")
         if st.button("Delete Account"):
-            if st.confirm("Are you sure you want to delete your account?"):
+            confirm = st.checkbox("I confirm that I want to delete my account.")
+            if confirm:
                 delete_account()
 
 def delete_account():
