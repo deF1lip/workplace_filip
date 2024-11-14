@@ -17,7 +17,7 @@ def setup_flat_name():
             st.session_state["flate_name"] = flate_name
             st.success(f"You successfully saved your flate name: {flate_name}")
         else:
-            st.warning("Please enter a flat_name")
+            st.warning("Please enter a flat name")
 
 # Function for app setup: rooomates
 def setup_roommates():
