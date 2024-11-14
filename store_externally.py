@@ -138,6 +138,7 @@ def delete_account_option():
         if confirm:
             delete_account()
             st.session_state["logged_in"] = False
+            st.session_state.clear()
 
 def delete_account():
     username = st.session_state.get("username")
