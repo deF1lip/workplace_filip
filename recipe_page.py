@@ -1,14 +1,14 @@
-import streamlit as st
-import requests
-import random
-import pandas as pd
-from datetime import datetime
+import streamlit as st # Creates app interface
+import requests # To send http requests for API
+import random # Enables radom selection
+import pandas as pd # Library to handle data
+from datetime import datetime # To work with time and date
 
 # API-Key and URL for Spoonacular
 API_KEY = 'a79012e4b3e1431e812d8b17bee3a4d7'
 SPOONACULAR_URL = 'https://api.spoonacular.com/recipes/findByIngredients'
 
-# Initialization of session state variables
+# Initialization of session state variables and examples if nothing in session_state
 if "inventory" not in st.session_state:
     st.session_state["inventory"] = {
         "Tomato": {"Quantity": 5, "Unit": "gram", "Price": 3.0},
@@ -37,19 +37,20 @@ if "cooking_history" not in st.session_state:
 def get_recipes_from_inventory(selected_ingredients=None):
     ingredients = selected_ingredients if selected_ingredients else list(st.session_state["inventory"].keys())
     if not ingredients:
-        st.warning("Inventory is empty. Move your lazy ass to Migros!")
+        st.warning("Inventory is empty. Move your lazy ass to Migros!") # Warning message
         return [], {}
     
+    # Sets up parameters for API
     params = {
         "ingredients": ",".join(ingredients),
         "number": 100,
         "ranking": 2,
         "apiKey": API_KEY
     }
-    response = requests.get(SPOONACULAR_URL, params=params)
+    response = requests.get(SPOONACULAR_URL, params=params) # Get request for parameters
     
-    if response.status_code == 200:
-        recipes = response.json()
+    if response.status_code == 200: # Checks if response from API was successfull
+        recipes = response.json() # Processes JSON data ("our friend :)")
         recipe_titles = []
         recipe_links = {}
         displayed_recipes = 0
@@ -59,7 +60,7 @@ def get_recipes_from_inventory(selected_ingredients=None):
         for recipe in recipes:
             missed_ingredients = recipe.get("missedIngredientCount", 0)
             if missed_ingredients <= 2:  # Allow up to 2 missing ingredients
-                recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}"
+                recipe_link = f"https://spoonacular.com/recipes/{recipe['title'].replace(' ', '-')}-{recipe['id']}" # Builds a link
                 missed_ingredients_names = [item["name"] for item in recipe.get("missedIngredients", [])]
                 
                 # Store both link and missed ingredients for each recipe
@@ -70,20 +71,20 @@ def get_recipes_from_inventory(selected_ingredients=None):
                 }
                 displayed_recipes += 1
                 
-                if displayed_recipes >= 3:
+                if displayed_recipes >= 3: # Limits the display to 3 recipes
                     break
         return recipe_titles, recipe_links
     else:
         st.error("Error fetching recipes. Please check your API key and try again.")
         return [], {}
 
-# Rating function
+# Rating function - set up of interface and "star" rating
 def rate_recipe(recipe_title, recipe_link):
     st.subheader(f"Rate the recipe: {recipe_title}")
     st.write(f"**{recipe_title}**: ([View Recipe]({recipe_link}))")
     rating = st.slider("Rate with stars (1-5):", 1, 5, key=f"rating_{recipe_title}")
     
-    if st.button("Submit Rating"):
+    if st.button("Submit Rating"): # Checks if button is clicked
         user = st.session_state["selected_user"]
         if user:
             st.success(f"You have rated '{recipe_title}' with {rating} stars!")
@@ -101,7 +102,7 @@ def rate_recipe(recipe_title, recipe_link):
 def recipepage():
     st.title("Who wants to cook a recipe?")
     
-    if st.session_state["roommates"]:
+    if st.session_state["roommates"]: # Select one roommate
         selected_roommate = st.selectbox("Select the roommate:", st.session_state["roommates"])
         st.session_state["selected_user"] = selected_roommate  # Save selected user to session state
         
@@ -109,7 +110,7 @@ def recipepage():
         st.subheader("Recipe Search Options")
         search_mode = st.radio("Choose a search mode:", ("Automatic (use all inventory)", "Custom (choose ingredients)"))
         
-        # Recipe selection form
+        # Recipe selection form - custom or inventory
         with st.form("recipe_form"):
             if search_mode == "Custom (choose ingredients)":
                 selected_ingredients = st.multiselect("Select ingredients from inventory:", st.session_state["inventory"].keys())
